@@ -1,0 +1,27 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.7'
+}
+
+version '1.0'
+
+sourceCompatibility = 11
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // https://mvnrepository.com/artifact/com.opencsv/opencsv
+    compile group: 'com.opencsv', name: 'opencsv', version: '5.2'
+}
+
+javafx {
+    modules = [ 'javafx.controls', 'javafx.graphics']
+    version = '11.0.2'
+}
+
+applicationDefaultJvmArgs = ['-Djdk.gtk.version=2']
+
+mainClassName = 'Main'
