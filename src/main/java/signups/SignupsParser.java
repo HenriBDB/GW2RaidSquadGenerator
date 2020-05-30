@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.stream.IntStream;
 
 /**
  * Uses OpenCSV to parse players in a sign-up sheet.
@@ -13,6 +14,9 @@ import java.util.ArrayList;
  * @version 1.0
  */
 public class SignupsParser {
+
+    private static final String[] columns = {"gw2 account", "discord account", "tier", "comments", "tank", "druid", "offheal", "chrono", "alacrigade", "quickbrand", "banners", "dps"};
+    private int[] columnIndices = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 
     public ArrayList<Player> parse(String fileLoc) {
         return parse(new File(fileLoc));
@@ -31,7 +35,9 @@ public class SignupsParser {
             String [] line;
             Player player;
             // Ignore first line
-            parser.readNext();
+            line = parser.readNext();
+            // Empty player list = invalid file.
+            if (!getColumnIndices(line)) return players;
             while ((line = parser.readNext()) != null)
             {
                 if ((player = parsePlayer(line)) != null) players.add(player);
@@ -54,27 +60,47 @@ public class SignupsParser {
      * @return The Player object.
      */
     private Player parsePlayer(String[] playerLine) {
-        String gw2Account = playerLine[1];
-        String discordName = playerLine[2];
-        String tier = playerLine[3];
-        String comments = playerLine[4];
+        String gw2Account = playerLine[columnIndices[0]];
+        String discordName = playerLine[columnIndices[1]];
+        String tier = playerLine[columnIndices[2]];
+        String comments = playerLine[columnIndices[3]];
         int roles = 0;
-        if (!playerLine[5].isBlank()) roles += 1024; // cTank
-        if (!playerLine[6].isBlank()) roles += 64; // Druid
-        if (!playerLine[7].isBlank()) roles += 8; // Offheal
-        if (!playerLine[8].isBlank()) roles += 512; // cSupp
-        if (playerLine[9].toLowerCase().contains("dps")) roles += 128; // Alacrigade
-        if (playerLine[9].toLowerCase().contains("healer")) roles += 16; // Heal Rene
-        if (playerLine[10].toLowerCase().contains("dps")) roles += 256; // qFB
-        if (playerLine[10].toLowerCase().contains("healer")) roles += 32; // hFB
-        if (!playerLine[11].isBlank()) roles += 7; // BS, add dps roles too to allow bs to play dps.
-        else if (!playerLine[12].isBlank()) { // dps
-            if (playerLine[12].toLowerCase().contains("power")) roles += 2; // pdps
-            if (playerLine[12].toLowerCase().contains("condition")) roles += 1; // cdps
+        if (!playerLine[columnIndices[4]].isBlank()) roles += 1024; // cTank
+        if (!playerLine[columnIndices[5]].isBlank()) roles += 64; // Druid
+        if (!playerLine[columnIndices[6]].isBlank()) roles += 8; // Offheal
+        if (!playerLine[columnIndices[7]].isBlank()) roles += 512; // cSupp
+        if (playerLine[columnIndices[8]].toLowerCase().contains("dps")) roles += 128; // Alacrigade
+        if (playerLine[columnIndices[8]].toLowerCase().contains("healer")) roles += 16; // Heal Rene
+        if (playerLine[columnIndices[9]].toLowerCase().contains("dps")) roles += 256; // qFB
+        if (playerLine[columnIndices[9]].toLowerCase().contains("healer")) roles += 32; // hFB
+        if (!playerLine[columnIndices[10]].isBlank()) roles += 7; // BS, add dps roles too to allow bs to play dps.
+        else if (!playerLine[columnIndices[11]].isBlank()) { // dps
+            if (playerLine[columnIndices[11]].toLowerCase().contains("power")) roles += 2; // pdps
+            if (playerLine[columnIndices[11]].toLowerCase().contains("condition")) roles += 1; // cdps
         }
         if (roles == 0) return null;
         return new Player(gw2Account, discordName, tier, comments, roles);
     }
 
+    private boolean getColumnIndices(String[] headerLine) {
+        // {"gw2 account", "discord account", "tier", "comments", "tank", "druid", "offheal", "chrono", "alacrigade", "quickbrand", "banners", "dps"}
+        for (int i = 0; i < headerLine.length; ++i) {
+            String header = headerLine[i].toLowerCase();
+            if (header.contains("gw2 account")) columnIndices[0] = i;
+            else if (header.contains("discord account")) columnIndices[1] = i;
+            else if (header.contains("tier")) columnIndices[2] = i;
+            else if (header.contains("comments")) columnIndices[3] = i;
+            else if (header.contains("tank")) columnIndices[4] = i;
+            else if (header.contains("druid")) columnIndices[5] = i;
+            else if (header.contains("offheal")) columnIndices[6] = i;
+            else if (header.contains("chrono")) columnIndices[7] = i;
+            else if (header.contains("alacrigade")) columnIndices[8] = i;
+            else if (header.contains("quickbrand")) columnIndices[9] = i;
+            else if (header.contains("banners")) columnIndices[10] = i;
+            else if (header.contains("dps")) columnIndices[11] = i;
+        }
+        // Valid file, no column missing.
+        return IntStream.of(columnIndices).noneMatch(e -> e == -1);
+    }
 
 }
