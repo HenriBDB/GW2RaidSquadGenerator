@@ -15,8 +15,8 @@ import java.util.stream.IntStream;
  */
 public class SignupsParser {
 
-    private static final String[] columns = {"gw2 account", "discord account", "tier", "comments", "tank", "druid", "offheal", "chrono", "alacrigade", "quickbrand", "banners", "dps"};
-    private int[] columnIndices = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+    // private static final String[] columns = {"gw2 account", "discord account", "tier", "comments", "tank", "druid", "offheal", "chrono", "alacrigade", "quickbrand", "banners", "dps"};
+    private final int[] columnIndices = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 
     public ArrayList<Player> parse(String fileLoc) {
         return parse(new File(fileLoc));
