@@ -6,6 +6,11 @@ import javafx.scene.control.ListView;
 import javafx.scene.input.TransferMode;
 import signups.Player;
 
+/**
+ * Custom ListView to display and store a list of players.
+ * @author Eren Bole.8720
+ * @version 1.0
+ */
 public class PlayerListView extends ListView<Player> {
 
     public PlayerListView() {
@@ -19,6 +24,9 @@ public class PlayerListView extends ListView<Player> {
         setDraggingFeatures();
     }
 
+    /**
+     * Allow dragging of PlayerListCells into this ListView.
+     */
     private void setDraggingFeatures() {
         setOnDragOver(event -> {
             if (event.getGestureSource() instanceof PlayerListCell) {

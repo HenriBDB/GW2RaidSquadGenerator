@@ -9,6 +9,11 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import signups.Player;
 
+/**
+ * Custom ListView cell that stores and displays a player.
+ * @author Eren Bole.8720
+ * @version 1.0
+ */
 public class PlayerListCell extends ListCell<Player> {
 
     Player player;
@@ -26,9 +31,13 @@ public class PlayerListCell extends ListCell<Player> {
         if (empty) {
             setText(null);
             setGraphic(null);
+            setStyle("-fx-background-color: white; -fx-text-fill: black;");
         } else {
             this.player = player;
             setText(player.toString());
+            if (player.getTier().toLowerCase().equals("commander")) setStyle("-fx-background-color: #4a1c82; -fx-text-fill: white;");
+            else if (player.getTier().toLowerCase().equals("aide")) setStyle("-fx-background-color: #ba7b28; -fx-text-fill: white;");
+            else setStyle("-fx-background-color: white; -fx-text-fill: black;");
         }
     }
 
