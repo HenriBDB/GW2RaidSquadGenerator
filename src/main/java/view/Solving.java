@@ -43,7 +43,7 @@ public class Solving extends VBox implements AppContent{
      * Start or interrupt the search algorithm
      * depending on whether it is started or not.
      */
-    private void toggleSolving() {
+    public void toggleSolving() {
         if (solver != null) {
             solver.cancel();
             solver = null;
