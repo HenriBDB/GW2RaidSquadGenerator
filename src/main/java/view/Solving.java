@@ -1,13 +1,13 @@
 package view;
 
-import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import problem.SquadPlan;
 import search.GreedyBestFirstSearch;
-import search.SolveSquadPlan;
+import search.SolveSquadPlanTask;
 
 /**
  * Transition Screen that contains a squad generation button
@@ -19,7 +19,7 @@ public class Solving extends VBox implements AppContent{
 
     Label msg = new Label();
     Button mainBtn;
-    Thread solver;
+    Task<SquadPlan> solver;
 
     public Solving() {
         super(10);
@@ -45,7 +45,7 @@ public class Solving extends VBox implements AppContent{
      */
     private void toggleSolving() {
         if (solver != null) {
-            solver.interrupt();
+            solver.cancel();
             solver = null;
             mainBtn.setText("Retry Generating Squads");
             msg.setText("Squad Generation has been halted.");
@@ -62,10 +62,10 @@ public class Solving extends VBox implements AppContent{
      */
     private void startSolving() {
         App parent = (App) getParent();
-        solver = new Thread(() -> this.displaySquads(
-                SolveSquadPlan.solve(parent.selectedCommanderList, parent.traineeList, new GreedyBestFirstSearch())
-        ));
-        Platform.runLater(solver);
+        solver = new SolveSquadPlanTask(parent.selectedCommanderList, parent.traineeList, new GreedyBestFirstSearch());
+        solver.setOnSucceeded(t -> displaySquads(solver.getValue()));
+        Thread thread = new Thread(solver);
+        thread.start();
     }
 
     /**

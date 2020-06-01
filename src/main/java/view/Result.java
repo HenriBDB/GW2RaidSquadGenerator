@@ -9,7 +9,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import problem.SquadPlan;
 import signups.Player;
