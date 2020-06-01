@@ -1,11 +1,11 @@
 package view;
 
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
+import javafx.scene.control.Separator;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -41,11 +41,23 @@ public class Result extends BorderPane implements AppContent{
 
             setPadding(new Insets(10));
 
-            HBox content = new HBox(10);
-            content.getChildren().add(makeAssignedPlayerLists());
+            VBox content = new VBox(10);
+            content.getChildren().addAll(makeAssignedPlayerLists(), new Separator(), makeSquadViews());
             content.setAlignment(Pos.CENTER);
             setCenter(content);
         }
+    }
+
+    private HBox makeSquadViews() {
+        HBox squads = new HBox(10);
+        for (int i = 0; i < solution.getNumSquads(); ++i) {
+            VBox squad = new VBox(10);
+            squad.getChildren().addAll(new Label("Squad " + (i+1)), new PlayerListView());
+            squad.setAlignment(Pos.TOP_CENTER);
+            squads.getChildren().add(squad);
+        }
+        squads.setAlignment(Pos.CENTER);
+        return squads;
     }
 
     /**
@@ -58,19 +70,19 @@ public class Result extends BorderPane implements AppContent{
             players.get(p[0]).setAssignedRole(p[1]);
             return players.get(p[0]);
         }).collect(Collectors.toCollection(ArrayList::new));
-        ObservableList<Player> commanders = FXCollections.observableList(players.stream()
+        PlayerListView commanders = new PlayerListView(FXCollections.observableList(players.stream()
                 .filter(p -> p.getTier().toLowerCase().contains("commander"))
-                .collect(Collectors.toList()));
-        ObservableList<Player> aides = FXCollections.observableList(players.stream()
+                .collect(Collectors.toList())));
+        PlayerListView aides = new PlayerListView(FXCollections.observableList(players.stream()
                 .filter(p -> p.getTier().toLowerCase().contains("aide"))
-                .collect(Collectors.toList()));
-        ObservableList<Player> trainees = FXCollections.observableList(players.stream()
+                .collect(Collectors.toList())));
+        PlayerListView trainees = new PlayerListView(FXCollections.observableList(players.stream()
                 .filter(p -> p.getTier().matches("[0123]") )
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList())));
         HBox assignedPlayerList = new HBox(10);
-        VBox c = new VBox(10); c.getChildren().addAll(new Label("Commanders: "), new ListView<>(commanders));
-        VBox a = new VBox(10); a.getChildren().addAll(new Label("Aides: "), new ListView<>(aides));
-        VBox t = new VBox(10); t.getChildren().addAll(new Label("Trainees: "), new ListView<>(trainees));
+        VBox c = new VBox(10); c.getChildren().addAll(new Label("Commanders: "), commanders);
+        VBox a = new VBox(10); a.getChildren().addAll(new Label("Aides: "), aides);
+        VBox t = new VBox(10); t.getChildren().addAll(new Label("Trainees: "), trainees);
         assignedPlayerList.getChildren().addAll(c, a, t);
         assignedPlayerList.setAlignment(Pos.CENTER);
         return assignedPlayerList;
