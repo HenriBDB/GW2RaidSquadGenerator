@@ -15,7 +15,7 @@ The CSV files must contain the following provided columns but cant contain any o
 
 ### Commanders and Aides:
 
-|GW2 Account|Discord Account|Role|Additional comments:|Tank|Healer - Druid|Healer - Offheal|Boons - Chrono|Boons - Alacrigade|Boons - Quickbrand|Banners|DPS|
+|GW2 Account|Discord Account|Tier|Additional comments:|Tank|Healer - Druid|Healer - Offheal|Boons - Chrono|Boons - Alacrigade|Boons - Quickbrand|Banners|DPS|
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 |Commander1||Commander||Tank|||chrono||||Power|
 |Aide1||Aide|||Druid||||DPS, Healer||Condition|

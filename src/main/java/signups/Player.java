@@ -47,7 +47,7 @@ public class Player {
     }
 
     public void setAssignedRole(int role) {
-        this.assignedRole = getRole(role);
+        this.assignedRole = roleValToName(role);
     }
 
     public String getAssignedRole() {
@@ -59,7 +59,7 @@ public class Player {
      * @param role The role value.
      * @return The name of the role.
      */
-    private String getRole(int role) {
+    private String roleValToName(int role) {
         switch (role) {
             case 1:
             case 2:

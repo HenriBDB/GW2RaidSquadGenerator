@@ -1,5 +1,6 @@
 package search;
 
+import javafx.concurrent.Task;
 import problem.SquadPlan;
 import signups.Player;
 
@@ -13,16 +14,22 @@ import java.util.stream.IntStream;
  * @author Eren Bole.8720
  * @version 1.0
  */
-public class SolveSquadPlan {
+public class SolveSquadPlanTask extends Task<SquadPlan> {
+
+    private final ArrayList<Player> commanders, trainees;
+    private final SearchAlgorithm searchAlgorithm;
+
+    public SolveSquadPlanTask(ArrayList<Player> commanders, ArrayList<Player> trainees, SearchAlgorithm searchAlgorithm) {
+        this.commanders = commanders;
+        this.trainees = trainees;
+        this.searchAlgorithm = searchAlgorithm;
+    }
 
     /**
      * Generate Squads given a list of trainees and trainers and a SearchAlgorithm.
-     * @param commanders List of commanders to use.
-     * @param trainees List of trainees to use.
-     * @param searchAlgorithm Search algorithm to use.
      * @return The solution state if any.
      */
-    public static SquadPlan solve(ArrayList<Player> commanders, ArrayList<Player> trainees, SearchAlgorithm searchAlgorithm) {
+    protected SquadPlan call() {
 
         ArrayList<Integer[]> traineeRoles = IntStream.range(0, trainees.size())
                 .mapToObj(i -> new Integer[]{i, trainees.get(i).getRoles()})
@@ -37,6 +44,7 @@ public class SolveSquadPlan {
         SquadPlan solution = null;
 
         while (solution == null && numSquads > 0) {
+            if (isCancelled()) return null;
             System.out.println("Solving for " + numSquads + " squads...");
             long startTime = System.currentTimeMillis();
             solution = (SquadPlan) searchAlgorithm.solve();

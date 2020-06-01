@@ -33,7 +33,7 @@ public class Main extends Application {
         App root = new App();
         root.setCenter(new PlayerListSelect());
 
-        Scene scene = new Scene(root, -1, -1, true);
+        Scene scene = new Scene(root, 1200, 800, true);
 
         primaryStage.setScene(scene);
         primaryStage.setTitle(APP_NAME);
