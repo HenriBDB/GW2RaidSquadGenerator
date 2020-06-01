@@ -1,5 +1,6 @@
 package view;
 
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -7,8 +8,6 @@ import javafx.scene.layout.VBox;
 import problem.SquadPlan;
 import search.GreedyBestFirstSearch;
 import search.SolveSquadPlan;
-
-import java.util.concurrent.Semaphore;
 
 /**
  * Transition Screen that contains a squad generation button
@@ -21,7 +20,6 @@ public class Solving extends VBox implements AppContent{
     Label msg = new Label();
     Button mainBtn;
     Thread solver;
-    SquadPlan solution;
 
     public Solving() {
         super(10);
@@ -63,35 +61,22 @@ public class Solving extends VBox implements AppContent{
      * and start the thread.
      */
     private void startSolving() {
-        Semaphore solutionFound = new Semaphore(0);
         App parent = (App) getParent();
-        solver = new Thread(() -> {
-            solution = SolveSquadPlan.solve(parent.selectedCommanderList, parent.traineeList, new GreedyBestFirstSearch());
-
-            if (solution == null) {
-                msg.setText("Failed to generate squads.");
-                mainBtn.setText("Squad Generation Failed");
-                mainBtn.setDisable(true);
-            }
-            else solutionFound.release();
-        });
-        solver.start();
-        displaySquads(solutionFound);
+        solver = new Thread(() -> this.displaySquads(
+                SolveSquadPlan.solve(parent.selectedCommanderList, parent.traineeList, new GreedyBestFirstSearch())
+        ));
+        Platform.runLater(solver);
     }
 
     /**
      * Once the solution is found, display the solution on a Result screen.
-     * @param available the Semaphore released by the thread generating squads.
+     * If null, display failure message.
      */
-    private void displaySquads(Semaphore available) {
-        while (solution == null) {
-            try {
-                // Will Block thread until solution is available.
-                available.acquire();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        ((App) getParent()).setAndInitCenter(new Result(solution));
+    private void displaySquads(SquadPlan solution) {
+        if (solution == null) {
+            msg.setText("Failed to generate squads.");
+            mainBtn.setText("Squad Generation Failed");
+            mainBtn.setDisable(true);
+        } else ((App) getParent()).setAndInitCenter(new Result(solution));
     }
 }
