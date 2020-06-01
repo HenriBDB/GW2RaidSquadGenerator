@@ -63,6 +63,11 @@ public class PlayerListSelect extends VBox {
         parent.setAndInitCenter(new CommanderSelect());
     }
 
+    /**
+     * Update next button after uploading CSV.
+     * If both trainees and commanders have been uploaded,
+     * allow user to go to next page by enabling next button.
+     */
     private void update() {
         next.setDisable(commanderList == null || traineeList == null);
     }
