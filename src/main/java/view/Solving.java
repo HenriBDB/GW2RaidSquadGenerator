@@ -30,9 +30,9 @@ public class Solving extends VBox implements AppContent{
      */
     public void init() {
         App parent = (App) getParent();
-        if (parent.selectedCommanderList != null && parent.traineeList != null) {
-            setAlignment(Pos.CENTER);
+        if (parent.getSelectedCommanderList() != null && parent.getTraineeList() != null) {
 
+            setAlignment(Pos.CENTER);
             mainBtn = new Button("Generate Squads");
             mainBtn.setOnAction(e -> toggleSolving());
             getChildren().addAll(mainBtn, msg);
@@ -62,9 +62,16 @@ public class Solving extends VBox implements AppContent{
      */
     private void startSolving() {
         App parent = (App) getParent();
-        solver = new SolveSquadPlanTask(parent.selectedCommanderList, parent.traineeList, new GreedyBestFirstSearch());
+        solver = new SolveSquadPlanTask(parent.getSelectedCommanderList(), parent.getTraineeList(), new GreedyBestFirstSearch());
         solver.setOnSucceeded(t -> displaySquads(solver.getValue()));
         Thread thread = new Thread(solver);
+        solver.setOnCancelled(e -> {
+            try {
+                thread.join();
+            } catch (InterruptedException interruptedException) {
+                interruptedException.printStackTrace();
+            }
+        });
         thread.start();
     }
 
@@ -77,6 +84,10 @@ public class Solving extends VBox implements AppContent{
             msg.setText("Failed to generate squads.");
             mainBtn.setText("Squad Generation Failed");
             mainBtn.setDisable(true);
-        } else ((App) getParent()).setAndInitCenter(new Result(solution));
+        } else {
+            App parent = (App) getParent();
+            parent.setSolution(solution);
+            parent.setAndInitCenter(new Result());
+        }
     }
 }

@@ -27,7 +27,7 @@ public class CommanderSelect extends BorderPane implements AppContent{
      */
     public void init() {
         App parent = (App) getParent();
-        if (parent.commanderList != null && parent.traineeList != null) {
+        if (parent.getCommanderList() != null && parent.getTraineeList() != null) {
             populateCommieList();
             commanderCheckboxes.setAlignment(Pos.CENTER_LEFT);
             ScrollPane commieListPane = new ScrollPane();
@@ -59,11 +59,11 @@ public class CommanderSelect extends BorderPane implements AppContent{
      */
     private void confirmChoices() {
         App parent = (App) getParent();
-        parent.selectedCommanderList = commanderCheckboxes.getChildren()
+        parent.setSelectedCommanderList(commanderCheckboxes.getChildren()
                 .stream().filter(e -> e instanceof PlayerCheckBox)
                 .filter(e -> ((PlayerCheckBox) e).isSelected())
                 .map(e -> ((PlayerCheckBox) e).getPlayer())
-                .collect(Collectors.toCollection(ArrayList::new));
+                .collect(Collectors.toCollection(ArrayList::new)));
         parent.setAndInitCenter(new Solving());
     }
 
@@ -76,25 +76,33 @@ public class CommanderSelect extends BorderPane implements AppContent{
         commanderCheckboxes.getChildren().clear();
         // Add commanders:
         commanderCheckboxes.getChildren().add(new Label("Select Commanders: "));
-        commanderCheckboxes.getChildren().addAll(parent.commanderList.stream()
+        commanderCheckboxes.getChildren().addAll(parent.getCommanderList().stream()
                 .filter(c -> c.getTier().toLowerCase().contains("commander"))
-                .map(c -> {
-                    PlayerCheckBox pc = new PlayerCheckBox(c);
-                    pc.setOnAction(this::playerCheckboxOnClick);
-                    return pc;
-                })
-                .collect(Collectors.toList()));
+                .map(this::makePlayerCheckBox).collect(Collectors.toList()));
         commanderCheckboxes.getChildren().add(new Region());
         // Add aides:
         commanderCheckboxes.getChildren().add(new Label("Select Aides: "));
-        commanderCheckboxes.getChildren().addAll(parent.commanderList.stream()
+        commanderCheckboxes.getChildren().addAll(parent.getCommanderList().stream()
                 .filter(c -> c.getTier().toLowerCase().contains("aide"))
-                .map(c -> {
-                    PlayerCheckBox pc = new PlayerCheckBox(c);
-                    pc.setOnAction(this::playerCheckboxOnClick);
-                    return pc;
-                })
-                .collect(Collectors.toList()));
+                .map(this::makePlayerCheckBox).collect(Collectors.toList()));
+    }
+
+    /**
+     * Create a checkbox and preselect it if it is present in the
+     * parent's already selected commander list.
+     * @param player The player to associate the checkbox with.
+     * @return The checkbox node.
+     */
+    private PlayerCheckBox makePlayerCheckBox(Player player) {
+        App parent = (App) getParent();
+        boolean alreadySelected = (parent.getSelectedCommanderList() != null);
+        PlayerCheckBox pc = new PlayerCheckBox(player);
+        pc.setOnAction(this::playerCheckboxOnClick);
+        if (alreadySelected && parent.getSelectedCommanderList().contains(player)) {
+            pc.setSelected(true);
+            chooseCommander(player, true);
+        }
+        return pc;
     }
 
     /**
@@ -104,14 +112,18 @@ public class CommanderSelect extends BorderPane implements AppContent{
      */
     private void playerCheckboxOnClick(Event e) {
         PlayerCheckBox pc = (PlayerCheckBox) e.getSource();
-        boolean isCommander = pc.getPlayer().getTier().toLowerCase().contains("commander");
-        if (pc.isSelected()) {
-            if (isCommander) selectedCommies.getItems().add(pc.getPlayer().getGw2Account());
-            else selectedAides.getItems().add(pc.getPlayer().getGw2Account());
+        chooseCommander(pc.getPlayer(), pc.isSelected());
+    }
+
+    private void chooseCommander(Player player, boolean choose) {
+        boolean isCommander = player.getTier().toLowerCase().contains("commander");
+        if (choose) {
+            if (isCommander) selectedCommies.getItems().add(player.getGw2Account());
+            else selectedAides.getItems().add(player.getGw2Account());
         }
         else {
-            if (isCommander) selectedCommies.getItems().remove(pc.getPlayer().getGw2Account());
-            else selectedAides.getItems().remove(pc.getPlayer().getGw2Account());
+            if (isCommander) selectedCommies.getItems().remove(player.getGw2Account());
+            else selectedAides.getItems().remove(player.getGw2Account());
         }
     }
 

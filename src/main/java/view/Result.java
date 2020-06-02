@@ -40,13 +40,16 @@ public class Result extends BorderPane implements AppContent{
         this.solution = solution;
     }
 
+    public Result() {}
+
     /**
      * Initialise the view with data from the parent.
      */
     public void init() {
         App parent = (App) getParent();
-        if (parent.traineeList != null && parent.selectedCommanderList != null) {
-            this.players = Stream.of(parent.traineeList, parent.selectedCommanderList).flatMap(Collection::stream).collect(Collectors.toCollection(ArrayList::new));
+        if (parent.getTraineeList() != null && parent.getSelectedCommanderList() != null && parent.getSolution() != null) {
+            this.solution = parent.getSolution();
+            this.players = Stream.of(parent.getTraineeList(), parent.getSelectedCommanderList()).flatMap(Collection::stream).collect(Collectors.toCollection(ArrayList::new));
 
             setPadding(new Insets(10));
 
