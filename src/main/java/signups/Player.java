@@ -22,6 +22,11 @@ public class Player {
         this.roles = roles;
     }
 
+    public Player(Player player) {
+        this(player.getGw2Account(), player.getDiscordName(), player.getTier(), player.getComments(), player.getRoles());
+        this.assignedRole = player.getAssignedRole();
+    }
+
     public String toString() {
         return String.format("%s - %s", gw2Account, assignedRole);
     }

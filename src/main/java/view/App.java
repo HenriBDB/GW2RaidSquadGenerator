@@ -6,6 +6,7 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import problem.SquadPlan;
+import signups.Commander;
 import signups.Player;
 
 import java.util.ArrayList;
@@ -18,7 +19,8 @@ import java.util.ArrayList;
  */
 public class App extends BorderPane {
 
-    private ArrayList<Player> commanderList, selectedCommanderList, traineeList;
+    private ArrayList<Player> traineeList, selectedCommanderList;
+    private ArrayList<Commander> commanderList;
     private SquadPlan solution;
     private Button home, commanderSelect, solvingScreen, resultScreen;
 
@@ -27,11 +29,11 @@ public class App extends BorderPane {
         updateMenubar();
     }
 
-    public ArrayList<Player> getCommanderList() {
+    public ArrayList<Commander> getCommanderList() {
         return commanderList;
     }
 
-    public void setCommanderList(ArrayList<Player> commanderList) {
+    public void setCommanderList(ArrayList<Commander> commanderList) {
         this.commanderList = commanderList;
         updateMenubar();
     }

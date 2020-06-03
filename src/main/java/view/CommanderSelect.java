@@ -35,8 +35,9 @@ public class CommanderSelect extends BorderPane implements AppContent{
             commieListPane.setPadding(new Insets(0, 10, 0, 10));
 
             StackPane content = new StackPane();
-            commanderTable = new CommanderTable(FXCollections.observableList(parent.getCommanderList()
-                    .stream().map(Commander::new).collect(Collectors.toList())));
+            if (parent.getCommanderList() != null) {
+                commanderTable = new CommanderTable(FXCollections.observableList(parent.getCommanderList()));
+            }
             content.getChildren().addAll(commanderTable);
             content.setPadding(new Insets(10));
 
@@ -59,15 +60,18 @@ public class CommanderSelect extends BorderPane implements AppContent{
      */
     private void confirmChoices() {
         App parent = (App) getParent();
-        ArrayList<Player> selectedCommanders = commanderTable.getItems().stream()
-                .filter(p -> p.getChosenRoles().get() > 0)
-                .peek(p -> p.setRoles(p.getChosenRoles().get()))
-                .collect(Collectors.toCollection(ArrayList::new));
-        if (selectedCommanders.isEmpty()) {
-            confirmMsg.setText("Please select at least one commander.");
-        } else {
+        if (commanderTable.getItems().stream().anyMatch(p -> p.getChosenRoles().get() != 0)) {
+            ArrayList<Player> selectedCommanders = commanderTable.getItems()
+                    .stream().filter(p -> p.getChosenRoles().get() != 0)
+                    .map(c -> {
+                        Player p = new Player(c);
+                        p.setRoles(c.getChosenRoles().get());
+                        return p;
+                    }).collect(Collectors.toCollection(ArrayList::new));
             parent.setSelectedCommanderList(selectedCommanders);
             parent.setAndInitCenter(new Solving());
+        } else {
+            confirmMsg.setText("Please select at least one commander.");
         }
     }
 }

@@ -7,6 +7,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import signups.Commander;
 import signups.Player;
 import signups.SignupsParser;
 
@@ -32,7 +33,8 @@ public class PlayerListSelect extends VBox implements AppContent {
     Button uploadTrainees = new Button("Upload Trainee List");
     Button next = new Button("Save Changes");
 
-    ArrayList<Player> commanderList, traineeList;
+    ArrayList<Player> traineeList;
+    ArrayList<Commander> commanderList;
 
     public PlayerListSelect() {
         setAlignment(Pos.CENTER);
@@ -56,7 +58,7 @@ public class PlayerListSelect extends VBox implements AppContent {
      * Sets the list of commanders and provides user feedback on the validation.
      * @param commanderList The list of commanders to set.
      */
-    public void setCommanderList(ArrayList<Player> commanderList) {
+    public void setCommanderList(ArrayList<Commander> commanderList) {
         if (commanderList == null || commanderList.isEmpty()) {
             this.commanderList = null;
             uploadCommMsg.setText("Invalid file.");
@@ -148,10 +150,12 @@ public class PlayerListSelect extends VBox implements AppContent {
     private void uploadCommanderCSV() {
         ArrayList<Player> commanderList = uploadPlayerCSV();
         // Keep only commanders and aides.
-        if (commanderList != null) commanderList = commanderList.stream()
-                .filter(p -> p.getTier().toLowerCase().equals("commander") ||
-                p.getTier().toLowerCase().equals("aide")).collect(Collectors.toCollection(ArrayList::new));
-        setCommanderList(commanderList);
+        if (commanderList != null) {
+            setCommanderList(commanderList.stream()
+                    .filter(p -> p.getTier().toLowerCase().equals("commander") ||
+                            p.getTier().toLowerCase().equals("aide"))
+                    .map(Commander::new).collect(Collectors.toCollection(ArrayList::new)));
+        } else setCommanderList(null);
         update();
     }
 

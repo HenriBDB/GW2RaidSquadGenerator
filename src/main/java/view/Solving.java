@@ -8,6 +8,10 @@ import javafx.scene.layout.VBox;
 import problem.SquadPlan;
 import search.GreedyBestFirstSearch;
 import search.SolveSquadPlanTask;
+import signups.Player;
+
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  * Transition Screen that contains a squad generation button
@@ -62,7 +66,8 @@ public class Solving extends VBox implements AppContent{
      */
     private void startSolving() {
         App parent = (App) getParent();
-        solver = new SolveSquadPlanTask(parent.getSelectedCommanderList(), parent.getTraineeList(), new GreedyBestFirstSearch());
+        solver = new SolveSquadPlanTask(parent.getSelectedCommanderList(),
+                parent.getTraineeList(), new GreedyBestFirstSearch());
         solver.setOnSucceeded(t -> displaySquads(solver.getValue()));
         Thread thread = new Thread(solver);
         thread.start();
