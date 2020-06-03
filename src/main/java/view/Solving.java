@@ -65,13 +65,6 @@ public class Solving extends VBox implements AppContent{
         solver = new SolveSquadPlanTask(parent.getSelectedCommanderList(), parent.getTraineeList(), new GreedyBestFirstSearch());
         solver.setOnSucceeded(t -> displaySquads(solver.getValue()));
         Thread thread = new Thread(solver);
-        solver.setOnCancelled(e -> {
-            try {
-                thread.join();
-            } catch (InterruptedException interruptedException) {
-                interruptedException.printStackTrace();
-            }
-        });
         thread.start();
     }
 
