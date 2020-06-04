@@ -19,7 +19,7 @@ import java.util.ArrayList;
  */
 public class App extends BorderPane {
 
-    private ArrayList<Player> traineeList, selectedCommanderList;
+    private ArrayList<Player> traineeList, selectedCommanderList, selectedTraineeList;
     private ArrayList<Commander> commanderList;
     private SquadPlan solution;
     private Button home, commanderSelect, solvingScreen, resultScreen;
@@ -54,6 +54,14 @@ public class App extends BorderPane {
     public void setTraineeList(ArrayList<Player> traineeList) {
         this.traineeList = traineeList;
         updateMenubar();
+    }
+
+    public ArrayList<Player> getSelectedTraineeList() {
+        return selectedTraineeList;
+    }
+
+    public void setSelectedTraineeList(ArrayList<Player> selectedTraineeList) {
+        this.selectedTraineeList = selectedTraineeList;
     }
 
     public SquadPlan getSolution() {

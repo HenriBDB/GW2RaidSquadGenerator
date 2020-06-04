@@ -47,9 +47,10 @@ public class Result extends BorderPane implements AppContent{
      */
     public void init() {
         App parent = (App) getParent();
-        if (parent.getTraineeList() != null && parent.getSelectedCommanderList() != null && parent.getSolution() != null) {
+        if (parent.getSelectedTraineeList() != null && parent.getSelectedCommanderList() != null && parent.getSolution() != null) {
             this.solution = parent.getSolution();
-            this.players = Stream.of(parent.getTraineeList(), parent.getSelectedCommanderList()).flatMap(Collection::stream).collect(Collectors.toCollection(ArrayList::new));
+            this.players = Stream.of(parent.getSelectedTraineeList(), parent.getSelectedCommanderList())
+                    .flatMap(Collection::stream).collect(Collectors.toCollection(ArrayList::new));
 
             setPadding(new Insets(10));
 
