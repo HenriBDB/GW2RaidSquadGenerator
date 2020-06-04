@@ -53,7 +53,7 @@ public class SolveSquadPlanTask extends Task<SquadPlan> {
             if (solution == null) {
                 System.out.println("Failed in: " + (endTime-startTime) / 1000.0 + " seconds.");
                 --numSquads;
-                searchAlgorithm.init(new SquadPlan(traineeRoles, new ArrayList<>(), numSquads));
+                searchAlgorithm.init(new SquadPlan(traineeRoles, trainerRoles, numSquads));
             }
             else {
                 System.out.println("Successful in: " + (endTime-startTime) / 1000.0 + " seconds.");

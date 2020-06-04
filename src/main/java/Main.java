@@ -31,7 +31,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
 
         App root = new App();
-        root.setCenter(new PlayerListSelect());
+        root.setAndInitCenter(new PlayerListSelect());
 
         Scene scene = new Scene(root, 1200, 800, true);
 

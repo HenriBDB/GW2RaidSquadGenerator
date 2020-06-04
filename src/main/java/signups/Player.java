@@ -11,7 +11,7 @@ public class Player {
     private final String discordName;
     private final String tier;
     private final String comments;
-    private final int roles;
+    private int roles;
     private String assignedRole;
 
     public Player(String gw2Account, String discordName, String tier, String comments, int roles) {
@@ -20,6 +20,11 @@ public class Player {
         this.tier = tier;
         this.comments = comments;
         this.roles = roles;
+    }
+
+    public Player(Player player) {
+        this(player.getGw2Account(), player.getDiscordName(), player.getTier(), player.getComments(), player.getRoles());
+        this.assignedRole = player.getAssignedRole();
     }
 
     public String toString() {
@@ -44,6 +49,10 @@ public class Player {
 
     public int getRoles() {
         return roles;
+    }
+
+    public void setRoles(int roles) {
+        this.roles = roles;
     }
 
     public void setAssignedRole(int role) {

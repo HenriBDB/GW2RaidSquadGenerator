@@ -26,7 +26,7 @@ public class SquadPlan implements CSP {
     private int[] available = { 0,   0,   0,     0,      0,      0,    0,   0,      0,          0};
 
     public SquadPlan(ArrayList<Integer[]> trainees, ArrayList<Integer[]> trainers) {
-        this.trainers = trainers;
+        this.trainers = trainers.stream().map(Integer[]::clone).collect(Collectors.toCollection(ArrayList::new));
         this.players = Stream.of(trainees, trainers).flatMap(Collection::stream).collect(Collectors.toCollection(ArrayList::new));
         parsePlayers(players.stream().mapToInt(p -> p[1]).toArray());
 
@@ -362,7 +362,7 @@ public class SquadPlan implements CSP {
         // chronosupp and offheal
         else if (role1 == 8) role2 = 512;
         // Any heal with cSupp.
-        else if (role1 == 512) role2 = 120;
+        else if (role1 == 512) role2 = 56;
         else return candidates;
 
         // Case not cSupp: only one candidate role.

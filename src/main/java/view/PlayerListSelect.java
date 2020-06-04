@@ -7,18 +7,20 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import signups.Commander;
 import signups.Player;
 import signups.SignupsParser;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
- * Selection Screen to select commander and trainee signup sheets.
+ * Selection Screen to select commander and trainee sign-up sheets.
  * @author Eren Bole.8720
  * @version 1.0
  */
-public class PlayerListSelect extends VBox {
+public class PlayerListSelect extends VBox implements AppContent {
 
     private static final String ALERT_ERROR, ALERT_INVALID_FILE, ALERT_NO_FILE;
     static {
@@ -29,9 +31,10 @@ public class PlayerListSelect extends VBox {
     Label uploadCommMsg = new Label(), uploadTraineeMsg = new Label();
     Button uploadCommanders = new Button("Upload Commander and Aide List");
     Button uploadTrainees = new Button("Upload Trainee List");
-    Button next = new Button("Select Commanders");
+    Button next = new Button("Save Changes");
 
-    ArrayList<Player> commanderList, traineeList;
+    ArrayList<Player> traineeList;
+    ArrayList<Commander> commanderList;
 
     public PlayerListSelect() {
         setAlignment(Pos.CENTER);
@@ -52,14 +55,53 @@ public class PlayerListSelect extends VBox {
     }
 
     /**
+     * Sets the list of commanders and provides user feedback on the validation.
+     * @param commanderList The list of commanders to set.
+     */
+    public void setCommanderList(ArrayList<Commander> commanderList) {
+        if (commanderList == null || commanderList.isEmpty()) {
+            this.commanderList = null;
+            uploadCommMsg.setText("Invalid file.");
+        } else {
+            this.commanderList = commanderList;
+            uploadCommMsg.setText(String.format("Successfully uploaded %d commanders and aides.", commanderList.size()));
+        }
+    }
+
+    /**
+     * Sets the list of trainees and provides user feedback on the validation.
+     * @param traineeList The list of trainees to set.
+     */
+    public void setTraineeList(ArrayList<Player> traineeList) {
+        if (traineeList == null || traineeList.isEmpty()) {
+            this.traineeList = null;
+            uploadTraineeMsg.setText("Invalid file.");
+        } else {
+            this.traineeList = traineeList;
+            uploadTraineeMsg.setText(String.format("Successfully uploaded %d trainees.", traineeList.size()));
+        }
+    }
+
+    /**
+     * Initialise the selection screen with any
+     * previously stored commander or trainee lists.
+     */
+    public void init() {
+        App parent = (App) getParent();
+        if (parent.getCommanderList() != null) setCommanderList(parent.getCommanderList());
+        if (parent.getTraineeList() != null) setTraineeList(parent.getTraineeList());
+        update();
+    }
+
+    /**
      * Once a commander list and trainee list has been uploaded,
      * go to the next page to select which commanders will be present.
      */
     private void selectCommanders() {
         if (commanderList == null || traineeList == null) return;
         App parent = (App) getParent();
-        parent.commanderList = commanderList;
-        parent.traineeList = traineeList;
+        parent.setCommanderList(commanderList);
+        parent.setTraineeList(traineeList);
         parent.setAndInitCenter(new CommanderSelect());
     }
 
@@ -106,18 +148,24 @@ public class PlayerListSelect extends VBox {
     }
 
     private void uploadCommanderCSV() {
-        commanderList = uploadPlayerCSV();
-        if (commanderList == null) {
-            uploadCommMsg.setText("Invalid file.");
-        } else uploadCommMsg.setText(String.format("Successfully uploaded %d commanders and aides.", commanderList.size()));
+        ArrayList<Player> commanderList = uploadPlayerCSV();
+        // Keep only commanders and aides.
+        if (commanderList != null) {
+            setCommanderList(commanderList.stream()
+                    .filter(p -> p.getTier().toLowerCase().equals("commander") ||
+                            p.getTier().toLowerCase().equals("aide"))
+                    .map(Commander::new).collect(Collectors.toCollection(ArrayList::new)));
+        } else setCommanderList(null);
         update();
     }
 
     private void uploadTraineeCSV() {
-        traineeList = uploadPlayerCSV();
-        if (traineeList == null) {
-            uploadTraineeMsg.setText("Invalid file.");
-        } else uploadTraineeMsg.setText(String.format("Successfully uploaded %d trainees.", traineeList.size()));
+        ArrayList<Player> traineeList = uploadPlayerCSV();
+        // Keep only trainees with an assigned tier between 0 and 3 included.
+        if (traineeList != null) traineeList = traineeList.stream()
+                .filter(p -> p.getTier().matches("[0123]"))
+                .collect(Collectors.toCollection(ArrayList::new));
+        setTraineeList(traineeList);
         update();
     }
 }
