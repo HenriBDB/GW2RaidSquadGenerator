@@ -6,18 +6,18 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import problem.SquadComposition;
 import problem.SquadPlan;
+import search.BestFirstSearchTask;
 import signups.Player;
 import signups.SquadSaver;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -29,12 +29,18 @@ import java.util.stream.Stream;
  */
 public class Result extends BorderPane implements AppContent{
 
+    private static final String AUTO_FILL_TEXT;
+    static {
+        AUTO_FILL_TEXT = "Auto-fill Trainees";
+    }
+
     ArrayList<Player> players;
     SquadPlan solution;
-    List<ListView<Player>> squads = new ArrayList<>();
+    List<List<Player>> squads = new ArrayList<>();
     ObservableList<Player> commanders, aides, trainees;
-    Button saveBtn;
+    Button saveBtn, autoFill;
     Label saveMsg;
+    BestFirstSearchTask solver;
 
     public Result(SquadPlan solution) {
         this.solution = solution;
@@ -82,7 +88,7 @@ public class Result extends BorderPane implements AppContent{
         for (int i = 0; i < solution.getNumSquads(); ++i) {
             VBox squad = new VBox(10);
             PlayerListView playerListView = new PlayerListView();
-            squads.add(playerListView);
+            squads.add(playerListView.getItems());
             squad.getChildren().addAll(new Label("Squad " + (i+1)), playerListView);
             squad.setAlignment(Pos.TOP_CENTER);
             squadViews.getChildren().add(squad);
@@ -126,8 +132,8 @@ public class Result extends BorderPane implements AppContent{
         saveBtn.setDisable(true);
         saveMsg.setText("Saving to CSV...");
         List<List<Player>> squadList = new ArrayList<>();
-        for (ListView<Player> listView : squads) {
-            if (!listView.getItems().isEmpty()) squadList.add(listView.getItems());
+        for (List<Player> listView : squads) {
+            if (!listView.isEmpty()) squadList.add(listView);
         }
         if (!squadList.isEmpty()) {
             SquadSaver.saveToCSV(squadList);
@@ -143,14 +149,20 @@ public class Result extends BorderPane implements AppContent{
      */
     private VBox controlPanel() {
         Button clearComp = new Button("Clear Squad Composition");
-        Button autoFill = new Button("Auto-fill Trainees");
+        autoFill = new Button(AUTO_FILL_TEXT);
         Button reRunSolver = new Button("Find a Different Setup");
 
         reRunSolver.setOnAction(e -> findNewSetup());
         clearComp.setOnAction(e -> clearSquadComp());
         autoFill.setOnAction(e -> {
-            autoFillTrainees(); // Run twice to ensure better results.
-            autoFillTrainees();
+            if (solver == null) {
+                autoFillTrainees();
+                autoFill.setText("Cancel");
+            }
+            else {
+                solver.cancel(); solver = null;
+                autoFill.setText(AUTO_FILL_TEXT);
+            }
         });
 
         VBox panel = new VBox(10);
@@ -175,13 +187,13 @@ public class Result extends BorderPane implements AppContent{
      * and put them back in their starting lists.
      */
     private void clearSquadComp() {
-        for (ListView<Player> squad : squads) {
-            for (Player player : squad.getItems()) {
+        for (List<Player> squad : squads) {
+            for (Player player : squad) {
                 if (player.getTier().toLowerCase().contains("commander")) commanders.add(player);
                 else if (player.getTier().toLowerCase().contains("aide")) aides.add(player);
                 else trainees.add(player);
             }
-            squad.getItems().clear();
+            squad.clear();
         }
     }
 
@@ -189,124 +201,33 @@ public class Result extends BorderPane implements AppContent{
      * Fill trainees into squads automatically.
      */
     private void autoFillTrainees() {
-        if (!squads.isEmpty()) {
-            Iterator<Player> itr = trainees.iterator();
-            while (itr.hasNext()) {
-                Player player = itr.next();
-                boolean success;
-                int i = 0;
-                while (!(success = fillPlayer(player, squads.get(i)))) {
-                    ++i;
-                    if (i == squads.size()) break;
-                }
-                if (success) itr.remove();
+        SquadComposition initialState = new SquadComposition(Stream.of(commanders, aides, trainees)
+                .flatMap(Collection::stream).collect(Collectors.toList()), squads);
+        solver = new BestFirstSearchTask(initialState);
+        solver.setOnSucceeded(t -> {
+            setSquads(((SquadComposition) solver.getValue()).getSquads());
+            autoFill.setText(AUTO_FILL_TEXT);
+            solver = null;
+        });
+        Thread thread = new Thread(solver);
+        thread.start();
+    }
+
+    /**
+     * Replace the current squad composition with the provided one.
+     * @param squadsToSet The squad composition to set.
+     */
+    private void setSquads(List<List<Player>> squadsToSet) {
+        if (squadsToSet != null && squadsToSet.size() == squads.size()) {
+            for (int i = 0; i < squads.size(); ++i) {
+                squads.get(i).clear();
+                squads.get(i).addAll(squadsToSet.get(i));
             }
         }
-    }
-
-    /**
-     * Check if player fits in a squad. If yes, add him and return true.
-     * If not return false.
-     * @param player The player to add.
-     * @param squad The squad to add the player to.
-     * @return Whether or not the player could be added to the squad.
-     */
-    private boolean fillPlayer(Player player, ListView<Player> squad) {
-        ObservableList<Player> squadPlayers = squad.getItems();
-        switch (player.getAssignedRole()) {
-            case "DPS":
-                if (squadPlayers.stream().filter(p -> p.getAssignedRole().equals("DPS")).count() >= 5) return false;
-                else {
-                    squadPlayers.add(player);
-                    return true;
-                }
-            case "Banners":
-                if (squadPlayers.stream().anyMatch(p -> p.getAssignedRole().equals("Banners"))) return false;
-                else {
-                    squadPlayers.add(player);
-                    return true;
-                }
-            case "Offheal":
-                if (squadPlayers.stream().anyMatch(p -> p.getAssignedRole().equals("Power Boon Chrono"))) {
-                    if (squadPlayers.stream().noneMatch(p -> p.getAssignedRole().equals("Offheal"))) {
-                        squadPlayers.add(player);
-                        return true;
-                    } else return false;
-                } else if (!containsSupport(squadPlayers)) {
-                    squadPlayers.add(player);
-                    return true;
-                } else return false;
-            case "Heal Renegade":
-                if (squadPlayers.stream().anyMatch(p -> p.getAssignedRole().equals("Quickness FB"))) {
-                    if (squadPlayers.stream().noneMatch(p -> p.getAssignedRole().equals("Heal Renegade"))) {
-                        squadPlayers.add(player);
-                        return true;
-                    } else return false;
-                } else if (!containsSupport(squadPlayers)) {
-                    squadPlayers.add(player);
-                    return true;
-                } else return false;
-            case "Heal FB":
-                if (squadPlayers.stream().anyMatch(p -> p.getAssignedRole().equals("Alacrigade"))) {
-                    if (squadPlayers.stream().noneMatch(p -> p.getAssignedRole().equals("Heal FB"))) {
-                        squadPlayers.add(player);
-                        return true;
-                    } else return false;
-                } else if (!containsSupport(squadPlayers)) {
-                    squadPlayers.add(player);
-                    return true;
-                } else return false;
-            case "Druid":
-                if (squadPlayers.stream().anyMatch(p -> p.getAssignedRole().equals("Druid"))) return false;
-                else {
-                    squadPlayers.add(player);
-                    return true;
-                }
-            case "Alacrigade":
-                if (squadPlayers.stream().anyMatch(p -> p.getAssignedRole().equals("Heal FB"))) {
-                    if (squadPlayers.stream().noneMatch(p -> p.getAssignedRole().equals("Alacrigade"))) {
-                        squadPlayers.add(player);
-                        return true;
-                    } else return false;
-                } else if (!containsSupport(squadPlayers)) {
-                    squadPlayers.add(player);
-                    return true;
-                } else return false;
-            case "Quickness FB":
-                if (squadPlayers.stream().anyMatch(p -> p.getAssignedRole().equals("Heal Renegade"))) {
-                    if (squadPlayers.stream().noneMatch(p -> p.getAssignedRole().equals("Quickness FB"))) {
-                        squadPlayers.add(player);
-                        return true;
-                    } else return false;
-                } else if (!containsSupport(squadPlayers)) {
-                    squadPlayers.add(player);
-                    return true;
-                } else return false;
-            case "Power Boon Chrono":
-                if (!containsSupport(squadPlayers)) {
-                    squadPlayers.add(player);
-                    return true;
-                } else return false;
-            case "Chrono Tank":
-                if (squadPlayers.stream().anyMatch(p -> p.getAssignedRole().equals("Chrono Tank"))) return false;
-                else {
-                    squadPlayers.add(player);
-                    return true;
-                }
-        }
-        return false;
-    }
-
-    /**
-     * Check if a list of players contains any classes from the support group.
-     * @param playerList The list of players.
-     * @return Whether or not that list contains classes from the support group.
-     */
-    private boolean containsSupport(List<Player> playerList) {
-        return playerList.stream().anyMatch(p -> p.getAssignedRole().equals("Offheal") ||
-                p.getAssignedRole().equals("Power Boon Chrono") || p.getAssignedRole().equals("Heal Renegade") ||
-                p.getAssignedRole().equals("Heal FB") || p.getAssignedRole().equals("Alacrigade") ||
-                p.getAssignedRole().equals("Quickness FB"));
+        squads.stream().flatMap(List::stream).forEach(p -> {
+            // The or operators will make java evaluate until the first that return true avoiding unnecessary calls.
+            boolean ignore = (trainees.remove(p) || commanders.remove(p) || aides.remove(p));
+        });
     }
 
 }

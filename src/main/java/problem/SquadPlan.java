@@ -362,7 +362,7 @@ public class SquadPlan implements CSP {
         // chronosupp and offheal
         else if (role1 == 8) role2 = 512;
         // Any heal with cSupp.
-        else if (role1 == 512) role2 = 120;
+        else if (role1 == 512) role2 = 56;
         else return candidates;
 
         // Case not cSupp: only one candidate role.
