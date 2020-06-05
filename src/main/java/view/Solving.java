@@ -101,10 +101,10 @@ public class Solving extends VBox implements AppContent{
         App parent = (App) getParent();
         validTrainees = parent.getTraineeList().stream().filter(p -> {
             if (bossLevelChoice.getSelectionModel().getSelectedItem().equals(bossLevels[1])) {
-                return p.getTier().matches("[123]"); // Intermediate
+                return p.getTier().matches("[123]") && (p.getBossLvlChoice() & 2) != 0; // Intermediate
             } else if (bossLevelChoice.getSelectionModel().getSelectedItem().equals(bossLevels[2])) {
-                return p.getTier().matches("[23]"); // Advanced
-            } else return true; // Beginner
+                return p.getTier().matches("[23]") && (p.getBossLvlChoice() & 4) != 0; // Advanced
+            } else return (p.getBossLvlChoice() & 1) != 0; // Beginner
         }).collect(Collectors.toCollection(ArrayList::new));
         numTrainees.setText(String.format("%d valid trainees.", validTrainees.size()));
     }

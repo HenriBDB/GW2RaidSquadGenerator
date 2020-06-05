@@ -1,6 +1,7 @@
 package signups;
 
 import com.opencsv.CSVWriter;
+import problem.SquadSolution;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -8,7 +9,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Implements methods that help save squad compositions as CSVs.
@@ -29,20 +29,9 @@ public class SquadSaver {
             csv.createNewFile();
             writer = new CSVWriter(new FileWriter(csv));
 
-            for (int i = 0; i < squadList.size(); ++i) {
-                writer.writeNext(new String[]{"Squad " + (i + 1)});
-                for (Player player : squadList.get(i)) {
-                    writer.writeNext(new String[]{player.getGw2Account(), player.getDiscordName(),
-                            player.getAssignedRole(), player.getTier()});
-                }
-                writer.writeNext(new String[0]); // Empty line;
-            }
-            writer.writeNext(new String[]{"Left Overs: "});
-            for (Player player : leftOvers) {
-                ArrayList<String> line = new ArrayList<>(Arrays.asList(player.getGw2Account(), player.getDiscordName(), player.getTier()));
-                line.addAll(Arrays.asList(player.getRoleList()));
-                writer.writeNext(line.toArray(new String[0]));
-            }
+            writeSquad("", squadList, writer);
+            writeLeftOvers(leftOvers, writer);
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -51,6 +40,68 @@ public class SquadSaver {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    /**
+     * Save multiple squad compositions as CSV.
+     * @param squadComps The list of formed squads.
+     */
+    public static void saveCompsToCSV(List<SquadSolution> squadComps, List<Player> leftOvers) {
+        CSVWriter writer = null;
+        try {
+            File csv = new File("squad-compositions.csv");
+            csv.createNewFile();
+            writer = new CSVWriter(new FileWriter(csv));
+
+            for (SquadSolution squadComp : squadComps) {
+                writeSquad(squadComp.getName(), squadComp.getSquads(), writer);
+            }
+
+            writeLeftOvers(leftOvers, writer);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (writer != null) writer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Write all provided squads to the CSV.
+     * @param compName The name of the composition.
+     * @param squadList The squads in the composition.
+     * @param writer The CSV writer object.
+     */
+    private static void writeSquad(String compName, List<List<Player>> squadList, CSVWriter writer) {
+        writer.writeNext(new String[]{compName});
+        writer.writeNext(new String[0]);
+        for (int i = 0; i < squadList.size(); ++i) {
+            writer.writeNext(new String[]{"Squad " + (i + 1)});
+            for (Player player : squadList.get(i)) {
+                writer.writeNext(new String[]{player.getGw2Account(), player.getDiscordName(),
+                        player.getAssignedRole(), player.getTier()});
+            }
+            writer.writeNext(new String[0]); // Empty line;
+        }
+    }
+
+    /**
+     * Write in CSV list of all unused sign-ups.
+     * @param leftOvers The list of players that were not picked in a squad.
+     * @param writer The CSV writer object.
+     */
+    private static void writeLeftOvers(List<Player> leftOvers, CSVWriter writer) {
+        writer.writeNext(new String[]{"Left Overs: "});
+        for (Player player : leftOvers) {
+            ArrayList<String> line = new ArrayList<>(Arrays.asList(player.getGw2Account(), player.getDiscordName(),
+                    player.getTier(), Integer.toBinaryString(player.getBossLvlChoice())));
+            line.addAll(Arrays.asList(player.getRoleList()));
+            writer.writeNext(line.toArray(new String[0]));
         }
     }
 }

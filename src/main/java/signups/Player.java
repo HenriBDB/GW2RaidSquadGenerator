@@ -13,19 +13,21 @@ public class Player {
     private final String discordName;
     private final String tier;
     private final String comments;
+    private final int bossLvlChoice;
     private int roles;
     private String assignedRole;
 
-    public Player(String gw2Account, String discordName, String tier, String comments, int roles) {
+    public Player(String gw2Account, String discordName, String tier, String comments, int roles, int bossLvlChoice) {
         this.gw2Account = gw2Account;
         this.discordName = discordName;
         this.tier = tier;
         this.comments = comments;
         this.roles = roles;
+        this.bossLvlChoice = bossLvlChoice;
     }
 
     public Player(Player player) {
-        this(player.getGw2Account(), player.getDiscordName(), player.getTier(), player.getComments(), player.getRoles());
+        this(player.getGw2Account(), player.getDiscordName(), player.getTier(), player.getComments(), player.getRoles(), player.getBossLvlChoice());
         this.assignedRole = player.getAssignedRole();
     }
 
@@ -63,6 +65,10 @@ public class Player {
 
     public String getAssignedRole() {
         return assignedRole;
+    }
+
+    public int getBossLvlChoice() {
+        return bossLvlChoice;
     }
 
     public String[] getRoleList() {

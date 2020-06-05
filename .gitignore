@@ -6,6 +6,7 @@
 .settings/
 bin/
 squads.csv
+squad-compositions.csv
 
 # Ignore Gradle GUI config
 gradle-app.setting

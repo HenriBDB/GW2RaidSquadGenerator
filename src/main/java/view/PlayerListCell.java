@@ -53,7 +53,7 @@ public class PlayerListCell extends ListCell<Player> {
      */
     private String getTooltipContent() {
         String roles = String.join(", ", player.getRoleList());
-        String name = player.getDiscordName().isBlank() ? "[No Name]" : player.getDiscordName();
+        String name = player.getDiscordName().isBlank() ? player.getGw2Account() : player.getDiscordName();
         return String.format("%s\nTier: %s\n%s", name, player.getTier(), roles);
     }
 
