@@ -265,7 +265,9 @@ public class SquadPlan implements CSP {
      * @return the heuristic value for this plan.
      */
     public int heuristic() {
-        return IntStream.of(left).sum();
+        // Double chrono is bad! Avoid it at all costs.
+        int numChronoSupp = (int) assigned.stream().filter(p -> p[1] == 512).count();
+        return IntStream.of(left).sum() + numChronoSupp;
     }
 
     /**
