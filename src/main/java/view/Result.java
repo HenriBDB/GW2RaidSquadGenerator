@@ -34,7 +34,7 @@ public class Result extends BorderPane implements AppContent{
         AUTO_FILL_TEXT = "Auto-fill Trainees";
     }
 
-    ArrayList<Player> players;
+    ArrayList<Player> players, leftOvers;
     SquadPlan solution;
     List<List<Player>> squads = new ArrayList<>();
     ObservableList<Player> commanders, aides, trainees;
@@ -55,8 +55,16 @@ public class Result extends BorderPane implements AppContent{
         App parent = (App) getParent();
         if (parent.getSelectedTraineeList() != null && parent.getSelectedCommanderList() != null && parent.getSolution() != null) {
             this.solution = parent.getSolution();
-            this.players = Stream.of(parent.getSelectedTraineeList(), parent.getSelectedCommanderList())
+
+            players = Stream.of(parent.getSelectedTraineeList(), parent.getSelectedCommanderList())
                     .flatMap(Collection::stream).collect(Collectors.toCollection(ArrayList::new));
+            players = solution.getAssigned().stream().map(p -> {
+                players.get(p[0]).setAssignedRole(p[1]);
+                return players.get(p[0]);
+            }).collect(Collectors.toCollection(ArrayList::new));
+
+            leftOvers = new ArrayList<>(parent.getTraineeList());
+            leftOvers.removeAll(players);
 
             setPadding(new Insets(10));
 
@@ -103,10 +111,6 @@ public class Result extends BorderPane implements AppContent{
      * @return An HBox containing the ListViews.
      */
     private HBox makeAssignedPlayerLists() {
-        players = solution.getAssigned().stream().map(p -> {
-            players.get(p[0]).setAssignedRole(p[1]);
-            return players.get(p[0]);
-        }).collect(Collectors.toCollection(ArrayList::new));
         commanders = FXCollections.observableList(players.stream()
                 .filter(p -> p.getTier().toLowerCase().contains("commander"))
                 .collect(Collectors.toList()));
@@ -131,12 +135,9 @@ public class Result extends BorderPane implements AppContent{
     private void saveToCSV() {
         saveBtn.setDisable(true);
         saveMsg.setText("Saving to CSV...");
-        List<List<Player>> squadList = new ArrayList<>();
-        for (List<Player> listView : squads) {
-            if (!listView.isEmpty()) squadList.add(listView);
-        }
-        if (!squadList.isEmpty()) {
-            SquadSaver.saveToCSV(squadList);
+        if (!squads.isEmpty()) {
+            SquadSaver.saveToCSV(squads,
+                    Stream.of(leftOvers, trainees).flatMap(Collection::stream).collect(Collectors.toList()));
             saveMsg.setText("Successfully saved to CSV.");
         }
         else saveMsg.setText("No squad found, did not save to CSV.");
@@ -179,7 +180,6 @@ public class Result extends BorderPane implements AppContent{
     private void findNewSetup() {
         Solving solvingScreen = new Solving();
         ((App) getParent()).setAndInitCenter(solvingScreen);
-        solvingScreen.toggleSolving();
     }
 
     /**
@@ -205,7 +205,8 @@ public class Result extends BorderPane implements AppContent{
                 .flatMap(Collection::stream).collect(Collectors.toList()), squads);
         solver = new BestFirstSearchTask(initialState);
         solver.setOnSucceeded(t -> {
-            setSquads(((SquadComposition) solver.getValue()).getSquads());
+            if (solver.getValue() == null) setSquads(null);
+            else setSquads(((SquadComposition) solver.getValue()).getSquads());
             autoFill.setText(AUTO_FILL_TEXT);
             solver = null;
         });

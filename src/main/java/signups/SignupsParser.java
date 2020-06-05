@@ -73,8 +73,8 @@ public class SignupsParser {
         if (playerLine[columnIndices[8]].toLowerCase().contains("healer")) roles += 16; // Heal Rene
         if (playerLine[columnIndices[9]].toLowerCase().contains("dps")) roles += 256; // qFB
         if (playerLine[columnIndices[9]].toLowerCase().contains("healer")) roles += 32; // hFB
-        if (!playerLine[columnIndices[10]].isBlank()) roles += 7; // BS, add dps roles too to allow bs to play dps.
-        else if (!playerLine[columnIndices[11]].isBlank()) { // dps
+        if (!playerLine[columnIndices[10]].isBlank()) roles += 4; // BS, add dps roles too to allow bs to play dps.
+        if (!playerLine[columnIndices[11]].isBlank()) { // dps
             if (playerLine[columnIndices[11]].toLowerCase().contains("power")) roles += 2; // pdps
             if (playerLine[columnIndices[11]].toLowerCase().contains("condition")) roles += 1; // cdps
         }

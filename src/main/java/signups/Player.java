@@ -1,5 +1,7 @@
 package signups;
 
+import java.util.ArrayList;
+
 /**
  * A class that can hold information about a player.
  * @author Eren Bole.8720
@@ -28,7 +30,7 @@ public class Player {
     }
 
     public String toString() {
-        return String.format("%s - %s", gw2Account, assignedRole);
+        return assignedRole == null ? gw2Account : String.format("%s - %s", gw2Account, assignedRole);
     }
 
     public String getGw2Account() {
@@ -61,6 +63,19 @@ public class Player {
 
     public String getAssignedRole() {
         return assignedRole;
+    }
+
+    public String[] getRoleList() {
+        ArrayList<String> roleList = new ArrayList<>();
+        int power = 2;
+        if ((roles & 2) > 0) roleList.add("Power DPS");
+        if ((roles & 1) > 0) roleList.add("Condi DPS");
+        while (power < 12) {
+            int bitMask = (int) Math.pow(2, power);
+            if (!((roles & bitMask) == 0)) roleList.add(roleValToName(bitMask));
+            ++power;
+        }
+        return roleList.toArray(new String[roleList.size()]);
     }
 
     /**
