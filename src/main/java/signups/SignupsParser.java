@@ -2,9 +2,8 @@ package signups;
 
 import com.opencsv.CSVReader;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.stream.IntStream;
 
@@ -17,6 +16,8 @@ public class SignupsParser {
 
     // private static final String[] columns = {"gw2 account", "discord account", "tier", "comments", "tank", "druid", "offheal", "chrono", "alacrigade", "quickbrand", "banners", "dps"};
     private final int[] columnIndices = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+    private final int[] bossLvlIndices = {-1, -1, -1};
+    private boolean isSaturday;
 
     public ArrayList<Player> parse(String fileLoc) {
         return parse(new File(fileLoc));
@@ -31,7 +32,7 @@ public class SignupsParser {
         ArrayList<Player> players = new ArrayList<>();
         CSVReader parser = null;
         try {
-            parser = new CSVReader(new FileReader(file));
+            parser = new CSVReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
             String [] line;
             Player player;
             // Ignore first line
@@ -73,13 +74,19 @@ public class SignupsParser {
         if (playerLine[columnIndices[8]].toLowerCase().contains("healer")) roles += 16; // Heal Rene
         if (playerLine[columnIndices[9]].toLowerCase().contains("dps")) roles += 256; // qFB
         if (playerLine[columnIndices[9]].toLowerCase().contains("healer")) roles += 32; // hFB
-        if (!playerLine[columnIndices[10]].isBlank()) roles += 7; // BS, add dps roles too to allow bs to play dps.
-        else if (!playerLine[columnIndices[11]].isBlank()) { // dps
+        if (!playerLine[columnIndices[10]].isBlank()) roles += 4; // BS, add dps roles too to allow bs to play dps.
+        if (!playerLine[columnIndices[11]].isBlank()) { // dps
             if (playerLine[columnIndices[11]].toLowerCase().contains("power")) roles += 2; // pdps
             if (playerLine[columnIndices[11]].toLowerCase().contains("condition")) roles += 1; // cdps
         }
         if (roles == 0) return null;
-        return new Player(gw2Account, discordName, tier, comments, roles);
+        int bossLvlChoice = 0;
+        if (isSaturday) {
+            if (!playerLine[bossLvlIndices[0]].isBlank()) ++bossLvlChoice;
+            if (!playerLine[bossLvlIndices[1]].isBlank()) bossLvlChoice += 2;
+            if (!playerLine[bossLvlIndices[2]].isBlank()) bossLvlChoice += 4;
+        } else bossLvlChoice = 7;
+        return new Player(gw2Account, discordName, tier, comments, roles, bossLvlChoice);
     }
 
     private boolean getColumnIndices(String[] headerLine) {
@@ -98,7 +105,12 @@ public class SignupsParser {
             else if (header.contains("quickbrand")) columnIndices[9] = i;
             else if (header.contains("banners")) columnIndices[10] = i;
             else if (header.contains("dps")) columnIndices[11] = i;
+            else if (header.contains("beginner")) bossLvlIndices[0] = i;
+            else if (header.contains("intermediate")) bossLvlIndices[1] = i;
+            else if (header.contains("advanced")) bossLvlIndices[2] = i;
         }
+        // Sign-up includes boss levels and is thus a saturday sheet.
+        isSaturday = IntStream.of(bossLvlIndices).noneMatch(e -> e == -1);
         // Valid file, no column missing.
         return IntStream.of(columnIndices).noneMatch(e -> e == -1);
     }

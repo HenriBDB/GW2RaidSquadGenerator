@@ -3,6 +3,7 @@ package view;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
@@ -29,16 +30,31 @@ public class PlayerListCell extends ListCell<Player> {
     public void updateItem(Player player, boolean empty) {
         super.updateItem(player, empty);
         if (empty) {
+            setTooltip(null);
             setText(null);
             setGraphic(null);
             setStyle("-fx-background-color: white; -fx-text-fill: black;");
         } else {
             this.player = player;
+            this.setTooltip(new Tooltip(getTooltipContent()));
             setText(player.toString());
             if (player.getTier().toLowerCase().equals("commander")) setStyle("-fx-background-color: #4a1c82; -fx-text-fill: white;");
             else if (player.getTier().toLowerCase().equals("aide")) setStyle("-fx-background-color: #ba7b28; -fx-text-fill: white;");
             else setStyle("-fx-background-color: white; -fx-text-fill: black;");
         }
+    }
+
+    /**
+     * Generate tooltip content:
+     * Player discord names
+     * Tier: [0123]
+     * Roles...
+     * @return The string to use as tooltip.
+     */
+    private String getTooltipContent() {
+        String roles = String.join(", ", player.getRoleList());
+        String name = player.getDiscordName().isBlank() ? player.getGw2Account() : player.getDiscordName();
+        return String.format("%s\nTier: %s\n%s", name, player.getTier(), roles);
     }
 
     /**
