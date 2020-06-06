@@ -2,9 +2,8 @@ package signups;
 
 import com.opencsv.CSVReader;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.stream.IntStream;
 
@@ -33,7 +32,7 @@ public class SignupsParser {
         ArrayList<Player> players = new ArrayList<>();
         CSVReader parser = null;
         try {
-            parser = new CSVReader(new FileReader(file));
+            parser = new CSVReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
             String [] line;
             Player player;
             // Ignore first line

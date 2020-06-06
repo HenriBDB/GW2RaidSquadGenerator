@@ -35,6 +35,7 @@ public class SavedCompositions extends VBox implements AppContent {
 
     public SavedCompositions() {
         super(10);
+        setPadding(new Insets(0, 10, 0 ,10));
         setAlignment(Pos.TOP_CENTER);
     }
 
