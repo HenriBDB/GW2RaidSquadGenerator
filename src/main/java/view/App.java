@@ -1,10 +1,14 @@
 package view;
 
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import problem.SquadPlan;
 import problem.SquadSolution;
 import signups.Commander;
@@ -12,6 +16,7 @@ import signups.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Wrapper class for the BorderPane holding the App.
@@ -21,11 +26,16 @@ import java.util.List;
  */
 public class App extends BorderPane {
 
+    private final static String[] bossLevels = {"Beginner", "Intermediate", "Advanced"};
+
     private ArrayList<Player> traineeList, selectedCommanderList, selectedTraineeList;
     private ArrayList<Commander> commanderList;
     private final List<SquadSolution> savedSolutions = new ArrayList<>();
     private SquadPlan solution;
     private Button home, commanderSelect, solvingScreen, resultScreen, storedSolutions;
+    private HBox bossLevelMenu;
+    private ComboBox<String> bossLevelChoice;
+    private Label numTrainees;
 
     public App() {
         setTop(menuBar());
@@ -56,6 +66,7 @@ public class App extends BorderPane {
 
     public void setTraineeList(ArrayList<Player> traineeList) {
         this.traineeList = traineeList;
+        updateAvailableTrainees();
         updateMenubar();
     }
 
@@ -84,19 +95,24 @@ public class App extends BorderPane {
         this.savedSolutions.add(savedSolution);
     }
 
+    public String getBossLevelChoice() {
+        return bossLevelChoice.getValue();
+    }
+
     public void setAndInitCenter(AppContent content) {
         menuBarStyling(getCenter(), true);
         setCenter(((Node) content));
         content.init();
         updateMenubar();
         menuBarStyling(getCenter(), false);
+        bossLevelMenu.setVisible(content instanceof CommanderSelect || content instanceof Solving);
     }
 
     /**
      * Create a menu bar with buttons to each of the different pages.
      * @return The menu bar.
      */
-    private HBox menuBar() {
+    private VBox menuBar() {
         home = new Button("Home");
         commanderSelect = new Button("Select Commanders");
         solvingScreen = new Button("Squad Generation");
@@ -123,7 +139,20 @@ public class App extends BorderPane {
         menu.setPadding(new Insets(10));
         menu.getChildren().addAll(home, commanderSelect, solvingScreen, resultScreen, storedSolutions);
 
-        return menu;
+        bossLevelMenu = new HBox(10);
+        bossLevelChoice = new ComboBox<>();
+        bossLevelChoice.getItems().addAll(bossLevels);
+        bossLevelChoice.getSelectionModel().select(0);
+        bossLevelChoice.setOnAction(e -> updateAvailableTrainees());
+        Label bossLevelMsg = new Label("Training Boss Level: ");
+        numTrainees = new Label();
+        bossLevelMenu.getChildren().addAll(bossLevelMsg, bossLevelChoice, numTrainees);
+        bossLevelMenu.setAlignment(Pos.CENTER);
+
+        VBox fullMenu = new VBox(10);
+        fullMenu.getChildren().addAll(menu, bossLevelMenu);
+
+        return fullMenu;
     }
 
     /**
@@ -150,6 +179,23 @@ public class App extends BorderPane {
         if (remove) btn.setStyle(null);
         else {
             btn.setStyle("-fx-border-color: black; -fx-border-width: 0px 0px 5px 0px;");
+        }
+    }
+
+    /**
+     * Filter out trainees based on their tier and the chosen
+     * boss level for the training session.
+     */
+    private void updateAvailableTrainees() {
+        if (traineeList != null) {
+            selectedTraineeList = traineeList.stream().filter(p -> {
+                if (bossLevelChoice.getSelectionModel().getSelectedItem().equals(bossLevels[1])) {
+                    return p.getTier().matches("[123]") && (p.getBossLvlChoice() & 2) != 0; // Intermediate
+                } else if (bossLevelChoice.getSelectionModel().getSelectedItem().equals(bossLevels[2])) {
+                    return p.getTier().matches("[23]") && (p.getBossLvlChoice() & 4) != 0; // Advanced
+                } else return (p.getBossLvlChoice() & 1) != 0; // Beginner
+            }).collect(Collectors.toCollection(ArrayList::new));
+            numTrainees.setText(String.format("%d valid trainees.", selectedTraineeList.size()));
         }
     }
 }

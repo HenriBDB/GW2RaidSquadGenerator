@@ -71,7 +71,7 @@ public class Result extends BorderPane implements AppContent{
 
             setRight(controlPanel());
 
-            compName = new TextField("Test");
+            compName = new TextField(parent.getBossLevelChoice());
             saveMsg = new Label();
             saveBtn = new Button("Save this Composition\nand Create New");
             saveBtn.setOnAction(e -> createNewComp());
@@ -175,6 +175,7 @@ public class Result extends BorderPane implements AppContent{
     private void findNewSetup() {
         Solving solvingScreen = new Solving();
         ((App) getParent()).setAndInitCenter(solvingScreen);
+        solvingScreen.toggleSolving();
     }
 
     /**
