@@ -18,11 +18,17 @@ public class SolveSquadPlanTask extends Task<SquadPlan> {
 
     private final ArrayList<Player> commanders, trainees;
     private final SearchAlgorithm searchAlgorithm;
+    private int maxSquads;
 
     public SolveSquadPlanTask(ArrayList<Player> commanders, ArrayList<Player> trainees, SearchAlgorithm searchAlgorithm) {
         this.commanders = commanders;
         this.trainees = trainees;
         this.searchAlgorithm = searchAlgorithm;
+    }
+
+    public SolveSquadPlanTask(ArrayList<Player> commanders, ArrayList<Player> trainees, SearchAlgorithm searchAlgorithm, int maxSquads) {
+        this(commanders, trainees, searchAlgorithm);
+        this.maxSquads = maxSquads;
     }
 
     /**
@@ -38,7 +44,9 @@ public class SolveSquadPlanTask extends Task<SquadPlan> {
                 .mapToObj(i -> new Integer[]{i + traineeRoles.size(), commanders.get(i).getRoles()})
                 .collect(Collectors.toCollection(ArrayList::new));
 
-        SquadPlan initialSate = new SquadPlan(traineeRoles, trainerRoles);
+        SquadPlan initialSate = maxSquads == 0 ?
+                new SquadPlan(traineeRoles, trainerRoles) :
+                new SquadPlan(traineeRoles, trainerRoles, maxSquads) ;
         int numSquads = initialSate.getNumSquads();
         searchAlgorithm.init(initialSate);
         SquadPlan solution = null;

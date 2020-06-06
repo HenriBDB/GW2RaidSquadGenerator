@@ -65,7 +65,7 @@ public class Solving extends VBox implements AppContent{
     private void startSolving() {
         App parent = (App) getParent();
         solver = new SolveSquadPlanTask(parent.getSelectedCommanderList(),
-                parent.getSelectedTraineeList(), new GreedyBestFirstSearch());
+                parent.getSelectedTraineeList(), new GreedyBestFirstSearch(), parent.getMaxSquads());
         solver.setOnSucceeded(t -> {
             displaySquads(solver.getValue());
         });

@@ -1,11 +1,10 @@
 package view;
 
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -36,6 +35,7 @@ public class App extends BorderPane {
     private HBox bossLevelMenu;
     private ComboBox<String> bossLevelChoice;
     private Label numTrainees;
+    Spinner<Integer> numSquads;
 
     public App() {
         setTop(menuBar());
@@ -99,6 +99,10 @@ public class App extends BorderPane {
         return bossLevelChoice.getValue();
     }
 
+    public Integer getMaxSquads() {
+        return numSquads.getValue();
+    }
+
     public void setAndInitCenter(AppContent content) {
         menuBarStyling(getCenter(), true);
         setCenter(((Node) content));
@@ -146,10 +150,15 @@ public class App extends BorderPane {
         bossLevelChoice.setOnAction(e -> updateAvailableTrainees());
         Label bossLevelMsg = new Label("Training Boss Level: ");
         numTrainees = new Label();
-        bossLevelMenu.getChildren().addAll(bossLevelMsg, bossLevelChoice, numTrainees);
+        Label numSquadsMsg = new Label("Max squads: (0 = no restrictions) ");
+        numSquads = new Spinner<>(0, 50, 0);
+        numSquads.setMaxWidth(75);
+        bossLevelMenu.getChildren().addAll(bossLevelMsg, bossLevelChoice, numTrainees,
+                new Separator(Orientation.VERTICAL), numSquadsMsg, numSquads);
         bossLevelMenu.setAlignment(Pos.CENTER);
+        bossLevelMenu.setPadding(new Insets(0,10,10,10));
 
-        VBox fullMenu = new VBox(10);
+        VBox fullMenu = new VBox(0);
         fullMenu.getChildren().addAll(menu, bossLevelMenu);
 
         return fullMenu;
