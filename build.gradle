@@ -10,7 +10,7 @@ javafx {
     modules = [ 'javafx.controls', 'javafx.graphics' ]
 }
 
-group 'Eren Bole.8720'
+group 'Crossroads Inn'
 version '1.0'
 
 sourceCompatibility = 1.11

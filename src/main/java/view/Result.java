@@ -146,6 +146,7 @@ public class Result extends BorderPane implements AppContent{
         autoFill = new Button(AUTO_FILL_TEXT);
         Button reRunSolver = new Button("Find a Different Setup");
         Button saveToCSVBtn = new Button("Save Squad Composition to CSV");
+        Button sortSquads = new Button("Sort squads the Kez way");
 
         reRunSolver.setOnAction(e -> findNewSetup());
         clearComp.setOnAction(e -> clearSquadComp());
@@ -160,9 +161,10 @@ public class Result extends BorderPane implements AppContent{
             }
         });
         saveToCSVBtn.setOnAction(e -> saveToCSV());
+        sortSquads.setOnAction(e -> sortPlayerOrder());
 
         VBox panel = new VBox(10);
-        panel.getChildren().addAll(clearComp, autoFill, reRunSolver, saveToCSVBtn);
+        panel.getChildren().addAll(clearComp, autoFill, reRunSolver, saveToCSVBtn, sortSquads);
         panel.setAlignment(Pos.TOP_CENTER);
 
         return panel;
@@ -191,6 +193,10 @@ public class Result extends BorderPane implements AppContent{
             }
             squad.clear();
         }
+    }
+
+    private void sortPlayerOrder() {
+        squads.forEach(PlayerListView::sortPlayerList);
     }
 
     /**
