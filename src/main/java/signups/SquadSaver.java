@@ -6,6 +6,7 @@ import problem.SquadSolution;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -71,6 +72,34 @@ public class SquadSaver {
         }
     }
 
+    public static void exportToCSV(List<SquadSolution> squadComps, List<Player> leftOvers, String day) {
+        CSVWriter writer = null;
+        try {
+            File csv = new File("squad-compositions.csv");
+            csv.createNewFile();
+            writer = new CSVWriter(new FileWriter(csv));
+
+            writer.writeNext(new String[]{"Player name", "Discord name", "Day", "Squad", "Squad Type", "Assigned Role", "Tier", "Roles"});
+
+            for (SquadSolution squadComp : squadComps) {
+                writeSquad(squadComp.getName(), squadComp.getSquads(), day, writer);
+            }
+
+            for (Player player : leftOvers) {
+                writer.writeNext(playerLine(player, day, "", ""));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (writer != null) writer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     /**
      * Write all provided squads to the CSV.
      * @param compName The name of the composition.
@@ -88,6 +117,36 @@ public class SquadSaver {
             }
             writer.writeNext(new String[0]); // Empty line;
         }
+    }
+
+    /**
+     * Write all provided squads to the CSV.
+     * @param compName The name of the composition.
+     * @param squadList The squads in the composition.
+     * @param writer The CSV writer object.
+     * @param day The day of the training.
+     */
+    private static void writeSquad(String compName, List<List<Player>> squadList, String day, CSVWriter writer) {
+        for (int i = 0; i < squadList.size(); ++i) {
+            for (Player player : squadList.get(i)) {
+                writer.writeNext(playerLine(player, day, i+"", compName));
+            }
+        }
+    }
+
+    private static String[] playerLine(Player player, String day, String squad, String squadType) {
+        boolean isComm = player.getTier().toLowerCase().equals("commander") || player.getTier().toLowerCase().equals("aide");
+        String[] roles = player.getRoleList();
+        ArrayList<String> line = new ArrayList<>();
+        line.add(isComm ? player.getTier() : player.getGw2Account());
+        line.add(player.getDiscordName().isEmpty() ? player.getGw2Account() : player.getDiscordName());
+        line.add(day);
+        line.add(squad);
+        line.add(squadType);
+        line.add(player.getAssignedRole() != null ? player.getAssignedRole() : "");
+        line.add(isComm ? "-" : player.getTier());
+        line.addAll(Arrays.asList(roles));
+        return line.toArray(new String[0]);
     }
 
     /**
