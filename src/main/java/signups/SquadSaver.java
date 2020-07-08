@@ -129,7 +129,7 @@ public class SquadSaver {
     private static void writeSquad(String compName, List<List<Player>> squadList, String day, CSVWriter writer) {
         for (int i = 0; i < squadList.size(); ++i) {
             for (Player player : squadList.get(i)) {
-                writer.writeNext(playerLine(player, day, i+"", compName));
+                writer.writeNext(playerLine(player, day, i+1+"", compName));
             }
         }
     }

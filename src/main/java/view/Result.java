@@ -236,9 +236,9 @@ public class Result extends BorderPane implements AppContent{
         List<Player> commandersUsed = new ArrayList<>(parent.getSelectedCommanderList());
         commandersUsed.removeAll(commanders);
         commandersUsed.removeAll(aides);
-        List<String> commandersUsedNames = commandersUsed.stream().map(Player::getGw2Account).collect(Collectors.toList());
+        List<String> commandersUsedNames = commandersUsed.stream().map(Player::getName).collect(Collectors.toList());
         parent.setCommanderList(parent.getCommanderList()
-                .stream().filter(c -> !(commandersUsedNames.contains(c.getGw2Account())))
+                .stream().filter(c -> !(commandersUsedNames.contains(c.getName())))
                 .collect(Collectors.toCollection(ArrayList::new)));
         parent.setSelectedCommanderList(null);
 

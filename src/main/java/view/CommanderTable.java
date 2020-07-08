@@ -30,7 +30,7 @@ public class CommanderTable extends TableView<Commander> {
         checkAll.setPrefWidth(40);
 
         TableColumn<Commander, String> name = new TableColumn<>("Name");
-        name.setCellValueFactory(new PropertyValueFactory<>("discordName"));
+        name.setCellValueFactory(new PropertyValueFactory<>("name"));
 
         TableColumn<Commander, Number> tank = new TableColumn<>("Tank");
         tank.setCellValueFactory(f -> f.getValue().getChosenRoles());

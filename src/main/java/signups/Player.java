@@ -84,7 +84,7 @@ public class Player {
         return roleList.toArray(new String[roleList.size()]);
     }
 
-    private String getName() {
+    public String getName() {
         return gw2Account.isBlank() ? discordName : gw2Account;
     }
 
