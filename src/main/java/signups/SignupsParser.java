@@ -3,7 +3,6 @@ package signups;
 import com.opencsv.CSVReader;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.stream.IntStream;
 
@@ -19,20 +18,16 @@ public class SignupsParser {
     private final int[] bossLvlIndices = {-1, -1, -1};
     private boolean isSaturday;
 
-    public ArrayList<Player> parse(String fileLoc) {
-        return parse(new File(fileLoc));
-    }
-
     /**
      * Parse a given CSV and generate a list of players it contains.
-     * @param file The csv to parse.
+     * @param reader The csv stream to parse.
      * @return The list of generated players.
      */
-    public ArrayList<Player> parse(File file) {
+    public ArrayList<Player> parse(InputStreamReader reader) {
         ArrayList<Player> players = new ArrayList<>();
         CSVReader parser = null;
         try {
-            parser = new CSVReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
+            parser = new CSVReader(reader);
             String [] line;
             Player player;
             // Ignore first line

@@ -1,9 +1,12 @@
 package view;
 
+import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -11,7 +14,9 @@ import signups.Commander;
 import signups.Player;
 import signups.SignupsParser;
 
-import java.io.File;
+import java.io.*;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
@@ -22,15 +27,17 @@ import java.util.stream.Collectors;
  */
 public class PlayerListSelect extends VBox implements AppContent {
 
-    private static final String ALERT_ERROR, ALERT_INVALID_FILE, ALERT_NO_FILE;
+    private static final String ALERT_ERROR, ALERT_INVALID_FILE, ALERT_NO_FILE, COMM_LINK, TUE_LINK, THU_LINK, SAT_LINK;
     static {
         ALERT_ERROR = "Error";
         ALERT_INVALID_FILE = "File does not contain any valid sign-ups.";
         ALERT_NO_FILE = "No file has been selected.";
+        COMM_LINK = "https://docs.google.com/spreadsheets/d/1p7KrDZ1F65-9EZblf5aeHgAsUnnRFGFJLI97oZExRxM/export?format=csv&gid=1874569681";
+        TUE_LINK = "https://docs.google.com/spreadsheets/d/1p7KrDZ1F65-9EZblf5aeHgAsUnnRFGFJLI97oZExRxM/export?format=csv&gid=1377878105";
+        THU_LINK = "https://docs.google.com/spreadsheets/d/1p7KrDZ1F65-9EZblf5aeHgAsUnnRFGFJLI97oZExRxM/export?format=csv&gid=1414462221";
+        SAT_LINK = "https://docs.google.com/spreadsheets/d/1p7KrDZ1F65-9EZblf5aeHgAsUnnRFGFJLI97oZExRxM/export?format=csv&gid=903269235";
     }
     Label uploadCommMsg = new Label(), uploadTraineeMsg = new Label();
-    Button uploadCommanders = new Button("Upload Commander and Aide List");
-    Button uploadTrainees = new Button("Upload Trainee List");
     Button next = new Button("Save Changes");
 
     ArrayList<Player> traineeList;
@@ -40,17 +47,37 @@ public class PlayerListSelect extends VBox implements AppContent {
         setAlignment(Pos.CENTER);
         setSpacing(20);
 
+        Label traineeLinks = new Label("Sign-up Links: ");
+        Button tueSignups = new Button("Tue");
+        tueSignups.setOnAction(e -> uploadTraineeCSV(true, TUE_LINK));
+        Button thuSignups = new Button("Thu");
+        thuSignups.setOnAction(e -> uploadTraineeCSV(true, THU_LINK));
+        Button satSignups = new Button("Sat");
+        satSignups.setOnAction(e -> uploadTraineeCSV(true, SAT_LINK));
+
+        Button uploadCommLink = new Button("Use Commander Online Sheet");
+        uploadCommLink.setOnAction(e -> uploadCommanderCSV(true));
+        Button uploadCommanders = new Button("Upload Commander and Aide List");
+        Button uploadTrainees = new Button("Upload Trainee List");
+
+        HBox traineeLinkUploads = new HBox(10);
+        traineeLinkUploads.getChildren().addAll(traineeLinks, tueSignups, thuSignups, satSignups);
+        traineeLinkUploads.setAlignment(Pos.CENTER);
+
         HBox commies = new HBox(10);
-        commies.getChildren().addAll(uploadCommanders, uploadCommMsg);
+        commies.setPadding(new Insets(0, 0, 20, 0));
+        commies.getChildren().addAll(uploadCommLink, uploadCommanders, uploadCommMsg);
         commies.setAlignment(Pos.CENTER);
+
         HBox trainees = new HBox(10);
+        trainees.setPadding(new Insets(0, 0, 20, 0));
         trainees.getChildren().addAll(uploadTrainees, uploadTraineeMsg);
         trainees.setAlignment(Pos.CENTER);
 
-        getChildren().addAll(trainees, commies, next);
+        getChildren().addAll(traineeLinkUploads, trainees, commies, next);
         next.setDisable(true);
-        uploadTrainees.setOnAction(e -> uploadTraineeCSV());
-        uploadCommanders.setOnAction(e -> uploadCommanderCSV());
+        uploadTrainees.setOnAction(e -> uploadTraineeCSV(false, null));
+        uploadCommanders.setOnAction(e -> uploadCommanderCSV(false));
         next.setOnAction(e -> selectCommanders());
     }
 
@@ -118,15 +145,28 @@ public class PlayerListSelect extends VBox implements AppContent {
      * Allow user to select a csv file containing a list of sign-ups.
      * @return The list of sign-ups.
      */
-    private ArrayList<Player> uploadPlayerCSV() {
-        FileChooser.ExtensionFilter csvFilter = new FileChooser.ExtensionFilter("CSV Files", "*.csv");
-        FileChooser csvChooser = new FileChooser();
-        csvChooser.getExtensionFilters().add(csvFilter);
+    private ArrayList<Player> uploadPlayerCSV(String link) {
+        boolean fromLink = link != null;
+        InputStreamReader fileStream = null;
 
-        File input = csvChooser.showOpenDialog(this.getScene().getWindow());
-        if(input != null) { // Try parsing sign-ups csv.
+        try {
+            if (fromLink) {
+                URL fileLink = new URL(link);
+                fileStream = new InputStreamReader(fileLink.openStream(), StandardCharsets.UTF_8);
+            } else {
+                FileChooser.ExtensionFilter csvFilter = new FileChooser.ExtensionFilter("CSV Files", "*.csv");
+                FileChooser csvChooser = new FileChooser();
+                csvChooser.getExtensionFilters().add(csvFilter);
+                File input = csvChooser.showOpenDialog(this.getScene().getWindow());
+                fileStream = new InputStreamReader(new FileInputStream(input), StandardCharsets.UTF_8);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if(fileStream != null) { // Try parsing sign-ups csv.
             SignupsParser signupsParser = new SignupsParser();
-            ArrayList<Player> players = signupsParser.parse(input);
+            ArrayList<Player> players = signupsParser.parse(fileStream);
             if (players.isEmpty()) {
                 // Selected file does not contain any valid sign-ups.
                 Alert alertBadFile = new Alert(Alert.AlertType.ERROR);
@@ -147,8 +187,8 @@ public class PlayerListSelect extends VBox implements AppContent {
         return null;
     }
 
-    private void uploadCommanderCSV() {
-        ArrayList<Player> commanderList = uploadPlayerCSV();
+    private void uploadCommanderCSV(boolean fromLink) {
+        ArrayList<Player> commanderList = uploadPlayerCSV(fromLink ? COMM_LINK : null);
         // Keep only commanders and aides.
         if (commanderList != null) {
             setCommanderList(commanderList.stream()
@@ -159,8 +199,8 @@ public class PlayerListSelect extends VBox implements AppContent {
         update();
     }
 
-    private void uploadTraineeCSV() {
-        ArrayList<Player> traineeList = uploadPlayerCSV();
+    private void uploadTraineeCSV(boolean fromLink, String link) {
+        ArrayList<Player> traineeList = uploadPlayerCSV(fromLink ? link : null);
         // Keep only trainees with an assigned tier between 0 and 3 included.
         if (traineeList != null) traineeList = traineeList.stream()
                 .filter(p -> p.getTier().matches("[0123]"))

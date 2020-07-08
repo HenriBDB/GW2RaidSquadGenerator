@@ -32,7 +32,7 @@ public class Player {
     }
 
     public String toString() {
-        return assignedRole == null ? gw2Account : String.format("%s - %s", gw2Account, assignedRole);
+        return assignedRole == null ? getName() : String.format("%s - %s", getName(), assignedRole);
     }
 
     public String getGw2Account() {
@@ -82,6 +82,10 @@ public class Player {
             ++power;
         }
         return roleList.toArray(new String[roleList.size()]);
+    }
+
+    private String getName() {
+        return gw2Account.isBlank() ? discordName : gw2Account;
     }
 
     /**
