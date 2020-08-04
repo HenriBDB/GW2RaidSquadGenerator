@@ -1,13 +1,17 @@
-package view;
+package Components;
 
 import javafx.collections.ObservableList;
 import javafx.event.Event;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.HBox;
 import signups.Player;
 
 /**
@@ -17,16 +21,27 @@ import signups.Player;
  */
 public class PlayerListCell extends ListCell<Player> {
 
+    // Icons to use for the roleAssignAndReset button.
+    static Image CROSS_ICON, PERSON_ICON;
+    static {
+        CROSS_ICON = new Image("images/CrossIcon.png");
+        PERSON_ICON = new Image("images/PersonIcon.png");
+    }
+
     Player player;
+    Button roleAssignAndReset = new Button();
 
     public PlayerListCell() {
         makeDraggable();
+        roleAssignAndReset.setOnAction(e -> toggleRoleAssignAndReset());
+        roleAssignAndReset.setPrefSize(16, 16);
     }
 
     public Player getPlayer() {
         return player;
     }
 
+    @Override
     public void updateItem(Player player, boolean empty) {
         super.updateItem(player, empty);
         if (empty) {
@@ -37,10 +52,41 @@ public class PlayerListCell extends ListCell<Player> {
         } else {
             this.player = player;
             this.setTooltip(new Tooltip(getTooltipContent()));
-            setText(player.toString());
+            setGraphic(getCellGraphic());
             if (player.getTier().toLowerCase().equals("commander")) setStyle("-fx-background-color: #4a1c82; -fx-text-fill: white;");
             else if (player.getTier().toLowerCase().equals("aide")) setStyle("-fx-background-color: #ba7b28; -fx-text-fill: white;");
             else setStyle("-fx-background-color: white; -fx-text-fill: black;");
+        }
+    }
+
+    /**
+     * Generates the graphical content of a player
+     * cell with that cell's player's data.
+     * @return the graphic to display in the cell.
+     */
+    private HBox getCellGraphic() {
+        if (player == null) return null;
+        // Update Role assign and reset button graphic.
+        if (player.getAssignedRole() != null) roleAssignAndReset.setGraphic(new ImageView(CROSS_ICON));
+        else roleAssignAndReset.setGraphic(new ImageView(PERSON_ICON));
+        HBox graphic = new HBox(10);
+        Label playerName = new Label(player.toString());
+        playerName.setStyle("-fx-text-fill: inherit;");
+        graphic.getChildren().addAll(roleAssignAndReset, playerName);
+        return graphic;
+    }
+
+    /**
+     * If player is already assigned a role, clear it.
+     * Otherwise, show role assignment window to allow
+     * user to assign a role to that player.
+     */
+    private void toggleRoleAssignAndReset() {
+        if (player != null) {
+            if (player.getAssignedRole() == null) {
+                if (RoleSelectPopUp.assignPlayerRolePopup(player)) setGraphic(getCellGraphic());
+            } else player.setAssignedRole(0);
+            setGraphic(getCellGraphic());
         }
     }
 

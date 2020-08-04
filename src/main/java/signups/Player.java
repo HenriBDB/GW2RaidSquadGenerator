@@ -63,6 +63,10 @@ public class Player {
         this.assignedRole = roleValToName(role);
     }
 
+    public void setAssignedRole(String role) {
+        this.assignedRole = role;
+    }
+
     public String getAssignedRole() {
         return assignedRole;
     }
@@ -93,7 +97,7 @@ public class Player {
      * @param role The role value.
      * @return The name of the role.
      */
-    private String roleValToName(int role) {
+    public static String roleValToName(int role) {
         switch (role) {
             case 1:
             case 2:
@@ -118,7 +122,7 @@ public class Player {
             case 1024:
                 return "Chrono Tank";
             default:
-                return "Other";
+                return null;
         }
     }
 }

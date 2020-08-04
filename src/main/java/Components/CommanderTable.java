@@ -1,4 +1,4 @@
-package view;
+package Components;
 
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;

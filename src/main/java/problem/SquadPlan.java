@@ -117,7 +117,7 @@ public class SquadPlan implements CSP {
         if (left[4] > (qFBhealAlacPairs + hFBalacrigadePairs + cSuppOffhealPairs)) return false;
         // Enough players are left to complete squads
         players = players.stream().filter(p -> p[1] != 0).collect(Collectors.toCollection(ArrayList::new));
-        return (IntStream.of(left).sum() + left[4] < players.size());
+        return (IntStream.of(left).sum() + left[4] <= players.size());
     }
 
     /**

@@ -1,5 +1,6 @@
 package view;
 
+import Components.PlayerListView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;

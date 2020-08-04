@@ -15,7 +15,7 @@ import search.SolveSquadPlanTask;
  * @author Eren Bole.8720
  * @version 1.0
  */
-public class Solving extends VBox implements AppContent{
+public class Solving extends VBox implements AppContent {
 
     Label msg = new Label();
     Button mainBtn;
