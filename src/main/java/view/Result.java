@@ -9,9 +9,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import problem.SquadComposition;
 import problem.SquadPlan;
 import problem.SquadSolution;
@@ -40,7 +38,8 @@ public class Result extends BorderPane implements AppContent{
     ArrayList<Player> players;
     SquadPlan solution;
     List<List<Player>> squads = new ArrayList<>();
-    ObservableList<Player> commanders, aides, trainees;
+    ObservableList<Player> commandersAndAides, trainees;
+    HBox squadViews;
     Button saveBtn, autoFill;
     Label saveMsg;
     BestFirstSearchTask solver;
@@ -53,15 +52,17 @@ public class Result extends BorderPane implements AppContent{
      */
     public void init() {
         App parent = (App) getParent();
-        if (parent.getSelectedTraineeList() != null && parent.getSelectedCommanderList() != null && parent.getSolution() != null) {
+        if (parent.getSelectedTraineeList() != null && parent.getSelectedCommanderList() != null) {
             this.solution = parent.getSolution();
 
             players = Stream.of(parent.getSelectedTraineeList(), parent.getSelectedCommanderList())
                     .flatMap(Collection::stream).collect(Collectors.toCollection(ArrayList::new));
-            players = solution.getAssigned().stream().map(p -> {
-                players.get(p[0]).setAssignedRole(p[1]);
-                return players.get(p[0]);
-            }).collect(Collectors.toCollection(ArrayList::new));
+            if (solution != null) {
+                players = solution.getAssigned().stream().map(p -> {
+                    players.get(p[0]).setAssignedRole(p[1]);
+                    return players.get(p[0]);
+                }).collect(Collectors.toCollection(ArrayList::new));
+            }
 
             setPadding(new Insets(10));
 
@@ -90,17 +91,27 @@ public class Result extends BorderPane implements AppContent{
      * @return The HBox containing the squad ListViews.
      */
     private HBox makeSquadViews() {
-        HBox squadViews = new HBox(10);
-        for (int i = 0; i < solution.getNumSquads(); ++i) {
-            VBox squad = new VBox(10);
-            PlayerListView playerListView = new PlayerListView();
-            squads.add(playerListView.getItems());
-            squad.getChildren().addAll(new Label("Squad " + (i+1)), playerListView);
-            squad.setAlignment(Pos.TOP_CENTER);
-            squadViews.getChildren().add(squad);
+        squadViews = new HBox(10);
+        if (solution != null) {
+            for (int i = 0; i < solution.getNumSquads(); ++i) {
+                VBox squad = makeSquadDisplay(i);
+                squadViews.getChildren().add(squad);
+            }
+        } else {
+            // Make just one sample squad view.
+            squadViews.getChildren().add(makeSquadDisplay(0));
         }
         squadViews.setAlignment(Pos.CENTER);
         return squadViews;
+    }
+
+    private VBox makeSquadDisplay(int squadIndex) {
+        VBox squad = new VBox(10);
+        PlayerListView playerListView = new PlayerListView();
+        squads.add(playerListView.getItems());
+        squad.getChildren().addAll(new Label("Squad " + (squadIndex+1)), playerListView);
+        squad.setAlignment(Pos.TOP_CENTER);
+        return squad;
     }
 
     /**
@@ -109,20 +120,19 @@ public class Result extends BorderPane implements AppContent{
      * @return An HBox containing the ListViews.
      */
     private HBox makeAssignedPlayerLists() {
-        commanders = FXCollections.observableList(players.stream()
-                .filter(p -> p.getTier().toLowerCase().contains("commander"))
-                .collect(Collectors.toList()));
-        aides = FXCollections.observableList(players.stream()
-                .filter(p -> p.getTier().toLowerCase().contains("aide"))
+        commandersAndAides = FXCollections.observableList(players.stream()
+                .filter(p -> p.getTier().toLowerCase().contains("commander")
+                || p.getTier().toLowerCase().contains("aide"))
                 .collect(Collectors.toList()));
         trainees = FXCollections.observableList(players.stream()
                 .filter(p -> p.getTier().matches("[0123]") )
                 .collect(Collectors.toList()));
         HBox assignedPlayerList = new HBox(10);
-        VBox c = new VBox(10); c.getChildren().addAll(new Label("Commanders: "), new PlayerListView(commanders));
-        VBox a = new VBox(10); a.getChildren().addAll(new Label("Aides: "), new PlayerListView(aides));
+        VBox c = new VBox(10); c.getChildren().addAll(new Label("Commanders and Aides: "), new PlayerListView(commandersAndAides));
         VBox t = new VBox(10); t.getChildren().addAll(new Label("Trainees: "), new PlayerListView(trainees));
-        assignedPlayerList.getChildren().addAll(c, a, t);
+        HBox.setHgrow(c, Priority.ALWAYS);
+        HBox.setHgrow(t, Priority.ALWAYS);
+        assignedPlayerList.getChildren().addAll(c, t);
         assignedPlayerList.setAlignment(Pos.CENTER);
         return assignedPlayerList;
     }
@@ -164,9 +174,28 @@ public class Result extends BorderPane implements AppContent{
         saveToCSVBtn.setOnAction(e -> saveToCSV());
         sortSquads.setOnAction(e -> sortPlayerOrder());
 
+        HBox squadsControl = new HBox(10);
+        squadsControl.setAlignment(Pos.CENTER);
+        Button addSquad = new Button("+");
+        Button removeSquad = new Button("-");
+        addSquad.setOnAction(e -> {
+            int numSquads = squadViews.getChildren().size();
+            squadViews.getChildren().add(makeSquadDisplay(numSquads));
+            removeSquad.setDisable(false);
+        });
+        removeSquad.setOnAction(e -> {
+            int numSquads = squadViews.getChildren().size();
+            if (numSquads == 0) return;
+            squads.remove(numSquads - 1);
+            squadViews.getChildren().remove(numSquads - 1);
+            if (numSquads == 1) removeSquad.setDisable(true);
+        });
+        squadsControl.getChildren().addAll(removeSquad, addSquad);
+
         VBox panel = new VBox(10);
-        panel.getChildren().addAll(clearComp, autoFill, reRunSolver, saveToCSVBtn, sortSquads);
+        panel.getChildren().addAll(clearComp, autoFill, reRunSolver, saveToCSVBtn, sortSquads, new Region(), new Label("Squads:"), squadsControl);
         panel.setAlignment(Pos.TOP_CENTER);
+        panel.setPadding(new Insets(0,0,0,10));
 
         return panel;
     }
@@ -188,8 +217,8 @@ public class Result extends BorderPane implements AppContent{
     private void clearSquadComp() {
         for (List<Player> squad : squads) {
             for (Player player : squad) {
-                if (player.getTier().toLowerCase().contains("commander")) commanders.add(player);
-                else if (player.getTier().toLowerCase().contains("aide")) aides.add(player);
+                if (player.getTier().toLowerCase().contains("commander")
+                        || player.getTier().toLowerCase().contains("aide")) commandersAndAides.add(player);
                 else trainees.add(player);
             }
             squad.clear();
@@ -204,7 +233,7 @@ public class Result extends BorderPane implements AppContent{
      * Fill trainees into squads automatically.
      */
     private void autoFillTrainees() {
-        SquadComposition initialState = new SquadComposition(Stream.of(commanders, aides, trainees)
+        SquadComposition initialState = new SquadComposition(Stream.of(commandersAndAides, trainees)
                 .flatMap(Collection::stream).collect(Collectors.toList()), squads);
         solver = new BestFirstSearchTask(initialState);
         solver.setOnSucceeded(t -> {
@@ -235,13 +264,13 @@ public class Result extends BorderPane implements AppContent{
         parent.setSelectedTraineeList(null);
 
         List<Player> commandersUsed = new ArrayList<>(parent.getSelectedCommanderList());
-        commandersUsed.removeAll(commanders);
-        commandersUsed.removeAll(aides);
+        commandersUsed.removeAll(commandersAndAides);
         List<String> commandersUsedNames = commandersUsed.stream().map(Player::getName).collect(Collectors.toList());
         parent.setCommanderList(parent.getCommanderList()
                 .stream().filter(c -> !(commandersUsedNames.contains(c.getName())))
                 .collect(Collectors.toCollection(ArrayList::new)));
         parent.setSelectedCommanderList(null);
+        parent.setSolution(null);
 
         parent.storeSolution(thisSolution);
         parent.setAndInitCenter(new SavedCompositions());
@@ -260,7 +289,7 @@ public class Result extends BorderPane implements AppContent{
         }
         squads.stream().flatMap(List::stream).forEach(p -> {
             // The or operators will make java evaluate until the first that returns true, avoiding unnecessary calls.
-            boolean ignore = (trainees.remove(p) || commanders.remove(p) || aides.remove(p));
+            boolean ignore = (trainees.remove(p) || commandersAndAides.remove(p));
         });
     }
 
