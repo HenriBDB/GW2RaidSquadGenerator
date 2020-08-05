@@ -1,5 +1,6 @@
 package view;
 
+import Components.PlayerListCell;
 import Components.PlayerListView;
 import Components.RoleStatRow;
 import Components.RolesStatTable;
@@ -7,10 +8,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import problem.SquadComposition;
 import problem.SquadPlan;
@@ -42,7 +40,7 @@ public class Result extends BorderPane implements AppContent{
     SquadPlan solution;
     List<List<Player>> squads = new ArrayList<>();
     ObservableList<Player> commandersAndAides, trainees;
-    HBox squadViews;
+    HBox squadViews, assignedPlayersViews;
     VBox statsView;
     Button saveBtn, autoFill;
     Label saveMsg;
@@ -73,7 +71,8 @@ public class Result extends BorderPane implements AppContent{
             setPadding(new Insets(10));
 
             VBox content = new VBox(10);
-            content.getChildren().addAll(makeAssignedPlayerLists(), new Separator(), makeSquadViews());
+            assignedPlayersViews = makeAssignedPlayerLists();
+            content.getChildren().addAll(assignedPlayersViews, new Separator(), makeSquadViews());
             content.setAlignment(Pos.CENTER);
             setCenter(content);
 
@@ -241,8 +240,23 @@ public class Result extends BorderPane implements AppContent{
         });
         squadsControl.getChildren().addAll(removeSquad, addSquad);
 
+        ComboBox<String> roleFilterDropdown = new ComboBox<>();
+        roleFilterDropdown.getItems().add("All");
+        roleFilterDropdown.getItems().addAll(Player.ROLES);
+        roleFilterDropdown.getSelectionModel().selectFirst();
+        roleFilterDropdown.setOnAction(e -> {
+            squadViews.getChildren().forEach(node -> ((Pane) node).getChildren()
+                    .stream().filter(pLV -> pLV instanceof PlayerListView)
+                    .forEach(listView -> filterPlayerListView(roleFilterDropdown.getValue(), (PlayerListView) listView)));
+            assignedPlayersViews.getChildren().forEach(node -> ((Pane) node).getChildren()
+                    .stream().filter(pLV -> pLV instanceof PlayerListView)
+                    .forEach(listView -> filterPlayerListView(roleFilterDropdown.getValue(), (PlayerListView) listView)));
+        });
+
         VBox panel = new VBox(10);
-        panel.getChildren().addAll(clearComp, autoFill, reRunSolver, saveToCSVBtn, sortSquads, removeSolution, new Region(), new Label("Squads:"), squadsControl);
+        panel.getChildren().addAll(clearComp, autoFill, reRunSolver, saveToCSVBtn, sortSquads, removeSolution,
+                new Region(), new Label("Squads: "), squadsControl,
+                new Region(), new Label("Filter by role: "), roleFilterDropdown);
         panel.setAlignment(Pos.TOP_CENTER);
         panel.setPadding(new Insets(0,0,0,10));
 
@@ -276,6 +290,14 @@ public class Result extends BorderPane implements AppContent{
 
     private void sortPlayerOrder() {
         squads.forEach(PlayerListView::sortPlayerList);
+    }
+
+    private void filterPlayerListView(String role, PlayerListView pLV) {
+        if (role.equals("All")) {
+            pLV.setCellFactory(e -> new PlayerListCell());
+        } else {
+            pLV.setCellFactory(e -> new PlayerListCell(role));
+        }
     }
 
     /**

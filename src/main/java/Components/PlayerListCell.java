@@ -30,11 +30,17 @@ public class PlayerListCell extends ListCell<Player> {
 
     Player player;
     Button roleAssignAndReset = new Button();
+    String roleFilter;
 
     public PlayerListCell() {
+        this(null);
+    }
+
+    public PlayerListCell(String roleFilter) {
         makeDraggable();
         roleAssignAndReset.setOnAction(e -> toggleRoleAssignAndReset());
         roleAssignAndReset.setPrefSize(16, 16);
+        this.roleFilter = roleFilter;
     }
 
     public Player getPlayer() {
@@ -53,9 +59,21 @@ public class PlayerListCell extends ListCell<Player> {
             this.player = player;
             this.setTooltip(new Tooltip(getTooltipContent()));
             setGraphic(getCellGraphic());
-            if (player.getTier().toLowerCase().equals("commander")) setStyle("-fx-background-color: #4a1c82; -fx-text-fill: white;");
-            else if (player.getTier().toLowerCase().equals("aide")) setStyle("-fx-background-color: #ba7b28; -fx-text-fill: white;");
-            else setStyle("-fx-background-color: white; -fx-text-fill: black;");
+            updateStyle();
+        }
+    }
+
+    public void updateStyle() {
+        if (player != null) {
+            if (roleFilter == null || player.getSimpleRoleList().stream().anyMatch(r -> r.equals(roleFilter))) {
+                if (player.getTier().toLowerCase().equals("commander")) setStyle("-fx-background-color: #4a1c82; -fx-text-fill: white;");
+                else if (player.getTier().toLowerCase().equals("aide")) setStyle("-fx-background-color: #ba7b28; -fx-text-fill: white;");
+                else setStyle("-fx-background-color: white; -fx-text-fill: black;");
+            } else {
+                if (player.getTier().toLowerCase().equals("commander")) setStyle("-fx-background-color: rgba(74, 28, 130, 0.5); -fx-text-fill: white;");
+                else if (player.getTier().toLowerCase().equals("aide")) setStyle("-fx-background-color: rgba(186, 123, 40, 0.5); -fx-text-fill: white;");
+                else setStyle("-fx-background-color: rgba(255,255,255,0.5); -fx-text-fill: rgba(0, 0, 0, 0.5);");
+            }
         }
     }
 
