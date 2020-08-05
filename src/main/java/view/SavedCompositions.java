@@ -1,9 +1,12 @@
 package view;
 
+import Components.PlayerListView;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.DateCell;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -13,6 +16,7 @@ import problem.SquadSolution;
 import signups.Player;
 import signups.SquadSaver;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -31,6 +35,7 @@ public class SavedCompositions extends VBox implements AppContent {
     HBox squadView, squadCompLinks;
     Label compName, saveMsg;
     Button saveBtn;
+    DatePicker saveDate;
     int current = -1;
 
     public SavedCompositions() {
@@ -61,12 +66,21 @@ public class SavedCompositions extends VBox implements AppContent {
             Region region = new Region();
             VBox.setVgrow(region, Priority.ALWAYS);
 
+            saveDate = new DatePicker();
+            // https://stackoverflow.com/questions/48238855/how-to-disable-past-dates-in-datepicker-of-javafx-scene-builder
+            saveDate.setDayCellFactory(picker -> new DateCell() {
+                public void updateItem(LocalDate date, boolean empty) {
+                    super.updateItem(date, empty);
+                    LocalDate today = LocalDate.now();
+                    setDisable(empty || date.compareTo(today) < 0 );
+                }
+            });
             saveMsg = new Label();
             saveBtn = new Button("Save Squad Composition to CSV");
             saveBtn.setOnAction(e -> saveToCSV());
             HBox bottomPane = new HBox(10);
             bottomPane.setPadding(new Insets(10));
-            bottomPane.getChildren().addAll(saveBtn, saveMsg);
+            bottomPane.getChildren().addAll(saveDate, saveBtn, saveMsg);
             bottomPane.setAlignment(Pos.CENTER);
 
             getChildren().clear();
@@ -95,10 +109,13 @@ public class SavedCompositions extends VBox implements AppContent {
      */
     private void saveToCSV() {
         App parent = (App) getParent();
-        saveBtn.setDisable(true);
-        saveMsg.setText("Saving to CSV...");
-        SquadSaver.saveCompsToCSV(squadComps, parent.getTraineeList());
-        saveMsg.setText("Successfully saved to CSV.");
-        saveBtn.setDisable(false);
+        if (saveDate.getValue() == null) saveMsg.setText("Please select a date.");
+        else {
+            saveBtn.setDisable(true);
+            saveMsg.setText("Saving to CSV...");
+            SquadSaver.exportToCSV(squadComps, parent.getTraineeList(), saveDate.getValue().toString());
+            saveMsg.setText("Successfully saved to CSV.");
+            saveBtn.setDisable(false);
+        }
     }
 }

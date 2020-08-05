@@ -1,6 +1,10 @@
 package signups;
 
+import javafx.beans.property.SimpleStringProperty;
+
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A class that can hold information about a player.
@@ -9,13 +13,14 @@ import java.util.ArrayList;
  */
 public class Player {
 
+    public static String[] ROLES = {"DPS", "Banners", "Offheal", "Heal Renegade", "Heal FB", "Druid", "Alacrigade", "Quickness FB", "Power Boon Chrono", "Chrono Tank", "Quickness Chrono"};
     private final String gw2Account;
     private final String discordName;
     private final String tier;
     private final String comments;
     private final int bossLvlChoice;
     private int roles;
-    private String assignedRole;
+    private final SimpleStringProperty assignedRole = new SimpleStringProperty();
 
     public Player(String gw2Account, String discordName, String tier, String comments, int roles, int bossLvlChoice) {
         this.gw2Account = gw2Account;
@@ -28,11 +33,11 @@ public class Player {
 
     public Player(Player player) {
         this(player.getGw2Account(), player.getDiscordName(), player.getTier(), player.getComments(), player.getRoles(), player.getBossLvlChoice());
-        this.assignedRole = player.getAssignedRole();
+        this.assignedRole.set(player.getAssignedRole());
     }
 
     public String toString() {
-        return assignedRole == null ? gw2Account : String.format("%s - %s", gw2Account, assignedRole);
+        return assignedRole.get() == null ? getName() : String.format("%s - %s", getName(), assignedRole.get());
     }
 
     public String getGw2Account() {
@@ -60,10 +65,18 @@ public class Player {
     }
 
     public void setAssignedRole(int role) {
-        this.assignedRole = roleValToName(role);
+        this.assignedRole.set(roleValToName(role));
+    }
+
+    public void setAssignedRole(String role) {
+        this.assignedRole.set(role);
     }
 
     public String getAssignedRole() {
+        return assignedRole.get();
+    }
+
+    public SimpleStringProperty assignedRoleProperty() {
         return assignedRole;
     }
 
@@ -76,7 +89,7 @@ public class Player {
         int power = 2;
         if ((roles & 2) > 0) roleList.add("Power DPS");
         if ((roles & 1) > 0) roleList.add("Condi DPS");
-        while (power < 12) {
+        while (power < ROLES.length + 2) {
             int bitMask = (int) Math.pow(2, power);
             if (!((roles & bitMask) == 0)) roleList.add(roleValToName(bitMask));
             ++power;
@@ -84,37 +97,52 @@ public class Player {
         return roleList.toArray(new String[roleList.size()]);
     }
 
+    public Set<String> getSimpleRoleList() {
+        HashSet<String> rolesAvailable = new HashSet<>();
+        for (int i = 0; i < Player.ROLES.length + 2; ++i) {
+            int roleNum = (int) Math.pow(2, i);
+            if ((roles & roleNum) > 0) rolesAvailable.add(Player.roleValToName(roleNum));
+        }
+        return rolesAvailable;
+    }
+
+    public String getName() {
+        return gw2Account.isBlank() ? discordName : gw2Account;
+    }
+
     /**
      * Translate an integer role value into it's role name.
      * @param role The role value.
      * @return The name of the role.
      */
-    private String roleValToName(int role) {
+    public static String roleValToName(int role) {
         switch (role) {
             case 1:
             case 2:
             case 3:
-                return "DPS";
+                return ROLES[0];
             case 4:
-                return "Banners";
+                return ROLES[1];
             case 8:
-                return "Offheal";
+                return ROLES[2];
             case 16:
-                return "Heal Renegade";
+                return ROLES[3];
             case 32:
-                return "Heal FB";
+                return ROLES[4];
             case 64:
-                return "Druid";
+                return ROLES[5];
             case 128:
-                return "Alacrigade";
+                return ROLES[6];
             case 256:
-                return "Quickness FB";
+                return ROLES[7];
             case 512:
-                return "Power Boon Chrono";
+                return ROLES[8];
             case 1024:
-                return "Chrono Tank";
+                return ROLES[9];
+            case 2048:
+                return ROLES[10];
             default:
-                return "Other";
+                return null;
         }
     }
 }

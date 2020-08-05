@@ -1,10 +1,12 @@
-package view;
+package Components;
 
 import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.scene.control.ListView;
 import javafx.scene.input.TransferMode;
 import signups.Player;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Custom ListView to display and store a list of players.
@@ -12,6 +14,8 @@ import signups.Player;
  * @version 1.0
  */
 public class PlayerListView extends ListView<Player> {
+
+    private static final String[] ROLE_ORDER = {"Chrono Tank", "Heal FB", "Heal Renegade", "Alacrigade", "Quickness FB", "Quickness Chrono", "Power Boon Chrono", "Druid", "Offheal", "Banners", "DPS"};
 
     public PlayerListView() {
         setCellFactory(p -> new PlayerListCell());
@@ -22,6 +26,24 @@ public class PlayerListView extends ListView<Player> {
         super(items);
         setCellFactory(p -> new PlayerListCell());
         setDraggingFeatures();
+    }
+
+    public static void sortPlayerList(List<Player> playerList) {
+        playerList.sort(Comparator.comparingInt(PlayerListView::getRoleOrder));
+        playerList.sort(Comparator.comparingInt(PlayerListView::getRankOrder));
+    }
+
+    private static int getRankOrder(Player player) {
+        if (player.getTier().toLowerCase().equals("commander")) return 0;
+        else if (player.getTier().toLowerCase().equals("aide")) return 1;
+        else return 2;
+    }
+
+    private static int getRoleOrder(Player player) {
+        for (int i = 0; i < ROLE_ORDER.length; ++i) {
+            if (player.getAssignedRole().equals(ROLE_ORDER[i])) return i;
+        }
+        return ROLE_ORDER.length;
     }
 
     /**

@@ -15,7 +15,7 @@ import search.SolveSquadPlanTask;
  * @author Eren Bole.8720
  * @version 1.0
  */
-public class Solving extends VBox implements AppContent{
+public class Solving extends VBox implements AppContent {
 
     Label msg = new Label();
     Button mainBtn;
@@ -31,13 +31,12 @@ public class Solving extends VBox implements AppContent{
     public void init() {
         App parent = (App) getParent();
         if (parent.getSelectedCommanderList() != null && parent.getTraineeList() != null) {
-
-
-
             setAlignment(Pos.CENTER);
             mainBtn = new Button("Generate Squads");
             mainBtn.setOnAction(e -> toggleSolving());
-            getChildren().addAll(mainBtn, msg);
+            Button manualBtn = new Button("Make Squads Manually");
+            manualBtn.setOnAction(e -> parent.setAndInitCenter(new Result()));
+            getChildren().addAll(mainBtn, msg, manualBtn);
         }
     }
 

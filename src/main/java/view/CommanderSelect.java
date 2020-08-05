@@ -1,5 +1,6 @@
 package view;
 
+import Components.CommanderTable;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

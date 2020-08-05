@@ -1,4 +1,4 @@
-package view;
+package Components;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -36,6 +36,7 @@ public class RoleCell extends TableCell<Commander, Number> {
         });
     }
 
+    @Override
     protected void updateItem(Number rolesSelected, boolean empty) {
         super.updateItem(rolesSelected,empty);
         if (empty || getTableRow() == null) {
