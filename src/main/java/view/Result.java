@@ -111,6 +111,7 @@ public class Result extends BorderPane implements AppContent{
         squads.add(playerListView.getItems());
         squad.getChildren().addAll(new Label("Squad " + (squadIndex+1)), playerListView);
         squad.setAlignment(Pos.TOP_CENTER);
+        HBox.setHgrow(squad, Priority.ALWAYS);
         return squad;
     }
 
@@ -158,6 +159,7 @@ public class Result extends BorderPane implements AppContent{
         Button reRunSolver = new Button("Find a Different Setup");
         Button saveToCSVBtn = new Button("Save Squad Composition to CSV");
         Button sortSquads = new Button("Sort squads the Kez way");
+        Button removeSolution = new Button("Delete this Solution");
 
         reRunSolver.setOnAction(e -> findNewSetup());
         clearComp.setOnAction(e -> clearSquadComp());
@@ -173,6 +175,12 @@ public class Result extends BorderPane implements AppContent{
         });
         saveToCSVBtn.setOnAction(e -> saveToCSV());
         sortSquads.setOnAction(e -> sortPlayerOrder());
+        removeSolution.setOnAction(e -> {
+            App parent = (App) getParent();
+            parent.setSolution(null);
+            for (Player player : players) player.setAssignedRole(null);
+            parent.setAndInitCenter(new Solving());
+        });
 
         HBox squadsControl = new HBox(10);
         squadsControl.setAlignment(Pos.CENTER);
@@ -193,7 +201,7 @@ public class Result extends BorderPane implements AppContent{
         squadsControl.getChildren().addAll(removeSquad, addSquad);
 
         VBox panel = new VBox(10);
-        panel.getChildren().addAll(clearComp, autoFill, reRunSolver, saveToCSVBtn, sortSquads, new Region(), new Label("Squads:"), squadsControl);
+        panel.getChildren().addAll(clearComp, autoFill, reRunSolver, saveToCSVBtn, sortSquads, removeSolution, new Region(), new Label("Squads:"), squadsControl);
         panel.setAlignment(Pos.TOP_CENTER);
         panel.setPadding(new Insets(0,0,0,10));
 

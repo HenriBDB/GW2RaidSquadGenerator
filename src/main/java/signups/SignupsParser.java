@@ -64,7 +64,8 @@ public class SignupsParser {
         if (!playerLine[columnIndices[4]].isBlank()) roles += 1024; // cTank
         if (!playerLine[columnIndices[5]].isBlank()) roles += 64; // Druid
         if (!playerLine[columnIndices[6]].isBlank()) roles += 8; // Offheal
-        if (!playerLine[columnIndices[7]].isBlank()) roles += 512; // cSupp
+        if (playerLine[columnIndices[7]].toLowerCase().contains("offchrono")) roles += 512; // cSupp
+        if (playerLine[columnIndices[7]].toLowerCase().contains("quickchrono")) roles += 2048; // cSupp
         if (playerLine[columnIndices[8]].toLowerCase().contains("dps")) roles += 128; // Alacrigade
         if (playerLine[columnIndices[8]].toLowerCase().contains("healer")) roles += 16; // Heal Rene
         if (playerLine[columnIndices[9]].toLowerCase().contains("dps")) roles += 256; // qFB

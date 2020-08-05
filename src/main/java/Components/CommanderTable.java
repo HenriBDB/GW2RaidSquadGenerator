@@ -26,7 +26,7 @@ public class CommanderTable extends TableView<Commander> {
     private void init() {
         TableColumn<Commander, Number> checkAll = new TableColumn<>();
         checkAll.setCellValueFactory(f -> f.getValue().getChosenRoles());
-        checkAll.setCellFactory(p -> new RoleCell(2047));
+        checkAll.setCellFactory(p -> new RoleCell(4095));
         checkAll.setPrefWidth(40);
 
         TableColumn<Commander, String> name = new TableColumn<>("Name");
@@ -43,6 +43,10 @@ public class CommanderTable extends TableView<Commander> {
         TableColumn<Commander, Number> druid = new TableColumn<>("Druid");
         druid.setCellValueFactory(f -> f.getValue().getChosenRoles());
         druid.setCellFactory(p -> new RoleCell(64));
+
+        TableColumn<Commander, Number> qChrono = new TableColumn<>("Quickness Chrono");
+        qChrono.setCellValueFactory(f -> f.getValue().getChosenRoles());
+        qChrono.setCellFactory(p -> new RoleCell(2048));
 
         TableColumn<Commander, Number> qFB = new TableColumn<>("Quickness FB");
         qFB.setCellValueFactory(f -> f.getValue().getChosenRoles());
@@ -72,7 +76,7 @@ public class CommanderTable extends TableView<Commander> {
         dps.setCellValueFactory(f -> f.getValue().getChosenRoles());
         dps.setCellFactory(p -> new RoleCell(3));
 
-        getColumns().addAll(checkAll, name, tank, cSupp, druid, qFB, hFB, healRene, alacrigade, offheal, bs, dps);
+        getColumns().addAll(checkAll, name, tank, cSupp, druid, qChrono, qFB, hFB, healRene, alacrigade, offheal, bs, dps);
     }
 
 }

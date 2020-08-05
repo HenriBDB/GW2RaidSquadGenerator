@@ -9,6 +9,7 @@ import java.util.ArrayList;
  */
 public class Player {
 
+    public static String[] ROLES = {"DPS", "Banners", "Offheal", "Heal Renegade", "Heal FB", "Druid", "Alacrigade", "Quickness FB", "Power Boon Chrono", "Chrono Tank", "Quickness Chrono"};
     private final String gw2Account;
     private final String discordName;
     private final String tier;
@@ -80,7 +81,7 @@ public class Player {
         int power = 2;
         if ((roles & 2) > 0) roleList.add("Power DPS");
         if ((roles & 1) > 0) roleList.add("Condi DPS");
-        while (power < 12) {
+        while (power < ROLES.length + 2) {
             int bitMask = (int) Math.pow(2, power);
             if (!((roles & bitMask) == 0)) roleList.add(roleValToName(bitMask));
             ++power;
@@ -102,25 +103,27 @@ public class Player {
             case 1:
             case 2:
             case 3:
-                return "DPS";
+                return ROLES[0];
             case 4:
-                return "Banners";
+                return ROLES[1];
             case 8:
-                return "Offheal";
+                return ROLES[2];
             case 16:
-                return "Heal Renegade";
+                return ROLES[3];
             case 32:
-                return "Heal FB";
+                return ROLES[4];
             case 64:
-                return "Druid";
+                return ROLES[5];
             case 128:
-                return "Alacrigade";
+                return ROLES[6];
             case 256:
-                return "Quickness FB";
+                return ROLES[7];
             case 512:
-                return "Power Boon Chrono";
+                return ROLES[8];
             case 1024:
-                return "Chrono Tank";
+                return ROLES[9];
+            case 2048:
+                return ROLES[10];
             default:
                 return null;
         }

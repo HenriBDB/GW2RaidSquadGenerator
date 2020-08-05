@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class PlayerListView extends ListView<Player> {
 
-    private static final String[] ROLE_ORDER = {"Chrono Tank", "Druid", "Heal FB", "Heal Renegade", "Alacrigade", "Quickness FB", "Power Boon Chrono", "Offheal", "Banners", "DPS"};
+    private static final String[] ROLE_ORDER = {"Chrono Tank", "Heal FB", "Heal Renegade", "Alacrigade", "Quickness FB", "Quickness Chrono", "Power Boon Chrono", "Druid", "Offheal", "Banners", "DPS"};
 
     public PlayerListView() {
         setCellFactory(p -> new PlayerListCell());

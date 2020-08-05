@@ -72,7 +72,7 @@ public class SquadComposition implements CSP {
             if (commCount + aideCount > 2) return false;
             if (squad.size() == 10 && commCount == 0 && aideCount == 0) return false;
             // Role check.
-            long offhealCount, healReneCount, healFBCount, quickFBCount, alacrigadeCount, cSuppCount;
+            long offhealCount, healReneCount, healFBCount, quickFBCount, quickChronoCount, alacrigadeCount, cSuppCount;
             if (squad.stream().filter(p -> p.getAssignedRole().equals("DPS")).count() > 5) return false;
             if (squad.stream().filter(p -> p.getAssignedRole().equals("Chrono Tank")).count() > 1) return false;
             if (squad.stream().filter(p -> p.getAssignedRole().equals("Banners")).count() > 1) return false;
@@ -82,13 +82,14 @@ public class SquadComposition implements CSP {
             if ((healFBCount = squad.stream().filter(p -> p.getAssignedRole().equals("Heal FB")).count()) > 1) return false;
             if ((alacrigadeCount = squad.stream().filter(p -> p.getAssignedRole().equals("Alacrigade")).count()) > 1) return false;
             if ((quickFBCount = squad.stream().filter(p -> p.getAssignedRole().equals("Quickness FB")).count()) > 1) return false;
+            if ((quickChronoCount = squad.stream().filter(p -> p.getAssignedRole().equals("Quickness Chrono")).count()) > 1) return false;
             if ((cSuppCount = squad.stream().filter(p -> p.getAssignedRole().equals("Power Boon Chrono")).count()) > 1) return false;
             if ((offhealCount & healReneCount) == 1 || (offhealCount & healFBCount) == 1 || (healFBCount & healReneCount) == 1)
                 return false; // At least 2 offheals...
             if ((cSuppCount & quickFBCount) == 1 || (cSuppCount & alacrigadeCount) == 1 || (quickFBCount & alacrigadeCount) == 1)
                 return false; // At least 2 DPS boons players.
-            if ((alacrigadeCount & healReneCount) == 1 || (quickFBCount & healFBCount) == 1 ||
-                    (quickFBCount & offhealCount) == 1 || (alacrigadeCount & offhealCount) == 1)
+            if ((alacrigadeCount & healReneCount) == 1 || (quickFBCount+quickChronoCount & healFBCount) == 1 ||
+                    (quickFBCount+quickChronoCount & offhealCount) == 1 || (alacrigadeCount & offhealCount) == 1)
                 return false; // Wrong support pairs.
         }
         return true;
