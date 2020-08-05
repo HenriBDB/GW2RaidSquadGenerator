@@ -30,12 +30,7 @@ public class RoleSelectPopUp {
      */
     private static ComboBox<String> getDropDownSelector(Player player) {
         ComboBox<String> dropDownSelector = new ComboBox<>();
-        HashSet<String> rolesAvailable = new HashSet<>();
-        for (int i = 0; i < Player.ROLES.length + 2; ++i) {
-            int roleNum = (int) Math.pow(2, i);
-            if ((player.getRoles() & roleNum) > 0) rolesAvailable.add(Player.roleValToName(roleNum));
-        }
-        dropDownSelector.getItems().addAll(rolesAvailable);
+        dropDownSelector.getItems().addAll(player.getSimpleRoleList());
         dropDownSelector.getSelectionModel().selectFirst();
         return dropDownSelector;
     }

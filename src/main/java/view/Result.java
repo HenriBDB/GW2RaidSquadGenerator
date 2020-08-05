@@ -1,6 +1,8 @@
 package view;
 
 import Components.PlayerListView;
+import Components.RoleStatRow;
+import Components.RolesStatTable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -19,6 +21,7 @@ import signups.SquadSaver;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -40,10 +43,12 @@ public class Result extends BorderPane implements AppContent{
     List<List<Player>> squads = new ArrayList<>();
     ObservableList<Player> commandersAndAides, trainees;
     HBox squadViews;
+    VBox statsView;
     Button saveBtn, autoFill;
     Label saveMsg;
     BestFirstSearchTask solver;
     TextField compName;
+    HashMap<String, RoleStatRow> stats = new HashMap<>();
 
     public Result() {}
 
@@ -64,6 +69,7 @@ public class Result extends BorderPane implements AppContent{
                 }).collect(Collectors.toCollection(ArrayList::new));
             }
 
+            generateStats();
             setPadding(new Insets(10));
 
             VBox content = new VBox(10);
@@ -129,11 +135,13 @@ public class Result extends BorderPane implements AppContent{
                 .filter(p -> p.getTier().matches("[0123]") )
                 .collect(Collectors.toList()));
         HBox assignedPlayerList = new HBox(10);
+        statsView = new VBox(10);
+        statsView.getChildren().add(new RolesStatTable(FXCollections.observableArrayList(stats.values())));
         VBox c = new VBox(10); c.getChildren().addAll(new Label("Commanders and Aides: "), new PlayerListView(commandersAndAides));
         VBox t = new VBox(10); t.getChildren().addAll(new Label("Trainees: "), new PlayerListView(trainees));
         HBox.setHgrow(c, Priority.ALWAYS);
         HBox.setHgrow(t, Priority.ALWAYS);
-        assignedPlayerList.getChildren().addAll(c, t);
+        assignedPlayerList.getChildren().addAll(statsView, c, t);
         assignedPlayerList.setAlignment(Pos.CENTER);
         return assignedPlayerList;
     }
@@ -146,6 +154,39 @@ public class Result extends BorderPane implements AppContent{
             SquadSaver.saveToCSV(squads,
                     Stream.of(getLeftovers(), trainees).flatMap(Collection::stream).collect(Collectors.toList()));
             saveMsg.setText("Successfully saved to CSV.");
+        }
+    }
+
+    /**
+     * Generate left and assigned stats.
+     */
+    private void generateStats() {
+        for (String role : Player.ROLES) stats.put(role, new RoleStatRow(role));
+        for (Player player : players) {
+            if (player.getAssignedRole() == null) {
+                updateStatsClearedPlayer(player, null);
+            } else updateStatsAssignedPlayer(player, false);
+
+            player.assignedRoleProperty().addListener((e, oldVal, newVal) -> {
+                if (newVal == null) updateStatsClearedPlayer(player, oldVal);
+                else updateStatsAssignedPlayer(player, true);
+            });
+        }
+    }
+
+    private void updateStatsClearedPlayer(Player player, String oldValue) {
+        for (String availableRole : player.getSimpleRoleList()) {
+            stats.get(availableRole).incrementLeft();
+        }
+        if (oldValue != null) stats.get(oldValue).decrementAssigned();
+    }
+
+    private void updateStatsAssignedPlayer(Player player, boolean wasUnassigned) {
+        stats.get(player.getAssignedRole()).incrementAssigned();
+        if (wasUnassigned) {
+            for (String availableRole : player.getSimpleRoleList()) {
+                stats.get(availableRole).decrementLeft();
+            }
         }
     }
 
