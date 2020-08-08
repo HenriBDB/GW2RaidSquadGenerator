@@ -27,8 +27,10 @@ jlink {
 
 dependencies {
     // https://mvnrepository.com/artifact/com.opencsv/opencsv
+    // https://mvnrepository.com/artifact/org.jfxtras/jmetro
     implementation 'com.opencsv:opencsv:5.2'
+    implementation 'org.jfxtras:jmetro:11.6.12'
 }
 
 applicationDefaultJvmArgs = ['-Djdk.gtk.version=2']
-mainClassName = 'Main'
+mainClassName = 'app.Main'

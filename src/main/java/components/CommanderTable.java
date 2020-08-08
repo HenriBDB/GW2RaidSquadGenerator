@@ -1,4 +1,4 @@
-package Components;
+package components;
 
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
@@ -18,6 +18,8 @@ public class CommanderTable extends TableView<Commander> {
     public CommanderTable(ObservableList<Commander> items) {
         super(items);
         init();
+        getStylesheets().add("style/table-custom.css");
+        setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
 
     /**

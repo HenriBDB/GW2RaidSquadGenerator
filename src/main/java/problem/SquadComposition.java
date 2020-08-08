@@ -83,7 +83,7 @@ public class SquadComposition implements CSP {
             if ((alacrigadeCount = squad.stream().filter(p -> p.getAssignedRole().equals("Alacrigade")).count()) > 1) return false;
             if ((quickFBCount = squad.stream().filter(p -> p.getAssignedRole().equals("Quickness FB")).count()) > 1) return false;
             if ((quickChronoCount = squad.stream().filter(p -> p.getAssignedRole().equals("Quickness Chrono")).count()) > 1) return false;
-            if ((cSuppCount = squad.stream().filter(p -> p.getAssignedRole().equals("Power Boon Chrono")).count()) > 1) return false;
+            if ((cSuppCount = squad.stream().filter(p -> p.getAssignedRole().equals("Offchrono")).count()) > 1) return false;
             if ((offhealCount & healReneCount) == 1 || (offhealCount & healFBCount) == 1 || (healFBCount & healReneCount) == 1)
                 return false; // At least 2 offheals...
             if ((cSuppCount & quickFBCount) == 1 || (cSuppCount & alacrigadeCount) == 1 || (quickFBCount & alacrigadeCount) == 1)

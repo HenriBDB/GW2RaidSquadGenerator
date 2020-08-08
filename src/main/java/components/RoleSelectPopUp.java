@@ -1,4 +1,4 @@
-package Components;
+package components;
 
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
@@ -9,9 +9,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import jfxtras.styles.jmetro.JMetro;
 import signups.Player;
+import app.Main;
 
-import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -75,6 +76,8 @@ public class RoleSelectPopUp {
         popup.setY((screenBounds.getHeight() - height) / 2);
 
         Scene scene = new Scene(popupContent, width, height);
+        JMetro jMetro = new JMetro(Main.getTheme());
+        jMetro.setScene(scene);
         popup.setScene(scene);
         popup.showAndWait();
 

@@ -1,9 +1,10 @@
-package Components;
+package components;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TableCell;
+import javafx.scene.layout.HBox;
 import signups.Commander;
 
 /**
@@ -16,13 +17,15 @@ import signups.Commander;
 public class RoleCell extends TableCell<Commander, Number> {
 
     CheckBox checkBox = new CheckBox();
+    HBox container = new HBox();
     int roleMask;
 
     public RoleCell(int roleMask) {
         super();
         this.roleMask = roleMask;
         checkBox.setPadding(new Insets(0, 5, 0, 5));
-        setAlignment(Pos.CENTER);
+        container.getChildren().add(checkBox);
+        container.setAlignment(Pos.CENTER);
 
         checkBox.setOnAction(e -> {
             if (getTableRow() != null) {
@@ -42,7 +45,7 @@ public class RoleCell extends TableCell<Commander, Number> {
         if (empty || getTableRow() == null) {
             setGraphic(null);
         } else {
-            setGraphic(checkBox);
+            setGraphic(container);
             Commander player = getTableRow().getItem();
             if (player != null) {
                 checkBox.setDisable((player.getRoles() & roleMask) == 0);

@@ -1,6 +1,7 @@
 package signups;
 
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -13,7 +14,7 @@ import java.util.Set;
  */
 public class Player {
 
-    public static String[] ROLES = {"DPS", "Banners", "Offheal", "Heal Renegade", "Heal FB", "Druid", "Alacrigade", "Quickness FB", "Power Boon Chrono", "Chrono Tank", "Quickness Chrono"};
+    public static String[] ROLES = {"DPS", "Banners", "Offheal", "Heal Renegade", "Heal FB", "Druid", "Alacrigade", "Quickness FB", "Offchrono", "Chrono Tank", "Quickness Chrono"};
     private final String gw2Account;
     private final String discordName;
     private final String tier;
@@ -21,6 +22,7 @@ public class Player {
     private final int bossLvlChoice;
     private int roles;
     private final SimpleStringProperty assignedRole = new SimpleStringProperty();
+    private ChangeListener<String> assignedRoleListener;
 
     public Player(String gw2Account, String discordName, String tier, String comments, int roles, int bossLvlChoice) {
         this.gw2Account = gw2Account;
@@ -104,6 +106,16 @@ public class Player {
             if ((roles & roleNum) > 0) rolesAvailable.add(Player.roleValToName(roleNum));
         }
         return rolesAvailable;
+    }
+
+    public void setRoleListener(ChangeListener<String> changeListener) {
+        assignedRoleListener = changeListener;
+        assignedRole.addListener(changeListener);
+    }
+
+    public void clearRoleListener() {
+        assignedRole.removeListener(assignedRoleListener);
+        assignedRoleListener = null;
     }
 
     public String getName() {

@@ -2,6 +2,7 @@ package problem;
 
 import signups.Player;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,7 +16,7 @@ public class SquadSolution {
     List<List<Player>> squads;
 
     public SquadSolution(List<List<Player>> squads, String name) {
-        this.squads = squads;
+        this.squads = new ArrayList<>(squads);
         this.name = name;
     }
 

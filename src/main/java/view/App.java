@@ -5,9 +5,8 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import jfxtras.styles.jmetro.JMetroStyleClass;
 import problem.SquadPlan;
 import problem.SquadSolution;
 import signups.Commander;
@@ -31,13 +30,17 @@ public class App extends BorderPane {
     private ArrayList<Commander> commanderList;
     private final List<SquadSolution> savedSolutions = new ArrayList<>();
     private SquadPlan solution;
-    private Button home, commanderSelect, solvingScreen, resultScreen, storedSolutions;
+    private Button homeButton, commanderSelectButton, solvingScreenButton, resultScreenButton, storedSolutionsButton;
     private HBox bossLevelMenu;
     private ComboBox<String> bossLevelChoice;
     private Label numTrainees;
-    Spinner<Integer> numSquads;
+    private Spinner<Integer> numSquads;
+    private AppContent playerListSelect, commanderSelect, solvingUI, savedCompositions;
+    private Result resultUI;
 
     public App() {
+        getStyleClass().add(JMetroStyleClass.BACKGROUND);
+        getStylesheets().add("style/main.css");
         setTop(menuBar());
         updateMenubar();
     }
@@ -113,35 +116,49 @@ public class App extends BorderPane {
     }
 
     /**
+     * Refresh the results page.
+     */
+    public void cleanupResults() {
+        if (resultUI != null) resultUI.cleanup();
+    }
+
+    /**
      * Create a menu bar with buttons to each of the different pages.
      * @return The menu bar.
      */
     private VBox menuBar() {
-        home = new Button("Home");
-        commanderSelect = new Button("Select Commanders");
-        solvingScreen = new Button("Squad Generation");
-        resultScreen = new Button("Squad Composition");
-        storedSolutions = new Button("Saved Squad Compositions");
+        homeButton = new Button("Home");
+        commanderSelectButton = new Button("Select Commanders");
+        solvingScreenButton = new Button("Squad Generation");
+        resultScreenButton = new Button("Squad Composition");
+        Region region = new Region();
+        storedSolutionsButton = new Button("Saved Squad Compositions");
 
-        home.setOnAction(e -> {
-            if (!(getCenter() instanceof PlayerListSelect)) setAndInitCenter(new PlayerListSelect());
+        homeButton.setOnAction(e -> {
+            if (!(getCenter() instanceof PlayerListSelect)) navigatePlayerListSelect();
         });
-        commanderSelect.setOnAction(e -> {
-            if (!(getCenter() instanceof CommanderSelect)) setAndInitCenter(new CommanderSelect());
+        commanderSelectButton.setOnAction(e -> {
+            if (!(getCenter() instanceof CommanderSelect)) navigateCommanderSelect();
         });
-        solvingScreen.setOnAction(e -> {
-            if (!(getCenter() instanceof Solving)) setAndInitCenter(new Solving());
+        solvingScreenButton.setOnAction(e -> {
+            if (!(getCenter() instanceof Solving)) navigateSolving();
         });
-        resultScreen.setOnAction(e -> {
-            if (!(getCenter() instanceof Result)) setAndInitCenter(new Result());
+        resultScreenButton.setOnAction(e -> {
+            if (!(getCenter() instanceof Result)) navigateResult();
         });
-        storedSolutions.setOnAction(e -> {
-            if (!(getCenter() instanceof SavedCompositions)) setAndInitCenter(new SavedCompositions());
+        storedSolutionsButton.setOnAction(e -> {
+            if (!(getCenter() instanceof SavedCompositions)) navigateSavedCompositions();
         });
 
-        HBox menu = new HBox(10);
+        HBox menu = new HBox();
         menu.setPadding(new Insets(10));
-        menu.getChildren().addAll(home, commanderSelect, solvingScreen, resultScreen, storedSolutions);
+        menu.getChildren().addAll(homeButton, commanderSelectButton,
+                solvingScreenButton, resultScreenButton, storedSolutionsButton, region);
+        menu.getChildren().forEach(btn -> {
+            btn.getStyleClass().add("menuButton");
+            HBox.setHgrow(btn, Priority.ALWAYS);
+            if (btn instanceof Button) ((Button) btn).setDefaultButton(true);
+        });
 
         bossLevelMenu = new HBox(10);
         bossLevelChoice = new ComboBox<>();
@@ -168,26 +185,26 @@ public class App extends BorderPane {
      * Disable any links to pages that require currently unavailable data.
      */
     private void updateMenubar() {
-        commanderSelect.setDisable(commanderList == null || traineeList == null);
-        solvingScreen.setDisable(selectedCommanderList == null || traineeList == null);
-        resultScreen.setDisable(selectedCommanderList == null || traineeList == null || solution == null);
+        commanderSelectButton.setDisable(commanderList == null || traineeList == null);
+        solvingScreenButton.setDisable(selectedCommanderList == null || traineeList == null);
+        resultScreenButton.setDisable(selectedCommanderList == null || selectedTraineeList == null);
     }
 
     /**
      * Add or remove a bold underline to tabs to indicate current page.
      */
     private void menuBarStyling(Node page, boolean remove) {
-        if (page instanceof PlayerListSelect) setBtnStyling(home, remove);
-        else if (page instanceof CommanderSelect) setBtnStyling(commanderSelect, remove);
-        else if (page instanceof Solving) setBtnStyling(solvingScreen, remove);
-        else if (page instanceof Result) setBtnStyling(resultScreen, remove);
-        else if (page instanceof SavedCompositions) setBtnStyling(storedSolutions, remove);
+        if (page instanceof PlayerListSelect) setBtnStyling(homeButton, remove);
+        else if (page instanceof CommanderSelect) setBtnStyling(commanderSelectButton, remove);
+        else if (page instanceof Solving) setBtnStyling(solvingScreenButton, remove);
+        else if (page instanceof Result) setBtnStyling(resultScreenButton, remove);
+        else if (page instanceof SavedCompositions) setBtnStyling(storedSolutionsButton, remove);
     }
 
     private void setBtnStyling(Button btn, boolean remove) {
-        if (remove) btn.setStyle(null);
+        if (remove) btn.setId("");
         else {
-            btn.setStyle("-fx-border-color: black; -fx-border-width: 0px 0px 5px 0px;");
+            btn.setId("currentPage");
         }
     }
 
@@ -195,7 +212,7 @@ public class App extends BorderPane {
      * Filter out trainees based on their tier and the chosen
      * boss level for the training session.
      */
-    private void updateAvailableTrainees() {
+    public void updateAvailableTrainees() {
         if (traineeList != null) {
             selectedTraineeList = traineeList.stream().filter(p -> {
                 if (bossLevelChoice.getSelectionModel().getSelectedItem().equals(bossLevels[1])) {
@@ -206,5 +223,38 @@ public class App extends BorderPane {
             }).collect(Collectors.toCollection(ArrayList::new));
             numTrainees.setText(String.format("%d valid trainees.", selectedTraineeList.size()));
         }
+    }
+
+    /**
+     * Navigate to the different pages on this app.
+     * If a given page has not been created yet, create new.
+     */
+    public void navigatePlayerListSelect() {
+        if (playerListSelect == null) playerListSelect = new PlayerListSelect(this);
+        setAndInitCenter(playerListSelect);
+    }
+
+    public void navigateCommanderSelect() {
+        if (commanderSelect == null) commanderSelect = new CommanderSelect(this);
+        setAndInitCenter(commanderSelect);
+    }
+
+    public void navigateSolving() {
+        if (solvingUI == null) solvingUI = new Solving(this);
+        setAndInitCenter(solvingUI);
+    }
+
+    public void navigateResult() {
+        if (resultUI == null) resultUI = new Result(this);
+        setAndInitCenter(resultUI);
+    }
+
+    public void navigateSavedCompositions() {
+        if (savedCompositions == null) savedCompositions = new SavedCompositions(this);
+        setAndInitCenter(savedCompositions);
+    }
+
+    public AppContent getSolvingUI() {
+        return solvingUI;
     }
 }

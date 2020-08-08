@@ -1,6 +1,6 @@
 package view;
 
-import Components.PlayerListView;
+import components.PlayerListView;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -12,6 +12,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import jfxtras.styles.jmetro.JMetroStyleClass;
 import problem.SquadSolution;
 import signups.Player;
 import signups.SquadSaver;
@@ -31,21 +32,25 @@ public class SavedCompositions extends VBox implements AppContent {
     static {
         NO_SAVED_COMPS = "There are currently no saved compositions...";
     }
+    App parent;
     List<SquadSolution> squadComps;
     HBox squadView, squadCompLinks;
     Label compName, saveMsg;
     Button saveBtn;
     DatePicker saveDate;
-    int current = -1;
+    int current;
 
-    public SavedCompositions() {
+    public SavedCompositions(App parent) {
         super(10);
+        this.parent = parent;
         setPadding(new Insets(0, 10, 0 ,10));
         setAlignment(Pos.TOP_CENTER);
+        getStyleClass().add(JMetroStyleClass.BACKGROUND);
     }
 
     public void init() {
-        App parent = (App) getParent();
+        current = -1;
+        getChildren().clear();
         if (parent.getSavedSolutions() == null || parent.getSavedSolutions().isEmpty()) {
             getChildren().add(new Label(NO_SAVED_COMPS));
         } else {
@@ -55,6 +60,7 @@ public class SavedCompositions extends VBox implements AppContent {
             squadCompLinks = new HBox(10);
             squadCompLinks.setAlignment(Pos.CENTER);
             squadView.setAlignment(Pos.CENTER);
+            VBox.setVgrow(squadView, Priority.ALWAYS);
             for (int i=0; i < squadComps.size(); ++i) {
                 Button showCompBtn = new Button(squadComps.get(i).getName());
                 int finalI = i;
@@ -84,7 +90,7 @@ public class SavedCompositions extends VBox implements AppContent {
             bottomPane.setAlignment(Pos.CENTER);
 
             getChildren().clear();
-            getChildren().addAll(squadCompLinks, compName, squadView, region, bottomPane);
+            getChildren().addAll(squadCompLinks, compName, squadView, bottomPane);
         }
     }
 
@@ -99,7 +105,10 @@ public class SavedCompositions extends VBox implements AppContent {
             compName.setText(toDisplay.getName());
             squadView.getChildren().clear();
             for (List<Player> squad : toDisplay.getSquads()) {
-                squadView.getChildren().add(new PlayerListView(FXCollections.observableList(squad)));
+                PlayerListView view = new PlayerListView(FXCollections.observableList(squad));
+                HBox.setHgrow(view, Priority.ALWAYS);
+                VBox.setVgrow(view, Priority.ALWAYS);
+                squadView.getChildren().add(view);
             }
         }
     }
@@ -108,7 +117,6 @@ public class SavedCompositions extends VBox implements AppContent {
      * Save all the stored compositions to CSV.
      */
     private void saveToCSV() {
-        App parent = (App) getParent();
         if (saveDate.getValue() == null) saveMsg.setText("Please select a date.");
         else {
             saveBtn.setDisable(true);

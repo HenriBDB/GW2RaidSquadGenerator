@@ -1,4 +1,4 @@
-package Components;
+package components;
 
 import javafx.collections.ObservableList;
 import javafx.event.Event;
@@ -54,7 +54,7 @@ public class PlayerListCell extends ListCell<Player> {
             setTooltip(null);
             setText(null);
             setGraphic(null);
-            setStyle("-fx-background-color: white; -fx-text-fill: black;");
+            setId("");
         } else {
             this.player = player;
             this.setTooltip(new Tooltip(getTooltipContent()));
@@ -66,13 +66,13 @@ public class PlayerListCell extends ListCell<Player> {
     public void updateStyle() {
         if (player != null) {
             if (roleFilter == null || player.getSimpleRoleList().stream().anyMatch(r -> r.equals(roleFilter))) {
-                if (player.getTier().toLowerCase().equals("commander")) setStyle("-fx-background-color: #4a1c82; -fx-text-fill: white;");
-                else if (player.getTier().toLowerCase().equals("aide")) setStyle("-fx-background-color: #ba7b28; -fx-text-fill: white;");
-                else setStyle("-fx-background-color: white; -fx-text-fill: black;");
+                if (player.getTier().toLowerCase().equals("commander")) setId("comm-visible");
+                else if (player.getTier().toLowerCase().equals("aide")) setId("aide-visible");
+                else setId("player-visible");
             } else {
-                if (player.getTier().toLowerCase().equals("commander")) setStyle("-fx-background-color: rgba(74, 28, 130, 0.5); -fx-text-fill: white;");
-                else if (player.getTier().toLowerCase().equals("aide")) setStyle("-fx-background-color: rgba(186, 123, 40, 0.5); -fx-text-fill: white;");
-                else setStyle("-fx-background-color: rgba(255,255,255,0.5); -fx-text-fill: rgba(0, 0, 0, 0.5);");
+                if (player.getTier().toLowerCase().equals("commander")) setId("comm-filtered");
+                else if (player.getTier().toLowerCase().equals("aide")) setId("aide-filtered");
+                else setId("player-filtered");
             }
         }
     }

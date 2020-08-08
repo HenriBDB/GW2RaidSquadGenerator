@@ -1,5 +1,6 @@
-package Components;
+package components;
 
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.scene.control.ListView;
@@ -15,17 +16,18 @@ import java.util.List;
  */
 public class PlayerListView extends ListView<Player> {
 
-    private static final String[] ROLE_ORDER = {"Chrono Tank", "Heal FB", "Heal Renegade", "Alacrigade", "Quickness FB", "Quickness Chrono", "Power Boon Chrono", "Druid", "Offheal", "Banners", "DPS"};
+    private static final String[] ROLE_ORDER = {"Chrono Tank", "Heal FB", "Heal Renegade", "Alacrigade", "Quickness FB", "Quickness Chrono", "Offchrono", "Druid", "Offheal", "Banners", "DPS"};
 
     public PlayerListView() {
-        setCellFactory(p -> new PlayerListCell());
-        setDraggingFeatures();
+        this(FXCollections.observableArrayList());
     }
 
     public PlayerListView(ObservableList<Player> items) {
         super(items);
         setCellFactory(p -> new PlayerListCell());
         setDraggingFeatures();
+        getStylesheets().add("style/list-view-custom.css");
+        setMaxWidth(500);
     }
 
     public static void sortPlayerList(List<Player> playerList) {
@@ -40,6 +42,7 @@ public class PlayerListView extends ListView<Player> {
     }
 
     private static int getRoleOrder(Player player) {
+        if (player.getAssignedRole() == null) return ROLE_ORDER.length;
         for (int i = 0; i < ROLE_ORDER.length; ++i) {
             if (player.getAssignedRole().equals(ROLE_ORDER[i])) return i;
         }

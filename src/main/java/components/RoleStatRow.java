@@ -1,4 +1,4 @@
-package Components;
+package components;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;

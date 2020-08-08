@@ -1,15 +1,16 @@
 package view;
 
-import Components.PlayerListCell;
-import Components.PlayerListView;
-import Components.RoleStatRow;
-import Components.RolesStatTable;
+import components.PlayerListCell;
+import components.PlayerListView;
+import components.RoleStatRow;
+import components.RolesStatTable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import jfxtras.styles.jmetro.JMetroStyleClass;
 import problem.SquadComposition;
 import problem.SquadPlan;
 import problem.SquadSolution;
@@ -41,62 +42,109 @@ public class Result extends BorderPane implements AppContent{
     List<List<Player>> squads = new ArrayList<>();
     ObservableList<Player> commandersAndAides, trainees;
     HBox squadViews, assignedPlayersViews;
-    VBox statsView;
+    RolesStatTable statsTable = new RolesStatTable(FXCollections.observableArrayList());
     Button saveBtn, autoFill;
     Label saveMsg;
     BestFirstSearchTask solver;
     TextField compName;
     HashMap<String, RoleStatRow> stats = new HashMap<>();
+    App parent;
 
-    public Result() {}
+    public Result(App parent) {
+        this.parent = parent;
+        getStyleClass().add(JMetroStyleClass.BACKGROUND);
+        setPadding(new Insets(10));
+        commandersAndAides = FXCollections.observableArrayList();
+        trainees = FXCollections.observableArrayList();
+        assignedPlayersViews = makeAssignedPlayerLists();
+        squadViews = new HBox(10);
+        squadViews.setAlignment(Pos.CENTER);
+        players = new ArrayList<>();
+
+        VBox content = new VBox(10);
+        content.getChildren().addAll(assignedPlayersViews, new Separator(), squadViews);
+        content.setAlignment(Pos.CENTER);
+        setCenter(content);
+
+        compName = new TextField();
+        saveMsg = new Label();
+        saveBtn = new Button("Save this Composition\nand Create New");
+        saveBtn.setOnAction(e -> createNewComp());
+        HBox bottomPane = new HBox(10);
+        bottomPane.setPadding(new Insets(10));
+        bottomPane.getChildren().addAll(compName, saveBtn, saveMsg);
+        bottomPane.setAlignment(Pos.CENTER);
+        setBottom(bottomPane);
+
+        HBox.setHgrow(statsTable, Priority.ALWAYS);
+
+        setRight(controlPanel());
+    }
 
     /**
      * Initialise the view with data from the parent.
+     * Should only be called by an App parent.
      */
     public void init() {
-        App parent = (App) getParent();
         if (parent.getSelectedTraineeList() != null && parent.getSelectedCommanderList() != null) {
-            this.solution = parent.getSolution();
-
-            players = Stream.of(parent.getSelectedTraineeList(), parent.getSelectedCommanderList())
-                    .flatMap(Collection::stream).collect(Collectors.toCollection(ArrayList::new));
-            if (solution != null) {
-                players = solution.getAssigned().stream().map(p -> {
-                    players.get(p[0]).setAssignedRole(p[1]);
-                    return players.get(p[0]);
-                }).collect(Collectors.toCollection(ArrayList::new));
-            }
-
-            generateStats();
-            setPadding(new Insets(10));
-
-            VBox content = new VBox(10);
-            assignedPlayersViews = makeAssignedPlayerLists();
-            content.getChildren().addAll(assignedPlayersViews, new Separator(), makeSquadViews());
-            content.setAlignment(Pos.CENTER);
-            setCenter(content);
-
-            setRight(controlPanel());
-
-            compName = new TextField(parent.getBossLevelChoice());
-            saveMsg = new Label();
-            saveBtn = new Button("Save this Composition\nand Create New");
-            saveBtn.setOnAction(e -> createNewComp());
-            HBox bottomPane = new HBox(10);
-            bottomPane.setPadding(new Insets(10));
-            bottomPane.getChildren().addAll(compName, saveBtn, saveMsg);
-            bottomPane.setAlignment(Pos.CENTER);
-            setBottom(bottomPane);
+            compName.setText(parent.getBossLevelChoice());
+            if (players.isEmpty()) update();
         }
+    }
+
+    /**
+     * Refresh the data and players displayed with up-to-date data.
+     */
+    public void update() {
+        if (parent.getSolution() != null) solution = parent.getSolution();
+        else solution = null;
+
+        players = Stream.of(parent.getSelectedTraineeList(), parent.getSelectedCommanderList())
+                .flatMap(Collection::stream).collect(Collectors.toCollection(ArrayList::new));
+        if (solution != null) {
+            players = solution.getAssigned().stream().map(p -> {
+                players.get(p[0]).setAssignedRole(p[1]);
+                return players.get(p[0]);
+            }).collect(Collectors.toCollection(ArrayList::new));
+        }
+
+        squads.clear();
+
+        generateStats();
+        statsTable.getItems().clear();
+        statsTable.getItems().addAll(stats.values());
+
+        commandersAndAides.clear();
+        commandersAndAides.addAll(players.stream()
+                .filter(p -> p.getTier().toLowerCase().contains("commander")
+                        || p.getTier().toLowerCase().contains("aide"))
+                .collect(Collectors.toList()));
+        trainees.clear();
+        trainees.addAll(players.stream()
+                .filter(p -> p.getTier().matches("[0123]") )
+                .collect(Collectors.toList()));
+
+        populateSquadViews();
+    }
+
+    /**
+     * Clear arrays and collections so view updates on init.
+     */
+    public void cleanup() {
+        for (Player player : players) {
+            player.setAssignedRole(null);
+            player.clearRoleListener();
+        }
+        players.clear();
+        parent.setSolution(null);
     }
 
     /**
      * Create a list view for every squad formed
      * to allow user to drag and drop players into squads.
-     * @return The HBox containing the squad ListViews.
      */
-    private HBox makeSquadViews() {
-        squadViews = new HBox(10);
+    private void populateSquadViews() {
+        squadViews.getChildren().clear();
         if (solution != null) {
             for (int i = 0; i < solution.getNumSquads(); ++i) {
                 VBox squad = makeSquadDisplay(i);
@@ -106,8 +154,6 @@ public class Result extends BorderPane implements AppContent{
             // Make just one sample squad view.
             squadViews.getChildren().add(makeSquadDisplay(0));
         }
-        squadViews.setAlignment(Pos.CENTER);
-        return squadViews;
     }
 
     private VBox makeSquadDisplay(int squadIndex) {
@@ -126,21 +172,14 @@ public class Result extends BorderPane implements AppContent{
      * @return An HBox containing the ListViews.
      */
     private HBox makeAssignedPlayerLists() {
-        commandersAndAides = FXCollections.observableList(players.stream()
-                .filter(p -> p.getTier().toLowerCase().contains("commander")
-                || p.getTier().toLowerCase().contains("aide"))
-                .collect(Collectors.toList()));
-        trainees = FXCollections.observableList(players.stream()
-                .filter(p -> p.getTier().matches("[0123]") )
-                .collect(Collectors.toList()));
         HBox assignedPlayerList = new HBox(10);
-        statsView = new VBox(10);
-        statsView.getChildren().add(new RolesStatTable(FXCollections.observableArrayList(stats.values())));
         VBox c = new VBox(10); c.getChildren().addAll(new Label("Commanders and Aides: "), new PlayerListView(commandersAndAides));
         VBox t = new VBox(10); t.getChildren().addAll(new Label("Trainees: "), new PlayerListView(trainees));
+        c.setAlignment(Pos.TOP_CENTER);
+        t.setAlignment(Pos.TOP_CENTER);
         HBox.setHgrow(c, Priority.ALWAYS);
         HBox.setHgrow(t, Priority.ALWAYS);
-        assignedPlayerList.getChildren().addAll(statsView, c, t);
+        assignedPlayerList.getChildren().addAll(statsTable, c, t);
         assignedPlayerList.setAlignment(Pos.CENTER);
         return assignedPlayerList;
     }
@@ -160,13 +199,14 @@ public class Result extends BorderPane implements AppContent{
      * Generate left and assigned stats.
      */
     private void generateStats() {
+        stats.clear();
         for (String role : Player.ROLES) stats.put(role, new RoleStatRow(role));
         for (Player player : players) {
             if (player.getAssignedRole() == null) {
                 updateStatsClearedPlayer(player, null);
             } else updateStatsAssignedPlayer(player, false);
 
-            player.assignedRoleProperty().addListener((e, oldVal, newVal) -> {
+            player.setRoleListener((e, oldVal, newVal) -> {
                 if (newVal == null) updateStatsClearedPlayer(player, oldVal);
                 else updateStatsAssignedPlayer(player, true);
             });
@@ -216,10 +256,8 @@ public class Result extends BorderPane implements AppContent{
         saveToCSVBtn.setOnAction(e -> saveToCSV());
         sortSquads.setOnAction(e -> sortPlayerOrder());
         removeSolution.setOnAction(e -> {
-            App parent = (App) getParent();
-            parent.setSolution(null);
-            for (Player player : players) player.setAssignedRole(null);
-            parent.setAndInitCenter(new Solving());
+            cleanup();
+            parent.navigateSolving();
         });
 
         HBox squadsControl = new HBox(10);
@@ -236,7 +274,7 @@ public class Result extends BorderPane implements AppContent{
             if (numSquads == 0) return;
             squads.remove(numSquads - 1);
             squadViews.getChildren().remove(numSquads - 1);
-            if (numSquads == 1) removeSquad.setDisable(true);
+            if (numSquads <= 1) removeSquad.setDisable(true);
         });
         squadsControl.getChildren().addAll(removeSquad, addSquad);
 
@@ -248,7 +286,7 @@ public class Result extends BorderPane implements AppContent{
             squadViews.getChildren().forEach(node -> ((Pane) node).getChildren()
                     .stream().filter(pLV -> pLV instanceof PlayerListView)
                     .forEach(listView -> filterPlayerListView(roleFilterDropdown.getValue(), (PlayerListView) listView)));
-            assignedPlayersViews.getChildren().forEach(node -> ((Pane) node).getChildren()
+            assignedPlayersViews.getChildren().stream().filter(c -> c instanceof Pane).forEach(node -> ((Pane) node).getChildren()
                     .stream().filter(pLV -> pLV instanceof PlayerListView)
                     .forEach(listView -> filterPlayerListView(roleFilterDropdown.getValue(), (PlayerListView) listView)));
         });
@@ -268,9 +306,10 @@ public class Result extends BorderPane implements AppContent{
      * attempt to find a different setup.
      */
     private void findNewSetup() {
-        Solving solvingScreen = new Solving();
-        ((App) getParent()).setAndInitCenter(solvingScreen);
-        solvingScreen.toggleSolving();
+        if (parent.getSolvingUI() != null) {
+            parent.navigateSolving();
+            ((Solving) parent.getSolvingUI()).toggleSolving();
+        }
     }
 
     /**
@@ -329,7 +368,6 @@ public class Result extends BorderPane implements AppContent{
         }
 
         SquadSolution thisSolution = new SquadSolution(squads, compName.getText());
-        App parent = (App) getParent();
 
         parent.setTraineeList(getLeftovers());
         parent.setSelectedTraineeList(null);
@@ -341,10 +379,14 @@ public class Result extends BorderPane implements AppContent{
                 .stream().filter(c -> !(commandersUsedNames.contains(c.getName())))
                 .collect(Collectors.toCollection(ArrayList::new)));
         parent.setSelectedCommanderList(null);
-        parent.setSolution(null);
+        parent.updateAvailableTrainees();
+        for (List<Player> squad : squads) {
+            players.removeAll(squad);
+        }
+        cleanup();
 
         parent.storeSolution(thisSolution);
-        parent.setAndInitCenter(new SavedCompositions());
+        parent.navigateSavedCompositions();
     }
 
     /**
@@ -370,7 +412,6 @@ public class Result extends BorderPane implements AppContent{
      * @return List of all left over players.
      */
     private ArrayList<Player> getLeftovers() {
-        App parent = (App) getParent();
         ArrayList<Player> players = new ArrayList<>(parent.getTraineeList());
         for (List<Player> chosenOnes : squads) {
             players.removeAll(chosenOnes);

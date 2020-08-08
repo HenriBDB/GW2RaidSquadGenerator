@@ -32,8 +32,8 @@ public class SignupsParser {
             Player player;
             // Ignore first line
             line = parser.readNext();
-            // Empty player list = invalid file.
-            if (!getColumnIndices(line)) return players;
+            // Invalid file.
+            if (!getColumnIndices(line)) return null;
             while ((line = parser.readNext()) != null)
             {
                 if ((player = parsePlayer(line)) != null) players.add(player);

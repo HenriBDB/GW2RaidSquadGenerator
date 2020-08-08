@@ -1,8 +1,14 @@
+package app;
+
+import components.ThemeListener;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import jfxtras.styles.jmetro.JMetro;
+import jfxtras.styles.jmetro.Style;
 import view.App;
-import view.PlayerListSelect;
+
+import java.util.ArrayList;
 
 /**
  * This GUI Application allows staff members of the Crossroads Inn Discord GW2 Community to create training squads for training days.
@@ -19,9 +25,14 @@ public class Main extends Application {
     // This applies the dps bit mask with an and bitwise operation. If any bit remain set, the result will be greater than 0 and confirm that player 1 can play dps.
 
     public static final String APP_NAME, VERSION;
+    private static Style THEME;
+    private static Scene scene;
+    private static final ArrayList<ThemeListener> themeListeners;
     static {
         APP_NAME = "Squad Maker";
         VERSION = "1.0";
+        THEME = Style.LIGHT;
+        themeListeners = new ArrayList<>();
     }
 
     public static void main(String[] args) {
@@ -29,14 +40,31 @@ public class Main extends Application {
     }
 
     public void start(Stage primaryStage) {
-
         App root = new App();
-        root.setAndInitCenter(new PlayerListSelect());
+        root.navigatePlayerListSelect();
 
-        Scene scene = new Scene(root, 1200, 800, true);
+        scene = new Scene(root, 1200, 800, true);
+
+        JMetro jMetro = new JMetro(THEME);
+        jMetro.setScene(scene);
 
         primaryStage.setScene(scene);
         primaryStage.setTitle(APP_NAME);
         primaryStage.show();
+    }
+
+    public static void updateTheme(Style theme) {
+        THEME = theme;
+        JMetro jMetro = new JMetro(THEME);
+        jMetro.setScene(scene);
+        for (ThemeListener listener : themeListeners) listener.updateTheme();
+    }
+
+    public static Style getTheme() {
+        return THEME;
+    }
+
+    public static ArrayList<ThemeListener> getThemeListeners() {
+        return themeListeners;
     }
 }
