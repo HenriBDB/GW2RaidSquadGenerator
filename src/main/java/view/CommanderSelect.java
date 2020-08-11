@@ -32,6 +32,7 @@ public class CommanderSelect extends BorderPane implements AppContent{
         commieListPane.setContent(commanderCheckboxes);
         commieListPane.setPadding(new Insets(0, 10, 0, 10));
         commanderTable = new CommanderTable(FXCollections.observableArrayList());
+        commanderTable.getStyleClass().add("alternating-row-colors");
 
         StackPane content = new StackPane();
 

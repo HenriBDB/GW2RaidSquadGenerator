@@ -28,8 +28,12 @@ jlink {
 dependencies {
     // https://mvnrepository.com/artifact/com.opencsv/opencsv
     // https://mvnrepository.com/artifact/org.jfxtras/jmetro
+    // https://mvnrepository.com/artifact/org.controlsfx/controlsfx
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind/2.11.2
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.2'
     implementation 'com.opencsv:opencsv:5.2'
     implementation 'org.jfxtras:jmetro:11.6.12'
+    implementation 'org.controlsfx:controlsfx:11.0.2'
 }
 
 applicationDefaultJvmArgs = ['-Djdk.gtk.version=2']

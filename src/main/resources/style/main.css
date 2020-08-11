@@ -6,3 +6,39 @@
     -fx-border-width: 0px 0px 3px 0px;
     -fx-border-insets: 0px, 0px, 2px, 0px;
 }
+
+.no-scroll-bar.list-view .scroll-bar:horizontal .increment-arrow,
+.no-scroll-bar.list-view .scroll-bar:horizontal .decrement-arrow,
+.no-scroll-bar.list-view .scroll-bar:horizontal .increment-button,
+.no-scroll-bar.list-view .scroll-bar:horizontal .decrement-button,
+.no-scroll-bar.list-view .scroll-bar:vertical .increment-arrow,
+.no-scroll-bar.list-view .scroll-bar:vertical .decrement-arrow,
+.no-scroll-bar.list-view .scroll-bar:vertical .increment-button,
+.no-scroll-bar.list-view .scroll-bar:vertical .decrement-button {
+    -fx-padding: 0;
+}
+
+.transparent.button {
+    -fx-padding: 0.2em;
+    -fx-background-color: transparent;
+}
+
+#home-page {
+    -fx-background-image: url("../images/GW2_RangerWallpaper03-1920x1200.jpg");
+    -fx-background-repeat: stretch;
+    -fx-background-position: center center;
+}
+
+.label.home-page-title,
+.label.home-page-title .text {
+    -fx-font-size: 4em;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-stroke: black;
+    -fx-stroke-width: 3px;
+}
+
+.label.footnotes {
+    -fx-text-fill: white;
+    -fx-font-style: italic;
+}

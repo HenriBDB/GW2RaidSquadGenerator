@@ -40,21 +40,25 @@ public class Main extends Application {
     }
 
     public void start(Stage primaryStage) {
+
         App root = new App();
-        root.navigatePlayerListSelect();
-
         scene = new Scene(root, 1200, 800, true);
-
-        JMetro jMetro = new JMetro(THEME);
-        jMetro.setScene(scene);
 
         primaryStage.setScene(scene);
         primaryStage.setTitle(APP_NAME);
+        Settings.init();
+        root.navigateHome();
         primaryStage.show();
     }
 
-    public static void updateTheme(Style theme) {
-        THEME = theme;
+    /**
+     * Update theme to Dark/Light mode and update all stored themed nodes.
+     * @param darkMode whether dark mode or light mode.
+     */
+    public static void updateTheme(boolean darkMode) {
+        if (darkMode) THEME = Style.DARK;
+        else THEME = Style.LIGHT;
+
         JMetro jMetro = new JMetro(THEME);
         jMetro.setScene(scene);
         for (ThemeListener listener : themeListeners) listener.updateTheme();

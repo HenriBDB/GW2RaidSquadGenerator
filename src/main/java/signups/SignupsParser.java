@@ -34,8 +34,7 @@ public class SignupsParser {
             line = parser.readNext();
             // Invalid file.
             if (!getColumnIndices(line)) return null;
-            while ((line = parser.readNext()) != null)
-            {
+            while ((line = parser.readNext()) != null) {
                 if ((player = parsePlayer(line)) != null) players.add(player);
             }
         } catch (Exception e) {

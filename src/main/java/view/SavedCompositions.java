@@ -8,10 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.DateCell;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import jfxtras.styles.jmetro.JMetroStyleClass;
 import problem.SquadSolution;
 import signups.Player;
@@ -44,7 +41,7 @@ public class SavedCompositions extends VBox implements AppContent {
         super(10);
         this.parent = parent;
         setPadding(new Insets(0, 10, 0 ,10));
-        setAlignment(Pos.TOP_CENTER);
+        setAlignment(Pos.CENTER);
         getStyleClass().add(JMetroStyleClass.BACKGROUND);
     }
 
@@ -52,7 +49,8 @@ public class SavedCompositions extends VBox implements AppContent {
         current = -1;
         getChildren().clear();
         if (parent.getSavedSolutions() == null || parent.getSavedSolutions().isEmpty()) {
-            getChildren().add(new Label(NO_SAVED_COMPS));
+            Label noComp = new Label(NO_SAVED_COMPS);
+            getChildren().add(noComp);
         } else {
             squadComps = parent.getSavedSolutions();
             compName = new Label("");

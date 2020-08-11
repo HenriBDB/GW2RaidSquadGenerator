@@ -40,6 +40,7 @@ public class PlayerListCell extends ListCell<Player> {
         makeDraggable();
         roleAssignAndReset.setOnAction(e -> toggleRoleAssignAndReset());
         roleAssignAndReset.setPrefSize(16, 16);
+        roleAssignAndReset.getStyleClass().add("transparent");
         this.roleFilter = roleFilter;
     }
 

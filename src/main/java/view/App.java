@@ -4,6 +4,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import jfxtras.styles.jmetro.JMetroStyleClass;
@@ -26,17 +27,18 @@ public class App extends BorderPane {
 
     private final static String[] bossLevels = {"Beginner", "Intermediate", "Advanced"};
 
-    private ArrayList<Player> traineeList, selectedCommanderList, selectedTraineeList;
-    private ArrayList<Commander> commanderList;
-    private final List<SquadSolution> savedSolutions = new ArrayList<>();
-    private SquadPlan solution;
-    private Button homeButton, commanderSelectButton, solvingScreenButton, resultScreenButton, storedSolutionsButton;
+    private Button homeButton, playerSelectButton, commanderSelectButton, solvingScreenButton, resultScreenButton, storedSolutionsButton, settingsButton;
     private HBox bossLevelMenu;
     private ComboBox<String> bossLevelChoice;
     private Label numTrainees;
     private Spinner<Integer> numSquads;
-    private AppContent playerListSelect, commanderSelect, solvingUI, savedCompositions;
+    private AppContent homePage, playerListSelect, commanderSelect, solvingUI, savedCompositions, settingsPage;
     private Result resultUI;
+
+    private ArrayList<Player> traineeList, selectedCommanderList, selectedTraineeList;
+    private ArrayList<Commander> commanderList;
+    private final List<SquadSolution> savedSolutions = new ArrayList<>();
+    private SquadPlan solution;
 
     public App() {
         getStyleClass().add(JMetroStyleClass.BACKGROUND);
@@ -112,7 +114,8 @@ public class App extends BorderPane {
         content.init();
         updateMenubar();
         menuBarStyling(getCenter(), false);
-        bossLevelMenu.setVisible(content instanceof CommanderSelect || content instanceof Solving);
+        ((Pane) getTop()).getChildren().remove(bossLevelMenu);
+        if (content instanceof CommanderSelect || content instanceof Solving) ((Pane) getTop()).getChildren().add(bossLevelMenu);
     }
 
     /**
@@ -128,13 +131,18 @@ public class App extends BorderPane {
      */
     private VBox menuBar() {
         homeButton = new Button("Home");
+        playerSelectButton = new Button("Upload Players");
         commanderSelectButton = new Button("Select Commanders");
         solvingScreenButton = new Button("Squad Generation");
         resultScreenButton = new Button("Squad Composition");
         Region region = new Region();
         storedSolutionsButton = new Button("Saved Squad Compositions");
+        settingsButton = new Button("Settings");
 
         homeButton.setOnAction(e -> {
+            if (!(getCenter() instanceof HomePage)) navigateHome();
+        });
+        playerSelectButton.setOnAction(e -> {
             if (!(getCenter() instanceof PlayerListSelect)) navigatePlayerListSelect();
         });
         commanderSelectButton.setOnAction(e -> {
@@ -149,11 +157,14 @@ public class App extends BorderPane {
         storedSolutionsButton.setOnAction(e -> {
             if (!(getCenter() instanceof SavedCompositions)) navigateSavedCompositions();
         });
+        settingsButton.setOnAction(e -> {
+            if (!(getCenter() instanceof  SettingsPage)) navigateSettingsPage();
+        });
 
         HBox menu = new HBox();
-        menu.setPadding(new Insets(10));
-        menu.getChildren().addAll(homeButton, commanderSelectButton,
-                solvingScreenButton, resultScreenButton, storedSolutionsButton, region);
+        menu.getChildren().addAll(homeButton, playerSelectButton, commanderSelectButton,
+                solvingScreenButton, resultScreenButton, storedSolutionsButton,
+                region, settingsButton);
         menu.getChildren().forEach(btn -> {
             btn.getStyleClass().add("menuButton");
             HBox.setHgrow(btn, Priority.ALWAYS);
@@ -173,10 +184,10 @@ public class App extends BorderPane {
         bossLevelMenu.getChildren().addAll(bossLevelMsg, bossLevelChoice, numTrainees,
                 new Separator(Orientation.VERTICAL), numSquadsMsg, numSquads);
         bossLevelMenu.setAlignment(Pos.CENTER);
-        bossLevelMenu.setPadding(new Insets(0,10,10,10));
 
-        VBox fullMenu = new VBox(0);
+        VBox fullMenu = new VBox(10);
         fullMenu.getChildren().addAll(menu, bossLevelMenu);
+        fullMenu.setPadding(new Insets(10,10,10,10));
 
         return fullMenu;
     }
@@ -194,11 +205,13 @@ public class App extends BorderPane {
      * Add or remove a bold underline to tabs to indicate current page.
      */
     private void menuBarStyling(Node page, boolean remove) {
-        if (page instanceof PlayerListSelect) setBtnStyling(homeButton, remove);
+        if (page instanceof HomePage) setBtnStyling(homeButton, remove);
+        else if (page instanceof PlayerListSelect) setBtnStyling(playerSelectButton, remove);
         else if (page instanceof CommanderSelect) setBtnStyling(commanderSelectButton, remove);
         else if (page instanceof Solving) setBtnStyling(solvingScreenButton, remove);
         else if (page instanceof Result) setBtnStyling(resultScreenButton, remove);
         else if (page instanceof SavedCompositions) setBtnStyling(storedSolutionsButton, remove);
+        else if (page instanceof SettingsPage) setBtnStyling(settingsButton, remove);
     }
 
     private void setBtnStyling(Button btn, boolean remove) {
@@ -229,6 +242,11 @@ public class App extends BorderPane {
      * Navigate to the different pages on this app.
      * If a given page has not been created yet, create new.
      */
+    public void navigateHome() {
+        if (homePage == null) homePage = new HomePage(this);
+        setAndInitCenter(homePage);
+    }
+
     public void navigatePlayerListSelect() {
         if (playerListSelect == null) playerListSelect = new PlayerListSelect(this);
         setAndInitCenter(playerListSelect);
@@ -252,6 +270,11 @@ public class App extends BorderPane {
     public void navigateSavedCompositions() {
         if (savedCompositions == null) savedCompositions = new SavedCompositions(this);
         setAndInitCenter(savedCompositions);
+    }
+
+    public void navigateSettingsPage() {
+        if (settingsPage == null) settingsPage = new SettingsPage();
+        setAndInitCenter(settingsPage);
     }
 
     public AppContent getSolvingUI() {

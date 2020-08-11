@@ -2,6 +2,7 @@ package view;
 
 import app.Main;
 import components.ThemedIcon;
+import app.Settings;
 import javafx.concurrent.Task;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -29,22 +30,16 @@ import java.util.stream.Collectors;
  */
 public class PlayerListSelect extends VBox implements AppContent {
 
-    private static final String COMM_LINK, TUE_LINK, THU_LINK, SAT_LINK;
-    static {
-        COMM_LINK = "https://docs.google.com/spreadsheets/d/1p7KrDZ1F65-9EZblf5aeHgAsUnnRFGFJLI97oZExRxM/export?format=csv&gid=1874569681";
-        TUE_LINK = "https://docs.google.com/spreadsheets/d/1p7KrDZ1F65-9EZblf5aeHgAsUnnRFGFJLI97oZExRxM/export?format=csv&gid=1377878105";
-        THU_LINK = "https://docs.google.com/spreadsheets/d/1p7KrDZ1F65-9EZblf5aeHgAsUnnRFGFJLI97oZExRxM/export?format=csv&gid=1414462221";
-        SAT_LINK = "https://docs.google.com/spreadsheets/d/1p7KrDZ1F65-9EZblf5aeHgAsUnnRFGFJLI97oZExRxM/export?format=csv&gid=903269235";
-    }
-    App parent;
-    Label uploadCommMsg = new Label(), uploadTraineeMsg = new Label();
-    Button next = new Button("Save Changes");
-    GridPane uploadTable;
-    StackPane uploadTablePane;
-    VBox progressBar;
+    private final App parent;
+    private final Label uploadCommMsg = new Label(), uploadTraineeMsg = new Label();
+    private final Button next = new Button("Save Changes");
+    private final GridPane uploadTable;
+    private final StackPane uploadTablePane;
+    private final VBox progressBar, traineeLinksContainer, commLinksContainer;
+    private Thread dlThread;
 
-    ArrayList<Player> traineeList;
-    ArrayList<Commander> commanderList;
+    private ArrayList<Player> traineeList;
+    private ArrayList<Commander> commanderList;
 
     public PlayerListSelect(App parent) {
         this.parent = parent;
@@ -52,48 +47,30 @@ public class PlayerListSelect extends VBox implements AppContent {
         setPadding(new Insets(0, 10, 20, 10));
         setSpacing(20);
 
-        progressBar = new VBox();
+        progressBar = new VBox(10);
         ProgressBar bar = new ProgressBar();
         bar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-        progressBar.getChildren().add(bar);
+        Button cancelProcess = new Button("Cancel");
+        cancelProcess.setOnAction(e -> {
+            if (dlThread != null) {
+                dlThread.interrupt();
+                dlThread = null;
+                resume();
+            }
+        });
+        progressBar.getChildren().addAll(bar, cancelProcess);
         progressBar.setAlignment(Pos.CENTER);
-
-        Button tueSignups = new Button("Tue");
-        tueSignups.setOnAction(e -> uploadPlayerCSV(TUE_LINK, false));
-        VBox.setVgrow(tueSignups, Priority.ALWAYS);
-        tueSignups.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-
-        Button thuSignups = new Button("Thu");
-        thuSignups.setOnAction(e -> uploadPlayerCSV(THU_LINK, false));
-        VBox.setVgrow(thuSignups, Priority.ALWAYS);
-        thuSignups.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-
-        Button satSignups = new Button("Sat");
-        satSignups.setOnAction(e -> uploadPlayerCSV(SAT_LINK, false));
-        VBox.setVgrow(satSignups, Priority.ALWAYS);
-        satSignups.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 
         Button uploadTrainees = new Button("Upload Trainee List");
         uploadTrainees.setOnAction(e -> uploadPlayerCSV(null, false));
         uploadTrainees.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 
-        Button uploadCommLink = new Button("Use Commander Online Sheet");
-        uploadCommLink.setOnAction(e -> uploadPlayerCSV(COMM_LINK, true));
-        uploadCommLink.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-
         Button uploadCommanders = new Button("Upload Commander and Aide List");
         uploadCommanders.setOnAction(e -> uploadPlayerCSV(null, true));
         uploadCommanders.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 
-        VBox traineeLinksContainer = new VBox(10);
-        traineeLinksContainer.setPadding(new Insets(0));
-        traineeLinksContainer.getChildren().addAll(tueSignups, thuSignups, satSignups);
-
-        HBox commanderUploads = new HBox(10);
-        HBox traineeUploads = new HBox(10);
-
-        commanderUploads.getChildren().addAll(uploadCommanders, uploadCommLink);
-        traineeUploads.getChildren().addAll(uploadTrainees, traineeLinksContainer);
+        traineeLinksContainer = new VBox(10);
+        commLinksContainer = new VBox(10);
 
         ThemedIcon fileIcon = new ThemedIcon("images/FileIconLight.png", "images/FileIconDark.png");
         ThemedIcon downloadIcon = new ThemedIcon("images/DownloadIconLight.png", "images/DownloadIconDark.png");
@@ -114,7 +91,7 @@ public class PlayerListSelect extends VBox implements AppContent {
         uploadTable.add(uploadTrainees, 1, 1);
         uploadTable.add(traineeLinksContainer, 2, 1);
         uploadTable.add(uploadCommanders, 1, 2);
-        uploadTable.add(uploadCommLink, 2, 2);
+        uploadTable.add(commLinksContainer, 2, 2);
 
         RowConstraints vGrow = new RowConstraints();
         vGrow.setVgrow(Priority.ALWAYS);
@@ -172,6 +149,16 @@ public class PlayerListSelect extends VBox implements AppContent {
     public void init() {
         if (parent.getCommanderList() != null) setCommanderList(parent.getCommanderList());
         if (parent.getTraineeList() != null) setTraineeList(parent.getTraineeList());
+        traineeLinksContainer.getChildren().clear();
+        if (Settings.TRAINEE_LINKS.isEmpty())
+            traineeLinksContainer.getChildren().add(makeCenteredLabel("Add Links to Trainee Sheets in Settings"));
+        Settings.TRAINEE_LINKS.forEach(e ->
+                traineeLinksContainer.getChildren().add(makeLinkButton(e.getKey(), e.getValue(), false)));
+        commLinksContainer.getChildren().clear();
+        if (Settings.COMM_LINKS.isEmpty())
+            commLinksContainer.getChildren().add(makeCenteredLabel("Add Links to Commander Sheets in Settings"));
+        Settings.COMM_LINKS.forEach(e ->
+                commLinksContainer.getChildren().add(makeLinkButton(e.getKey(), e.getValue(), true)));
         update();
     }
 
@@ -209,12 +196,16 @@ public class PlayerListSelect extends VBox implements AppContent {
                     @Override
                     protected InputStreamReader call() throws Exception {
                         URL fileLink = new URL(link);
-                        return new InputStreamReader(fileLink.openStream(), StandardCharsets.UTF_8);
+                        try {
+                            return new InputStreamReader(fileLink.openStream(), StandardCharsets.UTF_8);
+                        } catch (Exception e) {
+                            return null;
+                        }
                     }
                 };
-                Thread thread = new Thread(linkDL);
+                dlThread = new Thread(linkDL);
                 linkDL.setOnSucceeded(e -> parsePlayerFile(linkDL.getValue(), forCommanders));
-                thread.start();
+                dlThread.start();
             } else {
                 FileChooser.ExtensionFilter csvFilter = new FileChooser.ExtensionFilter("CSV Files", "*.csv");
                 FileChooser csvChooser = new FileChooser();
@@ -223,8 +214,7 @@ public class PlayerListSelect extends VBox implements AppContent {
                 // If input = null, operation was canceled.
                 if (input != null) parsePlayerFile(new InputStreamReader(new FileInputStream(input), StandardCharsets.UTF_8), forCommanders);
                 else {
-                    uploadTablePane.getChildren().remove(progressBar);
-                    uploadTable.setDisable(false);
+                    resume();
                 }
             }
         } catch (IOException e) {
@@ -242,8 +232,7 @@ public class PlayerListSelect extends VBox implements AppContent {
         }
         else if (forCommanders) uploadCommMsg.setText("File not found or internet issues.");
         else uploadTraineeMsg.setText("File not found or internet issues.");
-        uploadTablePane.getChildren().remove(progressBar);
-        uploadTable.setDisable(false);
+        resume();
     }
 
     private void uploadCommanders(ArrayList<Player> commanders) {
@@ -263,5 +252,33 @@ public class PlayerListSelect extends VBox implements AppContent {
                 .collect(Collectors.toCollection(ArrayList::new));
         setTraineeList(trainees);
         update();
+    }
+
+    private Button makeLinkButton(String text, String link, boolean forCommanders) {
+        Button btn = new Button(text);
+        btn.setOnAction(e -> uploadPlayerCSV(link, forCommanders));
+        VBox.setVgrow(btn, Priority.ALWAYS);
+        btn.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        return btn;
+    }
+
+    /**
+     * Creates a simple label with a given text that is centered,
+     * grows always and has no max size.
+     * @param text The text for the label.
+     * @return The centered label.
+     */
+    private Label makeCenteredLabel(String text) {
+        Label centeredLabel = new Label(text);
+        HBox.setHgrow(centeredLabel, Priority.ALWAYS);
+        VBox.setVgrow(centeredLabel, Priority.ALWAYS);
+        centeredLabel.setAlignment(Pos.CENTER);
+        centeredLabel.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        return centeredLabel;
+    }
+
+    private void resume() {
+        uploadTablePane.getChildren().remove(progressBar);
+        uploadTable.setDisable(false);
     }
 }
