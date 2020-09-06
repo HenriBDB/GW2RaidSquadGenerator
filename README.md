@@ -11,7 +11,7 @@ Make sure you have java and gradle installed. This project was made with JDK 11.
 
 ## Sample CSV Files:
 
-The CSV files must contain the following provided columns but cant contain any other extra columns like timestamps. Column names can have slight variations as long as they conform to the string matching provided in `src/main/java/signups/SignupsParser` lines 89 - 100.
+The CSV files must contain the following provided columns but cant contain any other extra columns like timestamps. Column names can have slight variations as long as they conform to the string matching provided in `src/main/java/com.crossroadsinn.signups/SignupsParser` lines 89 - 100.
 
 ### Commanders and Aides:
 

@@ -7,9 +7,10 @@
 bin/
 squads.csv
 squad-compositions.csv
+src/main/resources/module-info.java
 
 # Ignore Gradle GUI config
-gradle-app.setting
+gradle-com.crossroadsinn.app.setting
 
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
 !gradle-wrapper.jar
