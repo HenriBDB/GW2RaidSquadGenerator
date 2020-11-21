@@ -13,6 +13,7 @@ import java.util.PriorityQueue;
 public class GreedyBestFirstSearch implements SearchAlgorithm{
     PriorityQueue<CSP> Q;
     int nodes;
+    int maxDurationInMillis = 60*1000;
 
     public GreedyBestFirstSearch() {
     }
@@ -36,7 +37,9 @@ public class GreedyBestFirstSearch implements SearchAlgorithm{
      * @return the solution if found, null otherwise.
      */
     public CSP solve() {
+        long startTime = System.currentTimeMillis();
         while (!Q.isEmpty()) {
+            if (System.currentTimeMillis() > startTime + maxDurationInMillis) return null;
             if (Q.peek().isSolution()) {
                 return Q.peek();
             }

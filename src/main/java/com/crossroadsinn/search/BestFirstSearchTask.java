@@ -5,6 +5,7 @@ import com.crossroadsinn.problem.CSP;
 
 import java.util.ArrayList;
 import java.util.PriorityQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Task implementation of the GreedyBestFirstSearch algorithm.
@@ -15,6 +16,7 @@ import java.util.PriorityQueue;
 public class BestFirstSearchTask extends Task<CSP> implements SearchAlgorithm{
     PriorityQueue<CSP> Q;
     int nodes;
+    int maxDurationInMillis = 60*1000;
 
     public BestFirstSearchTask(CSP initialState) {
         init(initialState);
@@ -40,8 +42,10 @@ public class BestFirstSearchTask extends Task<CSP> implements SearchAlgorithm{
      * @return the solution if found, null otherwise.
      */
     public CSP solve() {
+        long startTime = System.currentTimeMillis();
         while (!Q.isEmpty()) {
             if (isCancelled()) return null;
+            if (System.currentTimeMillis() > startTime + maxDurationInMillis) return null;
             if (Q.peek().isSolution()) {
                 return Q.peek();
             }
