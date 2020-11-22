@@ -7,7 +7,7 @@ Created for the Crossroads Inn GW2 raid training server. It sorts signed up play
 Make sure you have java and gradle installed. This project was made with JDK 11.
 
 `gradle build`: Allows you to build a .jar file. File is generated in build/libs/*.jar.\
-`gradle run`: Will launch the application.
+`gradle run`: Will launch the application.\
 `gradle jlink`: Will create a runnable image of the application in 'build/image/bin/'. The 'build/image/' directory contains all dependencies needed to run the image.
 
 

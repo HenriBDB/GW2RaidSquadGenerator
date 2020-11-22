@@ -27,25 +27,20 @@ public class SquadPlan implements CSP {
     private int[] available = { 0,   0,   0,     0,      0,      0,    0,   0,      0,          0,             0};
 
     public SquadPlan(ArrayList<Integer[]> trainees, ArrayList<Integer[]> trainers) {
-        trainerStartIndex = trainers.stream().mapToInt(e -> { return e[0];} ).min().getAsInt();
-        this.trainers = trainers.stream().map(Integer[]::clone).collect(Collectors.toCollection(ArrayList::new));
-        this.players = Stream.of(trainees, trainers).flatMap(Collection::stream).collect(Collectors.toCollection(ArrayList::new));
-        parsePlayers(players.stream().mapToInt(p -> p[1]).toArray());
-
-        // Find max squads possible based on availability.
-        this.numSquads = Arrays.stream(new int[]{players.size() / 10, available[0] / 5, available[1], available[2], available[3]}).min().getAsInt();
-
-        for(int i = 0; i < left.length; ++i) { left[i] = left[i] * numSquads; }
+        this(trainees, trainers, 0);
     }
 
     public SquadPlan(ArrayList<Integer[]> trainees, ArrayList<Integer[]> trainers, int numSquads) {
         trainerStartIndex = trainers.stream().mapToInt(e -> { return e[0];} ).min().getAsInt();
-        this.trainers = trainers;
+        this.trainers = trainers.stream().map(Integer[]::clone).collect(Collectors.toCollection(ArrayList::new));
+        Collections.shuffle(this.trainers);
         this.players = Stream.of(trainees, trainers).flatMap(Collection::stream).collect(Collectors.toCollection(ArrayList::new));
         parsePlayers(players.stream().mapToInt(p -> p[1]).toArray());
 
-        this.numSquads = numSquads;
-        for(int i = 0; i < left.length; ++i) { left[i] = left[i] * numSquads; }
+        this.numSquads = numSquads == 0 ?
+                Arrays.stream(new int[]{players.size() / 10, available[0] / 5, available[1], available[2], available[3]}).min().getAsInt() :
+                numSquads;
+        for(int i = 0; i < left.length; ++i) { left[i] = left[i] * this.numSquads; }
     }
 
     /**
