@@ -1,0 +1,64 @@
+.list-view {
+    comm_colour: #7d30ce;
+    aide_colour: #ec9b63;
+}
+
+.list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled {
+    -fx-border-color: black;
+    -fx-border-insets: 1px, 0px, 1px, 0px;
+    -fx-background-insets: 1px, 0px, 1px, 0px;
+}
+
+.list-view > .virtual-flow > .clipped-container > .sheet > #comm-visible.list-cell,
+.list-view > .virtual-flow > .clipped-container > .sheet > #comm-filtered.list-cell,
+.list-view > .virtual-flow > .clipped-container > .sheet > #aide-visible.list-cell,
+.list-view > .virtual-flow > .clipped-container > .sheet > #aide-filtered.list-cell {
+    -fx-text-fill: white;
+}
+
+.list-view > .virtual-flow > .clipped-container > .sheet > #comm-visible.list-cell {
+    -fx-background-color: radial-gradient(center 50% 50%, radius 80%, derive(comm_colour,15%), derive(comm_colour,-15%));
+}
+
+.list-view > .virtual-flow > .clipped-container > .sheet > #comm-visible.list-cell:hover {
+    -fx-background-color: derive(comm_colour, 50%);
+}
+
+.list-view > .virtual-flow > .clipped-container > .sheet > #comm-filtered.list-cell {
+    -fx-background-color: derive(comm_colour, 80%);
+}
+
+.list-view > .virtual-flow > .clipped-container > .sheet > #aide-visible.list-cell {
+    -fx-background-color: radial-gradient(center 50% 50%, radius 80%, derive(aide_colour,10%), derive(aide_colour,-20%));;
+}
+
+.list-view > .virtual-flow > .clipped-container > .sheet > #aide-visible.list-cell:hover {
+    -fx-background-color: derive(aide_colour, 30%);
+}
+
+.list-view > .virtual-flow > .clipped-container > .sheet > #aide-filtered.list-cell {
+    -fx-background-color: derive(aide_colour, 60%);
+}
+
+.list-view > .virtual-flow > .clipped-container > .sheet > #player-visible.list-cell {
+    -fx-background-color: white;
+    -fx-text-fill: black;
+}
+
+.list-view > .virtual-flow > .clipped-container > .sheet > #player-visible.list-cell:hover {
+    -fx-background-color: rgb(230,230,230);
+}
+
+.list-view > .virtual-flow > .clipped-container > .sheet > #player-filtered.list-cell {
+    -fx-background-color: rgba(255,255,255,0.5);
+    -fx-text-fill: rgba(0, 0, 0, 0.5);
+}
+
+.button {
+    -fx-background-color: transparent;
+}
+
+
+.button:hover, .toggle-button:hover{
+    -fx-border-color: black;
+}

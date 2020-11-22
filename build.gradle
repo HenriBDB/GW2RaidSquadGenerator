@@ -2,18 +2,20 @@ plugins {
     id 'java'
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.0.8'
-    id 'org.beryx.jlink' version '2.17.2'
+    id 'org.beryx.jlink' version '2.18.0'
 }
+
+mainClassName = 'com.crossroadsinn.Main'
+group 'Crossroads Inn'
+version '1.0'
+
+sourceCompatibility = 11
+targetCompatibility = 11
 
 javafx {
     version = "13"
     modules = [ 'javafx.controls', 'javafx.graphics' ]
 }
-
-group 'Crossroads Inn'
-version '1.0'
-
-sourceCompatibility = 1.11
 
 repositories {
     mavenCentral()
@@ -23,12 +25,23 @@ jlink {
     launcher {
         name = 'SquadPlanner'
     }
+    imageZip.set(project.file("$buildDir/image-zip/squad-planner.zip"))
 }
 
 dependencies {
-    // https://mvnrepository.com/artifact/com.opencsv/opencsv
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.2'
     implementation 'com.opencsv:opencsv:5.2'
+    implementation ('org.jfxtras:jmetro:11.6.12') {
+        exclude group: 'org.openjfx'
+    }
+    implementation ('org.controlsfx:controlsfx:11.0.2') {
+        exclude group: 'org.openjfx'
+    }
 }
 
-applicationDefaultJvmArgs = ['-Djdk.gtk.version=2']
-mainClassName = 'Main'
+tasks.jlink.doLast {
+    copy {
+        from('assets')
+        into("$buildDir/image/bin/assets")
+    }
+}

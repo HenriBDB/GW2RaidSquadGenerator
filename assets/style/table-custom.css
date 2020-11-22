@@ -1,0 +1,5 @@
+.table-view .column-header .label,
+.table-view .column-header,
+.table-cell {
+    -fx-padding: 0.5em, 0.5em, 0.5em, 0em;
+}
