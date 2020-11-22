@@ -7,24 +7,18 @@ Created for the Crossroads Inn GW2 raid training server. It sorts signed up play
 Make sure you have java and gradle installed. This project was made with JDK 11.
 
 `gradle build`: Allows you to build a .jar file. File is generated in build/libs/*.jar.\
-`gradle run`: Will build the jar and run it.
+`gradle run`: Will launch the application.
+`gradle jlink`: Will create a runnable image of the application in 'build/image/bin/'. The 'build/image/' directory contains all dependencies needed to run the image.
 
-## Sample CSV Files:
 
-The CSV files must contain the following provided columns but cant contain any other extra columns like timestamps. Column names can have slight variations as long as they conform to the string matching provided in `src/main/java/com.crossroadsinn.signups/SignupsParser` lines 89 - 100.
+## CSV Files Structure:
 
-### Commanders and Aides:
+Please contact dev for CSV file structure as the latter is tightly couple with Crossroads Inn requirements and may change based on their needs.
 
-|GW2 Account|Discord Account|Tier|Additional comments:|Tank|Healer - Druid|Healer - Offheal|Boons - Chrono|Boons - Alacrigade|Boons - Quickbrand|Banners|DPS|
-|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-|Commander1||Commander||Tank|||chrono||||Power|
-|Aide1||Aide|||Druid||||DPS, Healer||Condition|
+## Settings Location:
 
-### Single-Tier Sign-ups:
+Linux:
+`~/.java/.userPrefs/Squad-Planner/prefs.xml`
 
-|GW2 Account|Discord Account|Tier|Additional comments:|Tank|	Healer - Druid|Healer - Offheal|Boons - Chrono|Boons - Alacrigade|Boons - Quickbrand|Banners|DPS|
-|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-|Player1.9010|Player1#1111|0|I want to be with Eren in the squad.|Tank|Druid|Tempest, Firebrand|Offchrono|DPS, Healer|DPS, Healer|Banners|Power, Condition|
-### Multi-Tier Sign-ups;
-
-(Coming Soon...)
+Windows:
+`HKEY_CURRENT_USER\SOFTWARE\JavaSoft\Prefs\Squad-Planner\prefs.xml`

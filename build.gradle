@@ -9,6 +9,9 @@ mainClassName = 'com.crossroadsinn.Main'
 group 'Crossroads Inn'
 version '1.0'
 
+sourceCompatibility = 11
+targetCompatibility = 11
+
 javafx {
     version = "13"
     modules = [ 'javafx.controls', 'javafx.graphics' ]
@@ -22,6 +25,7 @@ jlink {
     launcher {
         name = 'SquadPlanner'
     }
+    imageZip.set(project.file("$buildDir/image-zip/squad-planner.zip"))
 }
 
 dependencies {
@@ -32,5 +36,12 @@ dependencies {
     }
     implementation ('org.controlsfx:controlsfx:11.0.2') {
         exclude group: 'org.openjfx'
+    }
+}
+
+tasks.jlink.doLast {
+    copy {
+        from('assets')
+        into("$buildDir/image/bin/assets")
     }
 }

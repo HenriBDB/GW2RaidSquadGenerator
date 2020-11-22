@@ -25,7 +25,7 @@ public class Settings {
     private static boolean DARK_MODE;
     private static final String TRAINEE_LINKS_KEY, COMM_LINKS_KEY, DARK_MODE_KEY;
     static {
-        USER_PREFERENCES = Preferences.userNodeForPackage(Main.class);
+        USER_PREFERENCES = Preferences.userRoot().node("Squad-Planner");
         TRAINEE_LINKS = FXCollections.observableArrayList();
         COMM_LINKS = FXCollections.observableArrayList();
         TRAINEE_LINKS_KEY = "TRAINEE_LINKS";
