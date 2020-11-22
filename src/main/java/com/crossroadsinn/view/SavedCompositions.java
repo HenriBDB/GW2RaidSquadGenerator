@@ -119,8 +119,9 @@ public class SavedCompositions extends VBox implements AppContent {
         else {
             saveBtn.setDisable(true);
             saveMsg.setText("Saving to CSV...");
-            SquadSaver.exportToCSV(squadComps, parent.getTraineeList(), saveDate.getValue().toString());
-            saveMsg.setText("Successfully saved to CSV.");
+            boolean saveSuccessful = SquadSaver.exportToCSV(squadComps, parent.getTraineeList(), saveDate.getValue().toString());
+            if (saveSuccessful) saveMsg.setText("Successfully saved to CSV.");
+            else saveMsg.setText("Did not save to CSV.");
             saveBtn.setDisable(false);
         }
     }

@@ -189,9 +189,10 @@ public class Result extends BorderPane implements AppContent{
      */
     private void saveToCSV() {
         if (!squads.isEmpty()) {
-            SquadSaver.saveToCSV(squads,
+            boolean saveSuccessful = SquadSaver.saveToCSV(squads,
                     Stream.of(getLeftovers(), trainees).flatMap(Collection::stream).collect(Collectors.toList()));
-            saveMsg.setText("Successfully saved to CSV.");
+            if (saveSuccessful) saveMsg.setText("Successfully saved to CSV.");
+            else saveMsg.setText("Did not save to CSV.");
         }
     }
 

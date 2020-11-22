@@ -1,7 +1,9 @@
 package com.crossroadsinn.signups;
 
+import com.crossroadsinn.Main;
 import com.opencsv.CSVWriter;
 import com.crossroadsinn.problem.SquadSolution;
+import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -22,18 +24,21 @@ public class SquadSaver {
      * Each List<Player> corresponds to a squad.
      * @param squadList The list of formed squads.
      */
-    public static void saveToCSV(List<List<Player>> squadList, List<Player> leftOvers) {
+    public static boolean saveToCSV(List<List<Player>> squadList, List<Player> leftOvers) {
         CSVWriter writer = null;
+        String chosenDir = chooseDir();
+        if (chosenDir == null) return false;
         try {
-            File csv = new File("squads.csv");
+            File csv = new File(chosenDir);
             csv.createNewFile();
             writer = new CSVWriter(new FileWriter(csv));
 
             writeSquad("", squadList, writer);
             writeLeftOvers(leftOvers, writer);
-
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         } finally {
             try {
                 if (writer != null) writer.close();
@@ -47,10 +52,12 @@ public class SquadSaver {
      * Save multiple squad compositions as CSV.
      * @param squadComps The list of formed squads.
      */
-    public static void saveCompsToCSV(List<SquadSolution> squadComps, List<Player> leftOvers) {
+    public static boolean saveCompsToCSV(List<SquadSolution> squadComps, List<Player> leftOvers) {
         CSVWriter writer = null;
+        String chosenDir = chooseDir();
+        if (chosenDir == null) return false;
         try {
-            File csv = new File("squad-compositions.csv");
+            File csv = new File(chosenDir);
             csv.createNewFile();
             writer = new CSVWriter(new FileWriter(csv));
 
@@ -59,9 +66,10 @@ public class SquadSaver {
             }
 
             writeLeftOvers(leftOvers, writer);
-
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         } finally {
             try {
                 if (writer != null) writer.close();
@@ -71,10 +79,12 @@ public class SquadSaver {
         }
     }
 
-    public static void exportToCSV(List<SquadSolution> squadComps, List<Player> leftOvers, String day) {
+    public static boolean exportToCSV(List<SquadSolution> squadComps, List<Player> leftOvers, String day) {
         CSVWriter writer = null;
+        String chosenDir = chooseDir();
+        if (chosenDir == null) return false;
         try {
-            File csv = new File("squad-compositions.csv");
+            File csv = new File(chosenDir);
             csv.createNewFile();
             writer = new CSVWriter(new FileWriter(csv));
 
@@ -87,9 +97,10 @@ public class SquadSaver {
             for (Player player : leftOvers) {
                 writer.writeNext(playerLine(player, day, "", ""));
             }
-
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         } finally {
             try {
                 if (writer != null) writer.close();
@@ -160,6 +171,25 @@ public class SquadSaver {
                     player.getTier(), Integer.toBinaryString(player.getBossLvlChoice())));
             line.addAll(Arrays.asList(player.getRoleList()));
             writer.writeNext(line.toArray(new String[0]));
+        }
+    }
+
+    /**
+     * Allow user to select preferred location for saving squads.
+     * @return User chosen location
+     */
+    private static String chooseDir() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setInitialFileName("squad-compositions.csv");
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("CSV files (*.csv)", "*.csv");
+        fileChooser.getExtensionFilters().add(extFilter);
+        fileChooser.setTitle("Where should I save squad compositions?");
+        File userChosenFile = fileChooser.showSaveDialog(Main.getPrimaryStage());
+        if (userChosenFile == null) return null;
+        else {
+            String filePath = userChosenFile.getAbsolutePath();
+            if (!filePath.endsWith(".csv")) filePath += ".csv";
+            return filePath;
         }
     }
 }

@@ -10,5 +10,6 @@ module com.crossroadsinn.squadmaker {
     exports com.crossroadsinn.datatypes;
     exports com.crossroadsinn.signups;
     exports com.crossroadsinn.components;
+    exports com.crossroadsinn.problem;
     exports com.crossroadsinn;
 }

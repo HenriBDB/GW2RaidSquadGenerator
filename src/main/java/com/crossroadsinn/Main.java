@@ -4,11 +4,13 @@ import com.crossroadsinn.settings.Settings;
 import com.crossroadsinn.components.ThemeListener;
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import jfxtras.styles.jmetro.JMetro;
 import jfxtras.styles.jmetro.Style;
 import com.crossroadsinn.view.App;
 
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -29,6 +31,8 @@ public class Main extends Application {
     private static Style THEME;
     private static Scene scene;
     private static final ArrayList<ThemeListener> themeListeners;
+    private static Stage primaryStage;
+
     static {
         APP_NAME = "Squad Maker";
         VERSION = "1.0";
@@ -45,6 +49,7 @@ public class Main extends Application {
         App root = new App();
         scene = new Scene(root, 1200, 800, true);
 
+        Main.primaryStage = primaryStage;
         primaryStage.setScene(scene);
         primaryStage.setTitle(APP_NAME);
         Settings.init();
@@ -71,5 +76,9 @@ public class Main extends Application {
 
     public static ArrayList<ThemeListener> getThemeListeners() {
         return themeListeners;
+    }
+
+    public static Stage getPrimaryStage() {
+        return Main.primaryStage;
     }
 }
