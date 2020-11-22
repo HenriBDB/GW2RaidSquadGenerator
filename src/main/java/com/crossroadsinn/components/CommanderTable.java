@@ -1,5 +1,6 @@
 package com.crossroadsinn.components;
 
+import com.crossroadsinn.settings.Settings;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -18,7 +19,7 @@ public class CommanderTable extends TableView<Commander> {
     public CommanderTable(ObservableList<Commander> items) {
         super(items);
         init();
-        getStylesheets().add("style/table-custom.css");
+        getStylesheets().add(Settings.getAssetFilePath("style/table-custom.css"));
         setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
 

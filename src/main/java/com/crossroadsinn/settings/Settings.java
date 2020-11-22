@@ -41,6 +41,15 @@ public class Settings {
     }
 
     /**
+     * Used to load resources from absolute path.
+     * @param asset location of file in asset dir.
+     * @return file path
+     */
+    public static String getAssetFilePath(String asset) {
+        return "file:///"+System.getProperty("user.dir")+"/assets/"+asset;
+    }
+
+    /**
      * Store the preferences on the system.
      */
     public static void saveSettings() {

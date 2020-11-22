@@ -1,6 +1,7 @@
 package com.crossroadsinn.view;
 
 import com.crossroadsinn.Main;
+import com.crossroadsinn.settings.Settings;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -43,7 +44,7 @@ public class App extends BorderPane {
 
     public App() {
         getStyleClass().add(JMetroStyleClass.BACKGROUND);
-        getStylesheets().add("style/main.css");
+        getStylesheets().add(Settings.getAssetFilePath("style/main.css"));
         setTop(menuBar());
         updateMenubar();
     }

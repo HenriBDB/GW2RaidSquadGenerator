@@ -1,5 +1,6 @@
 package com.crossroadsinn.components;
 
+import com.crossroadsinn.settings.Settings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
@@ -26,7 +27,7 @@ public class PlayerListView extends ListView<Player> {
         super(items);
         setCellFactory(p -> new PlayerListCell());
         setDraggingFeatures();
-        getStylesheets().add("style/list-view-custom.css");
+        getStylesheets().add(Settings.getAssetFilePath("style/list-view-custom.css"));
         setMaxWidth(500);
     }
 

@@ -1,6 +1,7 @@
 package com.crossroadsinn.components;
 
 import com.crossroadsinn.Main;
+import com.crossroadsinn.settings.Settings;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import jfxtras.styles.jmetro.Style;
@@ -19,8 +20,8 @@ public class ThemedIcon extends ImageView implements ThemeListener {
      */
     public ThemedIcon(String lightURL, String darkURL) {
         super();
-        this.lightURL = lightURL;
-        this.darkURL = darkURL;
+        this.lightURL = Settings.getAssetFilePath(lightURL);
+        this.darkURL = Settings.getAssetFilePath(darkURL);
         updateTheme();
     }
 

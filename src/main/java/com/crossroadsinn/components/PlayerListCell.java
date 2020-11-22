@@ -1,5 +1,6 @@
 package com.crossroadsinn.components;
 
+import com.crossroadsinn.settings.Settings;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.scene.control.Button;
@@ -24,8 +25,8 @@ public class PlayerListCell extends ListCell<Player> {
     // Icons to use for the roleAssignAndReset button.
     static Image CROSS_ICON, PERSON_ICON;
     static {
-        CROSS_ICON = new Image("images/CrossIcon.png");
-        PERSON_ICON = new Image("images/PersonIcon.png");
+        CROSS_ICON = new Image(Settings.getAssetFilePath("images/CrossIcon.png"));
+        PERSON_ICON = new Image(Settings.getAssetFilePath("images/PersonIcon.png"));
     }
 
     Player player;

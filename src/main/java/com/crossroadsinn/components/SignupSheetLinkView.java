@@ -1,6 +1,7 @@
 package com.crossroadsinn.components;
 
 import com.crossroadsinn.datatypes.LinkPair;
+import com.crossroadsinn.settings.Settings;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -69,7 +70,7 @@ class LinkCell extends ListCell<LinkPair<String, String>> {
                 getItem().setValue(newVal));
         HBox.setHgrow(linkName, Priority.ALWAYS);
         HBox.setHgrow(linkValue, Priority.ALWAYS);
-        ImageView crossIcon = new ImageView(new Image("images/CrossIcon.png"));
+        ImageView crossIcon = new ImageView(new Image(Settings.getAssetFilePath("images/CrossIcon.png")));
         Button removeLink = new Button();
         removeLink.setGraphic(crossIcon);
         removeLink.getStyleClass().add("transparent");
