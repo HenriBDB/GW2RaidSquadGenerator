@@ -8,6 +8,8 @@ import com.crossroadsinn.datatypes.LinkPair;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.prefs.Preferences;
 
@@ -46,7 +48,8 @@ public class Settings {
      * @return file path
      */
     public static String getAssetFilePath(String asset) {
-        return "file:///"+System.getProperty("user.dir")+"/assets/"+asset;
+        String userDir = System.getProperty("user.dir").replace("\\", "/");
+        return "file:///"+userDir+"/assets/"+asset;
     }
 
     /**
