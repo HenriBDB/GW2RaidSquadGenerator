@@ -1,17 +1,11 @@
 package com.crossroadsinn.components;
 
 import com.crossroadsinn.settings.Squad;
-import com.crossroadsinn.settings.Squads;
 import com.crossroadsinn.settings.Settings;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.TableCell;
-import javafx.scene.layout.HBox;
 
 /**
  * Creates a table for all available SquadTypes to select and set an mount

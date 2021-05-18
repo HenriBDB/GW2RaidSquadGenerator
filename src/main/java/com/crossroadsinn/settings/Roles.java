@@ -1,13 +1,8 @@
 package com.crossroadsinn.settings;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ChangeListener;
-
 import java.util.*;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Set;
 
 /**
  * Currently available roles

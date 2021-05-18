@@ -1,8 +1,6 @@
 package com.crossroadsinn.problem;
 
 import com.crossroadsinn.signups.Player;
-import com.crossroadsinn.settings.Roles;
-import com.crossroadsinn.settings.Squad;
 import com.crossroadsinn.settings.Squads;
 
 import java.util.*;
@@ -22,7 +20,7 @@ public class SquadComposition implements CSP {
 
     List<Player> playersToSort;
     List<List<Player>> squads;
-	ArrayList<String> squadTypes = new ArrayList<>();
+	ArrayList<String> squadTypes;
 
     /**
      * Constructors.

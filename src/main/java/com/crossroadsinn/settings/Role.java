@@ -1,13 +1,8 @@
 package com.crossroadsinn.settings;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ChangeListener;
-
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Set;
 /**
  * A class that can hold information about a role.
  * @author moon
