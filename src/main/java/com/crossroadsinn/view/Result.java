@@ -1,5 +1,7 @@
 package com.crossroadsinn.view;
 
+import com.crossroadsinn.settings.Roles;
+import com.crossroadsinn.settings.Squads;
 import com.crossroadsinn.components.PlayerListCell;
 import com.crossroadsinn.components.PlayerListView;
 import com.crossroadsinn.components.RoleStatRow;
@@ -132,7 +134,7 @@ public class Result extends BorderPane implements AppContent{
      */
     public void cleanup() {
         for (Player player : players) {
-            player.setAssignedRole(null);
+            player.setAssignedRole(0);
             player.clearRoleListener();
         }
         players.clear();
@@ -147,7 +149,7 @@ public class Result extends BorderPane implements AppContent{
         squadViews.getChildren().clear();
         if (solution != null) {
             for (int i = 0; i < solution.getNumSquads(); ++i) {
-                VBox squad = makeSquadDisplay(i);
+                VBox squad = makeSquadDisplay(i, Squads.getSquad(solution.getSquadTypes().get(i)).getSquadName());
                 squadViews.getChildren().add(squad);
             }
         } else {
@@ -157,10 +159,14 @@ public class Result extends BorderPane implements AppContent{
     }
 
     private VBox makeSquadDisplay(int squadIndex) {
+		return makeSquadDisplay(squadIndex, "Manual Squad");
+	}
+	
+    private VBox makeSquadDisplay(int squadIndex, String squadName) {
         VBox squad = new VBox(10);
         PlayerListView playerListView = new PlayerListView();
         squads.add(playerListView.getItems());
-        squad.getChildren().addAll(new Label("Squad " + (squadIndex+1)), playerListView);
+        squad.getChildren().addAll(new Label("Squad " + (squadIndex+1) + " - " + squadName), playerListView);
         squad.setAlignment(Pos.TOP_CENTER);
         HBox.setHgrow(squad, Priority.ALWAYS);
         return squad;
@@ -201,7 +207,7 @@ public class Result extends BorderPane implements AppContent{
      */
     private void generateStats() {
         stats.clear();
-        for (String role : Player.ROLES) stats.put(role, new RoleStatRow(role));
+        for (String role : Roles.getAllRolesAsStrings()) stats.put(role, new RoleStatRow(role));
         for (Player player : players) {
             if (player.getAssignedRole() == null) {
                 updateStatsClearedPlayer(player, null);
@@ -281,7 +287,7 @@ public class Result extends BorderPane implements AppContent{
 
         ComboBox<String> roleFilterDropdown = new ComboBox<>();
         roleFilterDropdown.getItems().add("All");
-        roleFilterDropdown.getItems().addAll(Player.ROLES);
+        roleFilterDropdown.getItems().addAll(Roles.getAllRolesAsStrings());
         roleFilterDropdown.getSelectionModel().selectFirst();
         roleFilterDropdown.setOnAction(e -> {
             squadViews.getChildren().forEach(node -> ((Pane) node).getChildren()
@@ -345,7 +351,7 @@ public class Result extends BorderPane implements AppContent{
      */
     private void autoFillTrainees() {
         SquadComposition initialState = new SquadComposition(Stream.of(commandersAndAides, trainees)
-                .flatMap(Collection::stream).collect(Collectors.toList()), squads);
+                .flatMap(Collection::stream).collect(Collectors.toList()), squads, parent.getSolution().getSquadTypes());
         solver = new BestFirstSearchTask(initialState);
         solver.setOnSucceeded(t -> {
             if (solver.getValue() == null) setSquads(null);

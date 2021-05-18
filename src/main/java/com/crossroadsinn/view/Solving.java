@@ -1,10 +1,13 @@
 package com.crossroadsinn.view;
 
+import com.crossroadsinn.components.SquadsTable;
+import com.crossroadsinn.settings.Squads;
+import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
 import jfxtras.styles.jmetro.JMetroStyleClass;
 import com.crossroadsinn.problem.SquadPlan;
 import com.crossroadsinn.search.GreedyBestFirstSearch;
@@ -22,19 +25,28 @@ public class Solving extends VBox implements AppContent {
     Label msg;
     Button mainBtn, manualBtn;
     Task<SquadPlan> solver;
+	SquadsTable squadsTable;
 
     public Solving(App parent) {
         super(10);
         this.parent = parent;
         getStyleClass().add(JMetroStyleClass.BACKGROUND);
         setAlignment(Pos.CENTER);
+		
+		squadsTable = new SquadsTable(FXCollections.observableArrayList());
+		squadsTable.getStyleClass().add("alternating-row-colors");
+		
+		StackPane content = new StackPane();
+        content.getChildren().addAll(squadsTable);
+        content.setPadding(new Insets(10));
+		
         mainBtn = new Button();
         mainBtn.setOnAction(e -> {
             toggleSolving();
         });
         manualBtn = new Button("Make Squads Manually");
         msg = new Label();
-        getChildren().addAll(mainBtn, msg, manualBtn);
+        getChildren().addAll(content, mainBtn, msg, manualBtn);
         manualBtn.setOnAction(e -> makeSquadsManually());
     }
 
@@ -42,6 +54,10 @@ public class Solving extends VBox implements AppContent {
      * Initialise the view with data from the parent.
      */
     public void init() {
+		if (Squads.getSquads() != null) {
+			squadsTable.getItems().clear();
+			squadsTable.getItems().addAll(Squads.getSquads());
+		}
         if (solver != null) {
             solver.cancel();
             solver = null;
@@ -67,7 +83,16 @@ public class Solving extends VBox implements AppContent {
             startSolving();
         }
     }
-
+	
+    /**
+     * Grab Data from Table and updatesquadtypes
+     * 
+     */
+	 
+	 public void updateSquadTypes() {
+		
+	 }
+	 
     /**
      * Create a thread for the Search algorithm to run on
      * and start the thread.

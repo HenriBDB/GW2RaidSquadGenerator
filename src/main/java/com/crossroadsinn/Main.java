@@ -1,6 +1,8 @@
 package com.crossroadsinn;
 
 import com.crossroadsinn.settings.Settings;
+import com.crossroadsinn.settings.Roles;
+import com.crossroadsinn.settings.Squads;
 import com.crossroadsinn.components.ThemeListener;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -53,6 +55,8 @@ public class Main extends Application {
         primaryStage.setScene(scene);
         primaryStage.setTitle(APP_NAME);
         Settings.init();
+        Roles.init();
+        Squads.init();
         root.navigateHome();
         primaryStage.show();
     }

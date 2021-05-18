@@ -1,5 +1,7 @@
 package com.crossroadsinn.components;
 
+import com.crossroadsinn.settings.Role;
+import com.crossroadsinn.settings.Roles;
 import com.crossroadsinn.settings.Settings;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
@@ -29,57 +31,21 @@ public class CommanderTable extends TableView<Commander> {
     private void init() {
         TableColumn<Commander, Number> checkAll = new TableColumn<>();
         checkAll.setCellValueFactory(f -> f.getValue().getChosenRoles());
-        checkAll.setCellFactory(p -> new RoleCell(4095));
+        checkAll.setCellFactory(p -> new RoleCell(Roles.getRoleCounter()*2-1));
         checkAll.setPrefWidth(40);
 
         TableColumn<Commander, String> name = new TableColumn<>("Name");
         name.setCellValueFactory(new PropertyValueFactory<>("name"));
-
-        TableColumn<Commander, Number> tank = new TableColumn<>("Tank");
-        tank.setCellValueFactory(f -> f.getValue().getChosenRoles());
-        tank.setCellFactory(p -> new RoleCell(1024));
-
-        TableColumn<Commander, Number> cSupp = new TableColumn<>("Chrono Supp");
-        cSupp.setCellValueFactory(f -> f.getValue().getChosenRoles());
-        cSupp.setCellFactory(p -> new RoleCell(512));
-
-        TableColumn<Commander, Number> druid = new TableColumn<>("Druid");
-        druid.setCellValueFactory(f -> f.getValue().getChosenRoles());
-        druid.setCellFactory(p -> new RoleCell(64));
-
-        TableColumn<Commander, Number> qChrono = new TableColumn<>("Quickness Chrono");
-        qChrono.setCellValueFactory(f -> f.getValue().getChosenRoles());
-        qChrono.setCellFactory(p -> new RoleCell(2048));
-
-        TableColumn<Commander, Number> qFB = new TableColumn<>("Quickness FB");
-        qFB.setCellValueFactory(f -> f.getValue().getChosenRoles());
-        qFB.setCellFactory(p -> new RoleCell(256));
-
-        TableColumn<Commander, Number> hFB = new TableColumn<>("Heal FB");
-        hFB.setCellValueFactory(f -> f.getValue().getChosenRoles());
-        hFB.setCellFactory(p -> new RoleCell(32));
-
-        TableColumn<Commander, Number> healRene = new TableColumn<>("Heal Renegade");
-        healRene.setCellValueFactory(f -> f.getValue().getChosenRoles());
-        healRene.setCellFactory(p -> new RoleCell(16));
-
-        TableColumn<Commander, Number> alacrigade = new TableColumn<>("Alacrigade");
-        alacrigade.setCellValueFactory(f -> f.getValue().getChosenRoles());
-        alacrigade.setCellFactory(p -> new RoleCell(128));
-
-        TableColumn<Commander, Number> offheal = new TableColumn<>("Offheal");
-        offheal.setCellValueFactory(f -> f.getValue().getChosenRoles());
-        offheal.setCellFactory(p -> new RoleCell(8));
-
-        TableColumn<Commander, Number> bs = new TableColumn<>("Banners");
-        bs.setCellValueFactory(f -> f.getValue().getChosenRoles());
-        bs.setCellFactory(p -> new RoleCell(4));
-
-        TableColumn<Commander, Number> dps = new TableColumn<>("DPS");
-        dps.setCellValueFactory(f -> f.getValue().getChosenRoles());
-        dps.setCellFactory(p -> new RoleCell(3));
-
-        getColumns().addAll(checkAll, name, tank, cSupp, druid, qChrono, qFB, hFB, healRene, alacrigade, offheal, bs, dps);
+		
+		getColumns().addAll(checkAll, name);
+		
+		for(Role role:Roles.getAllRoles()) {
+			if (!role.getCommRole()) continue;
+			TableColumn<Commander, Number> col = new TableColumn<>(role.getRoleName());
+			col.setCellValueFactory(f -> f.getValue().getChosenRoles());
+			col.setCellFactory(p -> new RoleCell(role.getRoleBit()));
+			getColumns().add(col);
+		}
     }
 
 }

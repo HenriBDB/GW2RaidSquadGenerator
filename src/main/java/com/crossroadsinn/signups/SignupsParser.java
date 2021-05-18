@@ -1,5 +1,6 @@
 package com.crossroadsinn.signups;
 
+import com.crossroadsinn.settings.Roles;
 import com.opencsv.CSVReader;
 
 import java.io.*;
@@ -14,7 +15,7 @@ import java.util.stream.IntStream;
 public class SignupsParser {
 
     // private static final String[] columns = {"gw2 account", "discord account", "tier", "comments", "tank", "druid", "offheal", "chrono", "alacrigade", "quickbrand", "banners", "dps"};
-    private final int[] columnIndices = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+    private final int[] columnIndices = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
     private final int[] bossLvlIndices = {-1, -1, -1};
     private boolean isSaturday;
 
@@ -74,13 +75,15 @@ public class SignupsParser {
             if (playerLine[columnIndices[11]].toLowerCase().contains("power")) roles += 2; // pdps
             if (playerLine[columnIndices[11]].toLowerCase().contains("condition")) roles += 1; // cdps
         }
+		if (!playerLine[columnIndices[13]].isBlank()) {
+			roles = 0;
+			for (String role:playerLine[columnIndices[13]].split(", ")) {
+				roles += Roles.getRoleNumber(role);
+			}
+		}
         if (roles == 0) return null;
-        int bossLvlChoice = 0;
-        if (isSaturday) {
-            if (!playerLine[bossLvlIndices[0]].isBlank()) ++bossLvlChoice;
-            if (!playerLine[bossLvlIndices[1]].isBlank()) bossLvlChoice += 2;
-            if (!playerLine[bossLvlIndices[2]].isBlank()) bossLvlChoice += 4;
-        } else bossLvlChoice = 7;
+		String[] bossLvlChoice = playerLine[columnIndices[12]].split(", ");
+
         return new Player(gw2Account, discordName, tier, comments, roles, bossLvlChoice);
     }
 
@@ -100,6 +103,8 @@ public class SignupsParser {
             else if (header.contains("quickbrand")) columnIndices[9] = i;
             else if (header.contains("banners")) columnIndices[10] = i;
             else if (header.contains("dps")) columnIndices[11] = i;
+            else if (header.contains("traininglevels")) columnIndices[12] = i;
+            else if (header.contains("roles")) columnIndices[13] = i;
             else if (header.contains("beginner")) bossLvlIndices[0] = i;
             else if (header.contains("intermediate")) bossLvlIndices[1] = i;
             else if (header.contains("advanced")) bossLvlIndices[2] = i;

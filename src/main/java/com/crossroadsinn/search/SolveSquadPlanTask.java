@@ -3,7 +3,11 @@ package com.crossroadsinn.search;
 import javafx.concurrent.Task;
 import com.crossroadsinn.problem.SquadPlan;
 import com.crossroadsinn.signups.Player;
+import com.crossroadsinn.settings.Squads;
+import com.crossroadsinn.settings.Squad;
 
+
+import java.util.*;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -19,6 +23,7 @@ public class SolveSquadPlanTask extends Task<SquadPlan> {
     private final ArrayList<Player> commanders, trainees;
     private final SearchAlgorithm searchAlgorithm;
     private int maxSquads;
+	private Hashtable<String, Integer> squadTypeAllowed = new Hashtable<String, Integer>();
 
     public SolveSquadPlanTask(ArrayList<Player> commanders, ArrayList<Player> trainees, SearchAlgorithm searchAlgorithm) {
         this.commanders = commanders;
@@ -43,10 +48,21 @@ public class SolveSquadPlanTask extends Task<SquadPlan> {
         ArrayList<Integer[]> trainerRoles = IntStream.range(0, commanders.size())
                 .mapToObj(i -> new Integer[]{i + traineeRoles.size(), commanders.get(i).getRoles()})
                 .collect(Collectors.toCollection(ArrayList::new));
+		
+		//setup squad types
+		for (Squad squad:Squads.getSquads()) {
+			if (squad.getEnabled()) {
+				squadTypeAllowed.put(squad.getSquadHandle(),squad.getMaxAmount());
+			}
+		}
+				
+		//fallback to default squad if no squadtypes found
+		if (squadTypeAllowed.isEmpty()) squadTypeAllowed.put("default",0);
+		
 
         SquadPlan initialSate = maxSquads == 0 ?
-                new SquadPlan(traineeRoles, trainerRoles) :
-                new SquadPlan(traineeRoles, trainerRoles, maxSquads) ;
+                new SquadPlan(traineeRoles, trainerRoles, squadTypeAllowed) :
+                new SquadPlan(traineeRoles, trainerRoles, maxSquads, squadTypeAllowed) ;
         int numSquads = initialSate.getNumSquads();
         searchAlgorithm.init(initialSate);
         SquadPlan solution = null;
@@ -61,7 +77,7 @@ public class SolveSquadPlanTask extends Task<SquadPlan> {
             if (solution == null) {
                 System.out.println("Failed in: " + (endTime-startTime) / 1000.0 + " seconds.");
                 --numSquads;
-                searchAlgorithm.init(new SquadPlan(traineeRoles, trainerRoles, numSquads));
+                searchAlgorithm.init(new SquadPlan(traineeRoles, trainerRoles, numSquads, squadTypeAllowed));
             }
             else {
                 System.out.println("Successful in: " + (endTime-startTime) / 1000.0 + " seconds.");

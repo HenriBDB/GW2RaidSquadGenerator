@@ -14,13 +14,13 @@ public class Commander extends Player {
 
     IntegerProperty chosenRoles;
 
-    public Commander(String gw2Account, String discordName, String tier, String comments, int roles) {
-        super(gw2Account, discordName, tier, comments, roles, 7);
+    public Commander(String gw2Account, String discordName, String tier, String comments, int roles, String[] ComBossLevelChoice) {
+        super(gw2Account, discordName, tier, comments, roles, ComBossLevelChoice);
         chosenRoles = new SimpleIntegerProperty(0);
     }
 
     public Commander(Player player) {
-        this(player.getGw2Account(), player.getDiscordName(), player.getTier(), player.getComments(), player.getRoles());
+        this(player.getGw2Account(), player.getDiscordName(), player.getTier(), player.getComments(), player.getRoles(), player.getBossLvlChoice());
     }
 
     public IntegerProperty getChosenRoles() {

@@ -1,5 +1,7 @@
 package com.crossroadsinn.signups;
 
+import com.crossroadsinn.settings.Role;
+import com.crossroadsinn.settings.Roles;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 
@@ -14,23 +16,28 @@ import java.util.Set;
  */
 public class Player {
 
-    public static String[] ROLES = {"DPS", "Banners", "Offheal", "Heal Renegade", "Heal FB", "Druid", "Alacrigade", "Quickness FB", "Offchrono", "Chrono Tank", "Quickness Chrono"};
+    //public static String[] ROLES = {"DPS", "Banners", "Offheal", "Heal Renegade", "Heal FB", "Druid", "Alacrigade", "Quickness FB", "Offchrono", "Chrono Tank", "Quickness Chrono"};
     private final String gw2Account;
     private final String discordName;
     private final String tier;
     private final String comments;
-    private final int bossLvlChoice;
+    private final String[] bossLvlChoice;
     private int roles;
     private final SimpleStringProperty assignedRole = new SimpleStringProperty();
     private ChangeListener<String> assignedRoleListener;
+	private Role assignedRoleObj;
+	private ArrayList<Role> availableRoleObj = new ArrayList<>();
 
-    public Player(String gw2Account, String discordName, String tier, String comments, int roles, int bossLvlChoice) {
+    public Player(String gw2Account, String discordName, String tier, String comments, int roles, String[] bossLvlChoice) {
         this.gw2Account = gw2Account;
         this.discordName = discordName;
         this.tier = tier;
         this.comments = comments;
         this.roles = roles;
         this.bossLvlChoice = bossLvlChoice;
+		for (Role role:Roles.getAllRoles()) {
+			if ((roles & role.getRoleBit())>0) availableRoleObj.add(role);
+		}
     }
 
     public Player(Player player) {
@@ -67,8 +74,19 @@ public class Player {
     }
 
     public void setAssignedRole(int role) {
-        this.assignedRole.set(roleValToName(role));
+		if (role == 0) {
+			this.assignedRoleObj = null;
+			this.assignedRole.set(null);
+		} else {
+			this.assignedRoleObj = Roles.getRole(role);
+			this.assignedRole.set(Roles.getRoleName(role));
+		}
     }
+	
+	public void setAssignedRole(Role role) {
+		this.assignedRoleObj = role;
+		this.assignedRole.set(role.getRoleName());
+	}
 
     public void setAssignedRole(String role) {
         this.assignedRole.set(role);
@@ -78,32 +96,47 @@ public class Player {
         return assignedRole.get();
     }
 
-    public SimpleStringProperty assignedRoleProperty() {
+    public Role getAssignedRoleObj() {
+        return assignedRoleObj;
+    }
+	
+	public SimpleStringProperty assignedRoleProperty() {
         return assignedRole;
     }
 
-    public int getBossLvlChoice() {
+    public String[] getBossLvlChoice() {
         return bossLvlChoice;
+    }
+
+    public String getBossLvlChoiceAsString() {
+        return String.join(", ",bossLvlChoice);
     }
 
     public String[] getRoleList() {
         ArrayList<String> roleList = new ArrayList<>();
-        int power = 2;
+		for (Role role:Roles.getAllRoles()) {
+			if ((roles & role.getRoleBit())>0) roleList.add(role.getRoleName());
+		}
+        /*int power = 2;
         if ((roles & 2) > 0) roleList.add("Power DPS");
         if ((roles & 1) > 0) roleList.add("Condi DPS");
-        while (power < ROLES.length + 2) {
+        while (power < Roles.getAllRolesAsStrings().length + 2) {
             int bitMask = (int) Math.pow(2, power);
-            if (!((roles & bitMask) == 0)) roleList.add(roleValToName(bitMask));
+            if (!((roles & bitMask) == 0)) roleList.add(Roles.getRoleName(bitMask));
             ++power;
-        }
+        }*/
         return roleList.toArray(new String[roleList.size()]);
     }
+	
+	public ArrayList<Role> getRoleObj() {
+		return availableRoleObj;
+	}
 
     public Set<String> getSimpleRoleList() {
         HashSet<String> rolesAvailable = new HashSet<>();
-        for (int i = 0; i < Player.ROLES.length + 2; ++i) {
+        for (int i = 0; i < Roles.getAllRolesAsStrings().length + 2; ++i) {
             int roleNum = (int) Math.pow(2, i);
-            if ((roles & roleNum) > 0) rolesAvailable.add(Player.roleValToName(roleNum));
+            if ((roles & roleNum) > 0) rolesAvailable.add(Roles.getRoleName(roleNum));
         }
         return rolesAvailable;
     }
@@ -127,7 +160,7 @@ public class Player {
      * @param role The role value.
      * @return The name of the role.
      */
-    public static String roleValToName(int role) {
+    /*public static String roleValToName(int role) {
         switch (role) {
             case 1:
             case 2:
@@ -156,5 +189,5 @@ public class Player {
             default:
                 return null;
         }
-    }
+    }*/
 }

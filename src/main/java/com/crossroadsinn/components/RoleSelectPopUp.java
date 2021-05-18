@@ -1,5 +1,6 @@
 package com.crossroadsinn.components;
 
+import com.crossroadsinn.settings.Role;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
@@ -13,6 +14,8 @@ import jfxtras.styles.jmetro.JMetro;
 import com.crossroadsinn.signups.Player;
 import com.crossroadsinn.Main;
 
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -29,10 +32,23 @@ public class RoleSelectPopUp {
      * @param player the given player.
      * @return the ComboBox with role names.
      */
-    private static ComboBox<String> getDropDownSelector(Player player) {
-        ComboBox<String> dropDownSelector = new ComboBox<>();
-        dropDownSelector.getItems().addAll(player.getSimpleRoleList());
-        dropDownSelector.getSelectionModel().selectFirst();
+    private static ComboBox<Role> getDropDownSelector(Player player, String filteredRole) {
+        ComboBox<Role> dropDownSelector = new ComboBox<>();
+		for (Role role:player.getRoleObj()) {
+			dropDownSelector.getItems().add(role);
+		}
+        if (filteredRole == null || Arrays.stream(player.getRoleList()).noneMatch(Objects.requireNonNull(filteredRole)::equals)) {
+            dropDownSelector.getSelectionModel().selectFirst();
+        }
+        else {
+			//try to find a role with the same name
+			for (Role role:player.getRoleObj()) {
+				if (role.getRoleName() == filteredRole) {
+					dropDownSelector.getSelectionModel().select(role);
+					break;
+				} else dropDownSelector.getSelectionModel().selectFirst();
+			}
+        }
         return dropDownSelector;
     }
 
@@ -42,18 +58,18 @@ public class RoleSelectPopUp {
      * @param player the given player.
      * @return false if cancelled, true if player updated.
      */
-    public static boolean assignPlayerRolePopup(Player player) {
+    public static boolean assignPlayerRolePopup(Player player, String filteredRole) {
         AtomicBoolean isRoleSelected = new AtomicBoolean(false);
         Stage popup = new Stage();
 
-        ComboBox<String> roleSelector = getDropDownSelector(player);
+        ComboBox<Role> roleSelector = getDropDownSelector(player, filteredRole);
 
         HBox choices = new HBox(10);
         Button cancel = new Button("Cancel");
         cancel.setOnAction(e -> popup.close());
         Button select = new Button("Select");
         select.setOnAction(e -> {
-            String role = roleSelector.getSelectionModel().getSelectedItem();
+            Role role = roleSelector.getSelectionModel().getSelectedItem();
             if (role != null) {
                 player.setAssignedRole(role);
                 isRoleSelected.set(true);

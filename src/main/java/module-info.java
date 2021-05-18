@@ -11,5 +11,6 @@ module com.crossroadsinn.squadmaker {
     exports com.crossroadsinn.signups;
     exports com.crossroadsinn.components;
     exports com.crossroadsinn.problem;
+    exports com.crossroadsinn.settings;
     exports com.crossroadsinn;
 }

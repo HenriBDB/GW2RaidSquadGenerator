@@ -104,7 +104,7 @@ public class PlayerListCell extends ListCell<Player> {
     private void toggleRoleAssignAndReset() {
         if (player != null) {
             if (player.getAssignedRole() == null) {
-                if (RoleSelectPopUp.assignPlayerRolePopup(player)) setGraphic(getCellGraphic());
+                if (RoleSelectPopUp.assignPlayerRolePopup(player, roleFilter)) setGraphic(getCellGraphic());
             } else player.setAssignedRole(0);
             setGraphic(getCellGraphic());
         }

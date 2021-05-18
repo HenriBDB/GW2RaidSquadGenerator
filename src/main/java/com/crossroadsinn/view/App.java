@@ -1,7 +1,7 @@
 package com.crossroadsinn.view;
 
 import com.crossroadsinn.Main;
-import com.crossroadsinn.settings.Settings;
+import com.crossroadsinn.settings.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  */
 public class App extends BorderPane {
 
-    private final static String[] bossLevels = {"Beginner", "Intermediate", "Advanced"};
+    private ArrayList<String> bossLevels = new ArrayList<>();
 
     private Button homeButton, playerSelectButton, commanderSelectButton, solvingScreenButton, resultScreenButton, storedSolutionsButton, settingsButton;
     private HBox bossLevelMenu;
@@ -36,7 +36,6 @@ public class App extends BorderPane {
     private Spinner<Integer> numSquads;
     private AppContent homePage, playerListSelect, commanderSelect, solvingUI, savedCompositions, settingsPage;
     private Result resultUI;
-
     private ArrayList<Player> traineeList, selectedCommanderList, selectedTraineeList;
     private ArrayList<Commander> commanderList;
     private final List<SquadSolution> savedSolutions = new ArrayList<>();
@@ -73,6 +72,7 @@ public class App extends BorderPane {
 
     public void setTraineeList(ArrayList<Player> traineeList) {
         this.traineeList = traineeList;
+		updateBossLevels();
         updateAvailableTrainees();
         updateMenubar();
     }
@@ -204,6 +204,23 @@ public class App extends BorderPane {
     }
 
     /**
+     * Get available BossLevels from Traineelist
+     */
+    private void updateBossLevels() {
+		bossLevelChoice.getItems().clear();
+		bossLevels.clear();
+		for (Player x:getTraineeList()) {
+			for (String y:x.getBossLvlChoice()) {
+				if (!bossLevels.contains(y) && y != null && !y.isEmpty()) bossLevels.add(y);
+			}
+        }
+		java.util.Collections.sort(bossLevels);
+		bossLevelChoice.getItems().addAll(bossLevels);
+		bossLevelChoice.getSelectionModel().select(0);
+    }
+
+
+    /**
      * Add or remove a bold underline to tabs to indicate current page.
      */
     private void menuBarStyling(Node page, boolean remove) {
@@ -228,14 +245,19 @@ public class App extends BorderPane {
      * boss level for the training session.
      */
     public void updateAvailableTrainees() {
+		String filterBossLevel = bossLevelChoice.getSelectionModel().getSelectedItem();
         if (traineeList != null) {
-            selectedTraineeList = traineeList.stream().filter(p -> {
-                if (bossLevelChoice.getSelectionModel().getSelectedItem().equals(bossLevels[1])) {
-                    return p.getTier().matches("[123]") && (p.getBossLvlChoice() & 2) != 0; // Intermediate
-                } else if (bossLevelChoice.getSelectionModel().getSelectedItem().equals(bossLevels[2])) {
-                    return p.getTier().matches("[23]") && (p.getBossLvlChoice() & 4) != 0; // Advanced
-                } else return (p.getBossLvlChoice() & 1) != 0; // Beginner
-            }).collect(Collectors.toCollection(ArrayList::new));
+			if (bossLevelChoice.getSelectionModel().getSelectedItem() == null) {
+				selectedTraineeList = traineeList;
+			} else {
+				selectedTraineeList = traineeList.stream().filter(p -> {
+					if (bossLevelChoice.getSelectionModel().getSelectedItem().contains("Intermediate")) { // Intermediate
+						return p.getTier().matches("[123]") && p.getBossLvlChoiceAsString().contains(bossLevelChoice.getSelectionModel().getSelectedItem());
+					} else if (bossLevelChoice.getSelectionModel().getSelectedItem().contains("Advanced")) {  // Advanced
+						return p.getTier().matches("[23]") && p.getBossLvlChoiceAsString().contains(bossLevelChoice.getSelectionModel().getSelectedItem());
+					} else return p.getBossLvlChoiceAsString().contains(bossLevelChoice.getSelectionModel().getSelectedItem()); // Beginner
+				}).collect(Collectors.toCollection(ArrayList::new));
+			}
             numTrainees.setText(String.format("%d valid trainees.", selectedTraineeList.size()));
         }
     }

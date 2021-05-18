@@ -1,7 +1,11 @@
 package com.crossroadsinn.problem;
 
 import com.crossroadsinn.signups.Player;
+import com.crossroadsinn.settings.Roles;
+import com.crossroadsinn.settings.Squad;
+import com.crossroadsinn.settings.Squads;
 
+import java.util.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,6 +22,7 @@ public class SquadComposition implements CSP {
 
     List<Player> playersToSort;
     List<List<Player>> squads;
+	ArrayList<String> squadTypes = new ArrayList<>();
 
     /**
      * Constructors.
@@ -25,16 +30,18 @@ public class SquadComposition implements CSP {
      * Shallow copies of lists can be created keeping references to
      * the original Player objects.
      */
-    public SquadComposition(List<Player> playersToSort, List<List<Player>> squads) {
+    public SquadComposition(List<Player> playersToSort, List<List<Player>> squads, ArrayList<String> squadTypes) {
         // Shallow copy lists.
         this.playersToSort = new ArrayList<>(playersToSort);
         this.squads = squads.stream().map(ArrayList::new).collect(Collectors.toList());
+		this.squadTypes = squadTypes;
     }
 
     public SquadComposition(SquadComposition other) {
         // Shallow copy constructor.
         this.playersToSort = new ArrayList<>(other.getPlayersToSort());
         this.squads = other.getSquads().stream().map(ArrayList::new).collect(Collectors.toList());
+		this.squadTypes = other.squadTypes;
     }
 
     public List<Player> getPlayersToSort() {
@@ -61,6 +68,7 @@ public class SquadComposition implements CSP {
      * @return whether all constraints are satisfied or not.
      */
     private boolean isValid() {
+		int i = 0;
         for (List<Player> squad : squads) {
             // Squad size check.
             if (squad.size() > 10) return false;
@@ -70,27 +78,43 @@ public class SquadComposition implements CSP {
             if (commCount > 2) return false;
             if (aideCount > 2) return false;
             if (commCount + aideCount > 2) return false;
-            if (squad.size() == 10 && commCount == 0 && aideCount == 0) return false;
+
             // Role check.
-            long offhealCount, healReneCount, healFBCount, quickFBCount, quickChronoCount, alacrigadeCount, cSuppCount;
-            if (squad.stream().filter(p -> p.getAssignedRole().equals("DPS")).count() > 5) return false;
-            if (squad.stream().filter(p -> p.getAssignedRole().equals("Chrono Tank")).count() > 1) return false;
-            if (squad.stream().filter(p -> p.getAssignedRole().equals("Banners")).count() > 1) return false;
-            if (squad.stream().filter(p -> p.getAssignedRole().equals("Druid")).count() > 1) return false;
-            if ((offhealCount = squad.stream().filter(p -> p.getAssignedRole().equals("Offheal")).count()) > 1) return false;
-            if ((healReneCount = squad.stream().filter(p -> p.getAssignedRole().equals("Heal Renegade")).count()) > 1) return false;
-            if ((healFBCount = squad.stream().filter(p -> p.getAssignedRole().equals("Heal FB")).count()) > 1) return false;
-            if ((alacrigadeCount = squad.stream().filter(p -> p.getAssignedRole().equals("Alacrigade")).count()) > 1) return false;
-            if ((quickFBCount = squad.stream().filter(p -> p.getAssignedRole().equals("Quickness FB")).count()) > 1) return false;
-            if ((quickChronoCount = squad.stream().filter(p -> p.getAssignedRole().equals("Quickness Chrono")).count()) > 1) return false;
-            if ((cSuppCount = squad.stream().filter(p -> p.getAssignedRole().equals("Offchrono")).count()) > 1) return false;
-            if ((offhealCount & healReneCount) == 1 || (offhealCount & healFBCount) == 1 || (healFBCount & healReneCount) == 1)
-                return false; // At least 2 offheals...
-            if ((cSuppCount & quickFBCount) == 1 || (cSuppCount & alacrigadeCount) == 1 || (quickFBCount & alacrigadeCount) == 1)
-                return false; // At least 2 DPS boons players.
-            if ((alacrigadeCount & healReneCount) == 1 || (quickFBCount+quickChronoCount & healFBCount) == 1 ||
-                    (quickFBCount+quickChronoCount & offhealCount) == 1 || (alacrigadeCount & offhealCount) == 1)
-                return false; // Wrong support pairs.
+			// Set Constraints based on squad
+			Hashtable<String, Integer> reqBoons = new Hashtable<String, Integer>();
+			Hashtable<String, Integer> reqSpecialRoles = new Hashtable<String, Integer>();
+			
+			for (Map.Entry<String, Integer> entry : Squads.getSquad(squadTypes.get(i)).getReqSpecialRoles().entrySet()) {
+				reqSpecialRoles.put(entry.getKey(),entry.getValue());
+			}
+				
+			for (Map.Entry<String, Integer> entry : Squads.getSquad(squadTypes.get(i)).getReqBoons().entrySet()) {
+				reqBoons.put(entry.getKey(),entry.getValue());
+			}
+			
+			//remove every special role for each player and check if there is too many of said role
+			//same for boons
+			for (Player player:squad) {
+				for (String key:reqSpecialRoles.keySet()) {
+					reqSpecialRoles.put(key,reqSpecialRoles.get(key)-player.getAssignedRoleObj().getIfRole(key));
+					if (reqSpecialRoles.get(key)<0) return false;
+				}
+				for (String key:reqBoons.keySet()) {
+					reqBoons.put(key,reqBoons.get(key)-player.getAssignedRoleObj().getBoonAmount(key));
+					if (reqBoons.get(key)<0) return false;
+				}
+			}
+			
+			//check if any role is not fulfilled if squad has 10 peepos
+			if (squad.size() == 10) {
+				for (int value:reqSpecialRoles.values()) {
+					if (value != 0) return false;
+				}
+				for (int value:reqBoons.values()) {
+					if (value != 0) return false;
+				}
+			}
+			i++;
         }
         return true;
     }
