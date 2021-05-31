@@ -1,8 +1,16 @@
 package com.crossroadsinn.settings;
 
-import java.util.*;
+import com.opencsv.CSVReader;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Random;
+
 
 /**
  * Currently available roles
@@ -10,21 +18,18 @@ import java.util.Hashtable;
  * @version 1.1
  */
 public class Roles {
-	private static Hashtable<String, Integer> roleToNumber = new Hashtable<String, Integer>();
-	private static Hashtable<Integer, Role> roles = new Hashtable<Integer, Role>();
+	private static final Hashtable<String, Integer> roleToNumber = new Hashtable<>();
+	private static final Hashtable<Integer, Role> roles = new Hashtable<>();
 	private static int roleCounter = 1;
 	public static void init() {
-		addRole("ctank","Chrono Tank","quickness:5","tank");
-		addRole("druid","Druid","","healer, druid");
-		addRole("hfb","Heal FB","quickness:5","healer");
-		addRole("quicknesschrono","Quickness Chrono","quickness:5","");
-		addRole("qfb","Quickbrand","quickness:5","");
-		addRole("alacgade","Alacrigade","alacrity:10","");
-		addRole("banners","Banners","","banners");
-		addRole("dps","DPS","","dps");
-		addRole("healscrapper","Heal Scrapper","quickness:5","healer");
-		addRole("scam","Staff Condi Alacrity Mirage","alacrity:10","");
-		addRole("qtpkitede","Pylonkite","","qtpkite",false);
+		try {
+			File csvFile = new File("roles.csv");
+			FileInputStream csvFileInputStream = new FileInputStream(csvFile);
+			InputStreamReader csvInputStreamReader = new InputStreamReader(csvFileInputStream,StandardCharsets.UTF_8);
+			parse(csvInputStreamReader);
+		} catch (IOException e) {
+            e.printStackTrace();
+        }
 	}
 		
 	public static void addRole(String roleHandle, String roleName, String boons, String specialRoles) {
@@ -38,7 +43,7 @@ public class Roles {
 	}
 	
 	public static int getRoleNumber(String roleHandle) {
-		return ((roleToNumber.containsKey(roleHandle)) ? (roleToNumber.get(roleHandle)) : 0);
+		return ((roleToNumber.getOrDefault(roleHandle, 0)));
 	}
 	
 	public static String getRoleName(int roleNumber) {
@@ -50,11 +55,7 @@ public class Roles {
 	}
 	
 	public static ArrayList<Role> getAllRoles() {
-		ArrayList<Role> rolesArray = new ArrayList<Role>();
-		for(Role value:roles.values()) {
-			rolesArray.add(value);
-		}
-		return rolesArray;
+		return new ArrayList<>(roles.values());
 	}
 	
 	public static int getRoleCounter() {
@@ -93,4 +94,44 @@ public class Roles {
 		}
 		return rolesString;
 	}
+	
+    /**
+     * Parse a given CSV and generate a list of roles it contains.
+     * @param reader The csv stream to parse.
+     */
+    public static void parse(InputStreamReader reader) {
+        CSVReader parser = null;
+        try {
+            parser = new CSVReader(reader);
+            String [] line;
+            // Ignore first line
+            parser.readNext();
+            while ((line = parser.readNext()) != null) {
+                parseRole(line);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (parser != null) parser.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+	 
+	
+	/**
+     * Generate role given the information contained in a line.
+     * @param roleLine The line containing the role info.
+     */
+	private static void parseRole(String[] roleLine) {
+		String roleHandle = roleLine[0].trim();
+		String roleName = roleLine[1].trim();
+		String boons = roleLine[2].trim();
+		String specialRoles = roleLine[3].trim();
+		Boolean commRole = (roleLine[4].toLowerCase().contains("true")) ? true : false;
+		addRole(roleHandle,roleName,boons,specialRoles,commRole);		
+	}
+		
 }

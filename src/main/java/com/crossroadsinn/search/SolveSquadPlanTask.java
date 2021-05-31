@@ -23,7 +23,7 @@ public class SolveSquadPlanTask extends Task<SquadPlan> {
     private final ArrayList<Player> commanders, trainees;
     private final SearchAlgorithm searchAlgorithm;
     private int maxSquads;
-	private final Hashtable<String, Integer> squadTypeAllowed = new Hashtable<String, Integer>();
+	private Hashtable<String, Integer> squadTypeAllowed = new Hashtable<String, Integer>();
 
     public SolveSquadPlanTask(ArrayList<Player> commanders, ArrayList<Player> trainees, SearchAlgorithm searchAlgorithm) {
         this.commanders = commanders;

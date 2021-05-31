@@ -19,6 +19,7 @@ public class Player {
     //public static String[] ROLES = {"DPS", "Banners", "Offheal", "Heal Renegade", "Heal FB", "Druid", "Alacrigade", "Quickness FB", "Offchrono", "Chrono Tank", "Quickness Chrono"};
     private final String gw2Account;
     private final String discordName;
+    private final String discordPing;
     private final String tier;
     private final String comments;
     private final String[] bossLvlChoice;
@@ -28,9 +29,23 @@ public class Player {
 	private Role assignedRoleObj;
 	private ArrayList<Role> availableRoleObj = new ArrayList<>();
 
+    public Player(String gw2Account, String discordName, String discordPing, String tier, String comments, int roles, String[] bossLvlChoice) {
+        this.gw2Account = gw2Account;
+        this.discordName = discordName;
+        this.discordPing = discordPing;
+        this.tier = tier;
+        this.comments = comments;
+        this.roles = roles;
+        this.bossLvlChoice = bossLvlChoice;
+		for (Role role:Roles.getAllRoles()) {
+			if ((roles & role.getRoleBit())>0) availableRoleObj.add(role);
+		}
+    }
+	
     public Player(String gw2Account, String discordName, String tier, String comments, int roles, String[] bossLvlChoice) {
         this.gw2Account = gw2Account;
         this.discordName = discordName;
+        this.discordPing = "@" + discordName;
         this.tier = tier;
         this.comments = comments;
         this.roles = roles;
@@ -41,7 +56,7 @@ public class Player {
     }
 
     public Player(Player player) {
-        this(player.getGw2Account(), player.getDiscordName(), player.getTier(), player.getComments(), player.getRoles(), player.getBossLvlChoice());
+        this(player.getGw2Account(), player.getDiscordName(), player.getDiscordPing(), player.getTier(), player.getComments(), player.getRoles(), player.getBossLvlChoice());
         this.assignedRole.set(player.getAssignedRole());
     }
 
@@ -55,6 +70,10 @@ public class Player {
 
     public String getDiscordName() {
         return discordName;
+    }
+	
+    public String getDiscordPing() {
+        return discordPing;
     }
 
     public String getTier() {
@@ -125,7 +144,7 @@ public class Player {
             if (!((roles & bitMask) == 0)) roleList.add(Roles.getRoleName(bitMask));
             ++power;
         }*/
-        return roleList.toArray(new String[roleList.size()]);
+        return roleList.toArray(new String[0]);
     }
 	
 	public ArrayList<Role> getRoleObj() {

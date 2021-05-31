@@ -244,7 +244,7 @@ public class SquadPlan implements CSP {
 		//special role still needed
 		for (String key:Roles.getRole(playerRole).getSpecialRoles()) {
 			//workaround for dps in special roles
-			if (key == "dps") continue;
+			if (key.equals("dps")) continue;
 			if (!reqSpecialRoles.containsKey(key)) return false;
 			if (Roles.getRole(playerRole).getIfRole(key) > reqSpecialRoles.get(key)) return false;
 		}

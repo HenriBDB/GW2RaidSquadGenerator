@@ -14,8 +14,8 @@ public class Role {
     private final String roleHandle;
     private final String roleName;
     private final boolean commRole;
-	private Hashtable<String, Integer> boons = new Hashtable<String, Integer>();
-    private ArrayList<String> specialRoles = new ArrayList<>();
+	private final Hashtable<String, Integer> boons = new Hashtable<>();
+    private final ArrayList<String> specialRoles = new ArrayList<>();
 
     public Role(int roleBit, String roleHandle, String roleName, String Boons, String specialRoles, boolean commRole) {
 		this.roleBit = roleBit;
@@ -23,8 +23,8 @@ public class Role {
         this.roleName = roleName;
         this.commRole = commRole;
 		if (!Boons.isEmpty()) {
-			for (String part:Boons.split(", ")) {
-				String[] BoonsValuePair = part.split(":");
+			for (String part:Boons.split("\\s*,\\s*")) {
+				String[] BoonsValuePair = part.split("\\s*:\\s*");
 				if (boons.containsKey(BoonsValuePair[0])) {
 					boons.put(BoonsValuePair[0],boons.get(BoonsValuePair[0])+Integer.parseInt(BoonsValuePair[1]));
 				} else {
@@ -33,7 +33,7 @@ public class Role {
 			}
 		}
 		if (!specialRoles.isEmpty()) {
-			this.specialRoles.addAll(Arrays.asList(specialRoles.split(", ")));
+			this.specialRoles.addAll(Arrays.asList(specialRoles.split("\\s*,\\s*")));
 		}
     }
 	
@@ -59,7 +59,7 @@ public class Role {
     }	
 	
 	public int getBoonAmount(String boon) {
-		return ((boons.containsKey(boon)) ? boons.get(boon) : 0);
+		return (boons.getOrDefault(boon, 0));
 	}
 	
 	public int getIfRole(String role) {

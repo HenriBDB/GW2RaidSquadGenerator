@@ -1,7 +1,10 @@
 package com.crossroadsinn.view;
 
-import com.crossroadsinn.Main;
-import com.crossroadsinn.settings.*;
+import com.crossroadsinn.problem.SquadPlan;
+import com.crossroadsinn.problem.SquadSolution;
+import com.crossroadsinn.settings.Settings;
+import com.crossroadsinn.signups.Commander;
+import com.crossroadsinn.signups.Player;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -9,12 +12,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import jfxtras.styles.jmetro.JMetroStyleClass;
-import com.crossroadsinn.problem.SquadPlan;
-import com.crossroadsinn.problem.SquadSolution;
-import com.crossroadsinn.signups.Commander;
-import com.crossroadsinn.signups.Player;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,7 +25,7 @@ import java.util.stream.Collectors;
  */
 public class App extends BorderPane {
 
-    private ArrayList<String> bossLevels = new ArrayList<>();
+    private final ArrayList<String> bossLevels = new ArrayList<>();
 
     private Button homeButton, playerSelectButton, commanderSelectButton, solvingScreenButton, resultScreenButton, storedSolutionsButton, settingsButton;
     private HBox bossLevelMenu;
@@ -245,16 +243,15 @@ public class App extends BorderPane {
      * boss level for the training session.
      */
     public void updateAvailableTrainees() {
-		String filterBossLevel = bossLevelChoice.getSelectionModel().getSelectedItem();
         if (traineeList != null) {
 			if (bossLevelChoice.getSelectionModel().getSelectedItem() == null) {
 				selectedTraineeList = traineeList;
 			} else {
 				selectedTraineeList = traineeList.stream().filter(p -> {
 					if (bossLevelChoice.getSelectionModel().getSelectedItem().contains("Intermediate")) { // Intermediate
-						return p.getTier().matches("[123]") && p.getBossLvlChoiceAsString().contains(bossLevelChoice.getSelectionModel().getSelectedItem());
+						return p.getTier().matches("^([123]|(trainee))$") && p.getBossLvlChoiceAsString().contains(bossLevelChoice.getSelectionModel().getSelectedItem());
 					} else if (bossLevelChoice.getSelectionModel().getSelectedItem().contains("Advanced")) {  // Advanced
-						return p.getTier().matches("[23]") && p.getBossLvlChoiceAsString().contains(bossLevelChoice.getSelectionModel().getSelectedItem());
+						return p.getTier().matches("^([23]|(trainee))$") && p.getBossLvlChoiceAsString().contains(bossLevelChoice.getSelectionModel().getSelectedItem());
 					} else return p.getBossLvlChoiceAsString().contains(bossLevelChoice.getSelectionModel().getSelectedItem()); // Beginner
 				}).collect(Collectors.toCollection(ArrayList::new));
 			}

@@ -6,6 +6,7 @@
 .settings/
 bin/
 squads.csv
+roles.csv
 squad-compositions.csv
 src/main/resources/module-info.java
 

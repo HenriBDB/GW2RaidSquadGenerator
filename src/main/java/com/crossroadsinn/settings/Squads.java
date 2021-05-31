@@ -1,7 +1,15 @@
 package com.crossroadsinn.settings;
 
+import com.opencsv.CSVReader;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Hashtable;
+
 
 /**
  * Currently available squads
@@ -9,12 +17,16 @@ import java.util.Hashtable;
  * @version 1.1
  */
 public class Squads {
-	private static Hashtable<String, Squad> squads = new Hashtable<String, Squad>();
+	private static final Hashtable<String, Squad> squads = new Hashtable<String, Squad>();
 	public static void init() {
-		addSquad("default","Default","alacrity:10, quickness:10","tank:1, druid:1, healer:2, banners:1", true);
-		addSquad("doubleDruid","Double Druid Because I can","alacrity:10, quickness:10","tank:1, druid:2, healer:2, banners:1");
-		addSquad("soloheal","Soloheal","alacrity:10, quickness:10","tank:1, druid:1, healer:1, banners:1");
-		addSquad("qtp1","Qadim the Peerless","alacrity:10, quickness:10","tank:1, druid:1, healer:1, banners:1, qtpkite:3");
+		try {
+			File csvFile = new File("squads.csv");
+			FileInputStream csvFileInputStream = new FileInputStream(csvFile);
+			InputStreamReader csvInputStreamReader = new InputStreamReader(csvFileInputStream,StandardCharsets.UTF_8);
+			parse(csvInputStreamReader);
+		} catch (IOException e) {
+            e.printStackTrace();
+        }
 	}
 		
 	public static void addSquad(String squadHandle, String squadName, String reqBoons, String reqSpecialRoles) {
@@ -30,14 +42,48 @@ public class Squads {
 	}
 	
 	public static ArrayList<Squad> getSquads() {
-		ArrayList<Squad> squadsList = new ArrayList<Squad>();
-		for (Squad squad:squads.values()) {
-			squadsList.add(squad);
-		}
-		return squadsList;
+		return new ArrayList<Squad>(squads.values());
 	}
 	
 	public static String getSquadName(String squadHandle) {
 		return ((squads.containsKey(squadHandle)) ? squads.get(squadHandle).getSquadName() : "Unknown Squad");
+	}
+	    /**
+     * Parse a given CSV and generate a list of squads it contains.
+     * @param reader The csv stream to parse.
+     */
+    public static void parse(InputStreamReader reader) {
+        CSVReader parser = null;
+        try {
+            parser = new CSVReader(reader);
+            String [] line;
+            // Ignore first line
+            parser.readNext();
+            while ((line = parser.readNext()) != null) {
+                parseSquad(line);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (parser != null) parser.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+	 
+	
+	/**
+     * Generate role given the information contained in a line.
+     * @param squadLine The line containing the role info.
+     */
+	private static void parseSquad(String[] squadLine) {
+		String squadHandle = squadLine[0].trim();
+		String squadName = squadLine[1].trim();
+		String reqBoons = squadLine[2].trim();
+		String reqSpecialRoles = squadLine[3].trim();
+		boolean isDefault = squadLine[4].toLowerCase().contains("true");
+		addSquad(squadHandle,squadName,reqBoons,reqSpecialRoles,isDefault);		
 	}
 }

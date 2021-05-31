@@ -7,27 +7,27 @@ import java.util.Hashtable;
  * @version 1.1
  */
 public class Squad {
-	private String squadHandle;
-	private String squadName;
-    private Hashtable<String, Integer> reqBoons = new Hashtable<String, Integer>();
-    private Hashtable<String, Integer> reqSpecialRoles = new Hashtable<String, Integer>();
-	private boolean enabled = false;
+	private final String squadHandle;
+	private final String squadName;
+    private final Hashtable<String, Integer> reqBoons = new Hashtable<String, Integer>();
+    private final Hashtable<String, Integer> reqSpecialRoles = new Hashtable<String, Integer>();
+	private boolean enabled;
 	private int maxAmount = 0;
 
     public Squad(String squadHandle, String squadName, String Boons, String SpecialRoles, boolean isDefault) {
         this.squadHandle = squadHandle;
         this.squadName = squadName;
 		this.enabled = isDefault;
-        for (String part:Boons.split(", ")) {
-			String[] BoonsValuePair = part.split(":");
+        for (String part:Boons.split("\\s*,\\s*")) {
+			String[] BoonsValuePair = part.split("\\s*:\\s*");
 			if (reqBoons.containsKey(BoonsValuePair[0])) {
 				reqBoons.put(BoonsValuePair[0],reqBoons.get(BoonsValuePair[0])+Integer.parseInt(BoonsValuePair[1]));
 			} else {
 				reqBoons.put(BoonsValuePair[0],Integer.parseInt(BoonsValuePair[1]));
 			}
 		}
-        for (String part:SpecialRoles.split(", ")) {
-			String[] roleValuePair = part.split(":");
+        for (String part:SpecialRoles.split("\\s*,\\s*")) {
+			String[] roleValuePair = part.split("\\s*:\\s*");
 			if (reqSpecialRoles.containsKey(roleValuePair[0])) {
 				reqSpecialRoles.put(roleValuePair[0],reqSpecialRoles.get(roleValuePair[0])+Integer.parseInt(roleValuePair[1]));
 			} else {
@@ -60,7 +60,7 @@ public class Squad {
 	}
 	
 	public void setEnabled(boolean enabled) {
-		enabled = enabled;
+		this.enabled = enabled;
 	}
 	
 	public void setEnabled() {

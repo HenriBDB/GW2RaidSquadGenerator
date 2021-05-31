@@ -408,8 +408,7 @@ public class Result extends BorderPane implements AppContent{
             }
         }
         squads.stream().flatMap(List::stream).forEach(p -> {
-            // The or operators will make java evaluate until the first that returns true, avoiding unnecessary calls.
-            boolean ignore = (trainees.remove(p) || commandersAndAides.remove(p));
+            if(!trainees.remove(p)) commandersAndAides.remove(p);
         });
     }
 
@@ -422,6 +421,11 @@ public class Result extends BorderPane implements AppContent{
         ArrayList<Player> players = new ArrayList<>(parent.getTraineeList());
         for (List<Player> chosenOnes : squads) {
             players.removeAll(chosenOnes);
+			
+			//remove all players with the same gw2 id
+			for (Player player : chosenOnes) {
+				players.removeAll(players.stream().filter(p -> (player.getGw2Account().equals(p.getGw2Account()))).collect(Collectors.toCollection(ArrayList::new)));
+			}
         }
         return players;
     }
