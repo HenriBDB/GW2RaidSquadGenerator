@@ -1,11 +1,13 @@
 package com.crossroadsinn.search;
 
-import javafx.concurrent.Task;
 import com.crossroadsinn.problem.CSP;
+import javafx.concurrent.Task;
 
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.PriorityQueue;
-import java.util.concurrent.TimeUnit;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Task implementation of the GreedyBestFirstSearch algorithm.
@@ -15,6 +17,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class BestFirstSearchTask extends Task<CSP> implements SearchAlgorithm{
     PriorityQueue<CSP> Q;
+    Set<CSP> memory; // Should be limited to 200,000 elements
     int nodes;
     int maxDurationInMillis = 60*1000;
 
@@ -30,6 +33,7 @@ public class BestFirstSearchTask extends Task<CSP> implements SearchAlgorithm{
         Q = new PriorityQueue<>(50, CSPComparactors.sortByHeuristicComparator());
         nodes = 0;
         if ( Q.isEmpty() ) Q.add(initialState);
+        memory = new HashSet<>();
     }
 
     @Override
@@ -50,11 +54,22 @@ public class BestFirstSearchTask extends Task<CSP> implements SearchAlgorithm{
                 return Q.peek();
             }
             ++nodes;
-            ArrayList<CSP> expandedNodes = Q.poll().getChildren();
-            Q.addAll(expandedNodes);
+            List<CSP> expandedNodes = Q.poll().getChildren();
+            addStatesToQueue(expandedNodes);
         }
         // No solution found.
         return null;
+    }
+
+    /**
+     * Method where successor states are added to the search queue.
+     * Additional pruning can be done here like checking if states have already been encountered.
+     * @param statesToAdd
+     */
+    private void addStatesToQueue(List<CSP> statesToAdd) {
+        List<CSP> prunedList = statesToAdd.stream().filter(e -> !memory.contains(e)).collect(Collectors.toList());
+        Q.addAll(prunedList);
+        if (memory.size() < 150000) memory.addAll(prunedList);
     }
 
     public int getNodes() {

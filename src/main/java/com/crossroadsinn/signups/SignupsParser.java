@@ -1,11 +1,14 @@
 package com.crossroadsinn.signups;
 
-import com.crossroadsinn.settings.Roles;
+import com.crossroadsinn.problem.entities.Player;
+import com.crossroadsinn.problem.entities.Role;
+import com.crossroadsinn.problem.entities.Roles;
 import com.opencsv.CSVReader;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.stream.IntStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Uses OpenCSV to parse players in a sign-up sheet.
@@ -15,7 +18,6 @@ import java.util.stream.IntStream;
 public class SignupsParser {
 
     // private static final String[] columns = {"gw2 account", "discord account", "tier", "comments", "tank", "druid", "offheal", "chrono", "alacrigade", "quickbrand", "banners", "dps"};
-    private final int[] columnIndices = {-1, -1, -1, -1, -1, -1, -1};
     private final int[] bossLvlIndices = {-1, -1, -1};
     private final boolean isSaturday = true;
 
@@ -34,9 +36,10 @@ public class SignupsParser {
             // Ignore first line
             line = parser.readNext();
             // Invalid file.
-            if (!getColumnIndices(line)) return null;
+            Map<String, Integer> columnIndices = getColumnIndices(line);
+            if (columnIndices == null) return null;
             while ((line = parser.readNext()) != null) {
-                if ((player = parsePlayer(line)) != null) players.add(player);
+                if ((player = parsePlayer(line, columnIndices)) != null) players.add(player);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -55,40 +58,41 @@ public class SignupsParser {
      * @param playerLine The line containing the player info.
      * @return The Player object.
      */
-    private Player parsePlayer(String[] playerLine) {
-        String gw2Account = playerLine[columnIndices[0]];
-        String discordName = playerLine[columnIndices[1]];
-        String discordPing = playerLine[columnIndices[2]];
-		String tier = playerLine[columnIndices[6]];
-        String comments = playerLine[columnIndices[3]];
-        int roles = 0;
-		if (!playerLine[columnIndices[5]].isBlank()) {
-			roles = 0;
-			for (String role:playerLine[columnIndices[5]].split("\\s*,\\s*")) {
-				roles += Roles.getRoleNumber(role);
-			}
-		}
-        if (roles == 0) return null;
-		if (playerLine[columnIndices[4]].isBlank()) return null;
-		String[] bossLvlChoice = playerLine[columnIndices[4]].split("\\s*,\\s*");
+    private Player parsePlayer(String[] playerLine, Map<String, Integer> columnIndices) {
+        List<String> playerRoleNames = Arrays.asList(playerLine[columnIndices.get("roles")].split("\\s*,\\s*"));
+        List<Role> playerRoles = Roles.getAllRoles().stream().filter(e ->
+                playerRoleNames.contains(e.getRoleName())
+        ).collect(Collectors.toList());
+        if (playerRoles.isEmpty()) return null;
 
-        return new Player(gw2Account, discordName, discordPing, tier, comments, roles, bossLvlChoice);
+        String gw2Account = playerLine[columnIndices.get("gw2Account")];
+        String discordName = playerLine[columnIndices.get("discordAccount")];
+        String discordPing = playerLine[columnIndices.get("discordPing")];
+        String tier = playerLine[columnIndices.get("tier")];
+        String comments = playerLine[columnIndices.get("comments")];
+
+		String[] bossLvlChoice = playerLine[columnIndices.get("trainingLevel")].split("\\s*,\\s*");
+
+        return new Player(gw2Account, discordName, discordPing, tier, comments, playerRoles, bossLvlChoice);
     }
 
-    private boolean getColumnIndices(String[] headerLine) {
+    public Map<String, Integer> getColumnIndices(String[] headerLine) {
+        Map<String, Integer> columnIndices = new HashMap<>();
         // {"gw2 account", "discord account", "tier", "comments", "tank", "druid", "offheal", "chrono", "alacrigade", "quickbrand", "banners", "dps"}
-        for (int i = 0; i < headerLine.length; ++i) {
-            String header = headerLine[i].toLowerCase();
-            if (header.contains("gw2 account")) columnIndices[0] = i;
-            else if (header.contains("discord account")) columnIndices[1] = i;
-            else if (header.contains("discord ping")) columnIndices[2] = i;
-            else if (header.contains("comments")) columnIndices[3] = i;
-            else if (header.contains("training name")) columnIndices[4] = i;
-            else if (header.equals("roles")) columnIndices[5] = i;
-            else if (header.equals("tier")) columnIndices[6] = i;
-        }
+        // Timestamp should be column 0
+        List<String> lowerCaseHeaderLine = Arrays.stream(headerLine).map(String::toLowerCase).map(String::trim).collect(Collectors.toList());
+        columnIndices.put("gw2Account", lowerCaseHeaderLine.indexOf("gw2 account"));
+        columnIndices.put("discordAccount", lowerCaseHeaderLine.indexOf("discord account"));
+        columnIndices.put("discordPing", lowerCaseHeaderLine.indexOf("discord ping"));
+        columnIndices.put("comments", lowerCaseHeaderLine.indexOf("comments"));
+        columnIndices.put("trainingLevel", lowerCaseHeaderLine.indexOf("training name"));
+        columnIndices.put("roles", lowerCaseHeaderLine.indexOf("roles"));
+        columnIndices.put("tier", lowerCaseHeaderLine.indexOf("tier"));
+
         // Valid file, no column missing.
-        return IntStream.of(columnIndices).noneMatch(e -> e == -1);
+        if (columnIndices.entrySet().stream().noneMatch(e -> e.getValue() == -1)) {
+            return columnIndices;
+        } else return null;
     }
 
 }

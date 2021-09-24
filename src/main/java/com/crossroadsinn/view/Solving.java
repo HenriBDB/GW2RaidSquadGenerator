@@ -1,7 +1,7 @@
 package com.crossroadsinn.view;
 
 import com.crossroadsinn.components.SquadsTable;
-import com.crossroadsinn.settings.Squads;
+import com.crossroadsinn.problem.entities.Squads;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
@@ -9,7 +9,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import jfxtras.styles.jmetro.JMetroStyleClass;
-import com.crossroadsinn.problem.SquadPlan;
+import com.crossroadsinn.problem.SquadCreationCSP2;
 import com.crossroadsinn.search.GreedyBestFirstSearch;
 import com.crossroadsinn.search.SolveSquadPlanTask;
 
@@ -24,7 +24,7 @@ public class Solving extends VBox implements AppContent {
     App parent;
     Label msg;
     Button mainBtn, manualBtn;
-    Task<SquadPlan> solver;
+    Task<SquadCreationCSP2> solver;
 	SquadsTable squadsTable;
 
     public Solving(App parent) {
@@ -109,7 +109,7 @@ public class Solving extends VBox implements AppContent {
      * Once the solution is found, display the solution on a Result screen.
      * If null, display failure message.
      */
-    private void displaySquads(SquadPlan solution) {
+    private void displaySquads(SquadCreationCSP2 solution) {
         if (solution == null) {
             msg.setText("Failed to generate squads.");
             mainBtn.setText("Squad Generation Failed");

@@ -1,7 +1,7 @@
 package com.crossroadsinn.view;
 
-import com.crossroadsinn.settings.Roles;
-import com.crossroadsinn.settings.Squads;
+import com.crossroadsinn.problem.entities.Roles;
+import com.crossroadsinn.problem.entities.Squads;
 import com.crossroadsinn.components.PlayerListCell;
 import com.crossroadsinn.components.PlayerListView;
 import com.crossroadsinn.components.RoleStatRow;
@@ -14,10 +14,10 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import jfxtras.styles.jmetro.JMetroStyleClass;
 import com.crossroadsinn.problem.SquadComposition;
-import com.crossroadsinn.problem.SquadPlan;
+import com.crossroadsinn.problem.SquadCreationCSP2;
 import com.crossroadsinn.problem.SquadSolution;
 import com.crossroadsinn.search.BestFirstSearchTask;
-import com.crossroadsinn.signups.Player;
+import com.crossroadsinn.problem.entities.Player;
 import com.crossroadsinn.signups.SquadSaver;
 
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public class Result extends BorderPane implements AppContent{
     }
 
     ArrayList<Player> players;
-    SquadPlan solution;
+    SquadCreationCSP2 solution;
     List<List<Player>> squads = new ArrayList<>();
     ObservableList<Player> commandersAndAides, trainees;
     HBox squadViews, assignedPlayersViews;
@@ -98,45 +98,46 @@ public class Result extends BorderPane implements AppContent{
      * Refresh the data and players displayed with up-to-date data.
      */
     public void update() {
-        if (parent.getSolution() != null) solution = parent.getSolution();
-        else solution = null;
-
-        players = Stream.of(parent.getSelectedTraineeList(), parent.getSelectedCommanderList())
-                .flatMap(Collection::stream).collect(Collectors.toCollection(ArrayList::new));
-        if (solution != null) {
-            players = solution.getAssigned().stream().map(p -> {
-                players.get(p[0]).setAssignedRole(p[1]);
-                return players.get(p[0]);
-            }).collect(Collectors.toCollection(ArrayList::new));
-        }
-
-        squads.clear();
-
-        generateStats();
-        statsTable.getItems().clear();
-        statsTable.getItems().addAll(stats.values());
-
-        commandersAndAides.clear();
-        commandersAndAides.addAll(players.stream()
-                .filter(p -> p.getTier().toLowerCase().contains("commander")
-                        || p.getTier().toLowerCase().contains("aide"))
-                .collect(Collectors.toList()));
-        trainees.clear();
-        trainees.addAll(players.stream()
-                .filter(p -> p.getTier().matches("[0123]") )
-                .collect(Collectors.toList()));
-
-        populateSquadViews();
+//        if (parent.getSolution() != null) solution = parent.getSolution();
+//        else solution = null;
+//
+//        players = Stream.of(parent.getSelectedTraineeList(), parent.getSelectedCommanderList())
+//                .flatMap(Collection::stream).collect(Collectors.toCollection(ArrayList::new));
+//        if (solution != null) {
+//            players = solution.getAssigned().stream().map(p -> {
+//                players.get(p[0]).setAssignedRole(p[1]);
+//                return players.get(p[0]);
+//            }).collect(Collectors.toCollection(ArrayList::new));
+//        }
+//
+//        squads.clear();
+//
+//        generateStats();
+//        statsTable.getItems().clear();
+//        statsTable.getItems().addAll(stats.values());
+//
+//        commandersAndAides.clear();
+//        commandersAndAides.addAll(players.stream()
+//                .filter(p -> p.getTier().toLowerCase().contains("commander")
+//                        || p.getTier().toLowerCase().contains("aide"))
+//                .collect(Collectors.toList()));
+//        trainees.clear();
+//        trainees.addAll(players.stream()
+//                .filter(p -> p.getTier().matches("[0123]") )
+//                .collect(Collectors.toList()));
+//
+//        populateSquadViews();
     }
 
     /**
      * Clear arrays and collections so view updates on init.
      */
     public void cleanup() {
-        for (Player player : players) {
-            player.setAssignedRole(0);
-            player.clearRoleListener();
-        }
+        //TODO clear from new source
+//        for (Player player : players) {
+//            player.setAssignedRole(0);
+//            player.clearRoleListener();
+//        }
         players.clear();
         parent.setSolution(null);
     }
@@ -146,12 +147,13 @@ public class Result extends BorderPane implements AppContent{
      * to allow user to drag and drop players into squads.
      */
     private void populateSquadViews() {
+        // TODO Halp
         squadViews.getChildren().clear();
         if (solution != null) {
-            for (int i = 0; i < solution.getNumSquads(); ++i) {
-                VBox squad = makeSquadDisplay(i, Squads.getSquad(solution.getSquadTypes().get(i)).getSquadName());
-                squadViews.getChildren().add(squad);
-            }
+//            for (int i = 0; i < solution.getNumSquads(); ++i) {
+//                VBox squad = makeSquadDisplay(i, Squads.getSquad(solution.getSquadTypes().get(i)).getSquadName());
+//                squadViews.getChildren().add(squad);
+//            }
         } else {
             // Make just one sample squad view.
             squadViews.getChildren().add(makeSquadDisplay(0));
@@ -212,11 +214,11 @@ public class Result extends BorderPane implements AppContent{
             if (player.getAssignedRole() == null) {
                 updateStatsClearedPlayer(player, null);
             } else updateStatsAssignedPlayer(player, false);
-
-            player.setRoleListener((e, oldVal, newVal) -> {
-                if (newVal == null) updateStatsClearedPlayer(player, oldVal);
-                else updateStatsAssignedPlayer(player, true);
-            });
+            // TODO Set event change listener on UI clicks instead
+//            player.setRoleListener((e, oldVal, newVal) -> {
+//                if (newVal == null) updateStatsClearedPlayer(player, oldVal);
+//                else updateStatsAssignedPlayer(player, true);
+//            });
         }
     }
 
@@ -350,17 +352,18 @@ public class Result extends BorderPane implements AppContent{
      * Fill trainees into squads automatically.
      */
     private void autoFillTrainees() {
-        SquadComposition initialState = new SquadComposition(Stream.of(commandersAndAides, trainees)
-                .flatMap(Collection::stream).collect(Collectors.toList()), squads, parent.getSolution().getSquadTypes());
-        solver = new BestFirstSearchTask(initialState);
-        solver.setOnSucceeded(t -> {
-            if (solver.getValue() == null) setSquads(null);
-            else setSquads(((SquadComposition) solver.getValue()).getSquads());
-            autoFill.setText(AUTO_FILL_TEXT);
-            solver = null;
-        });
-        Thread thread = new Thread(solver);
-        thread.start();
+        //TODO Simplify
+//        SquadComposition initialState = new SquadComposition(Stream.of(commandersAndAides, trainees)
+//                .flatMap(Collection::stream).collect(Collectors.toList()), squads, parent.getSolution().getSquadTypes());
+//        solver = new BestFirstSearchTask(initialState);
+//        solver.setOnSucceeded(t -> {
+//            if (solver.getValue() == null) setSquads(null);
+//            else setSquads(((SquadComposition) solver.getValue()).getSquads());
+//            autoFill.setText(AUTO_FILL_TEXT);
+//            solver = null;
+//        });
+//        Thread thread = new Thread(solver);
+//        thread.start();
     }
 
     /**

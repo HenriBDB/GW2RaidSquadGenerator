@@ -1,4 +1,4 @@
-package com.crossroadsinn.settings;
+package com.crossroadsinn.problem.entities;
 
 import com.opencsv.CSVReader;
 
@@ -7,9 +7,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Random;
+import java.util.*;
 
 
 /**
@@ -18,9 +16,7 @@ import java.util.Random;
  * @version 1.1
  */
 public class Roles {
-	private static final Hashtable<String, Integer> roleToNumber = new Hashtable<>();
-	private static final Hashtable<Integer, Role> roles = new Hashtable<>();
-	private static int roleCounter = 1;
+	private static final HashMap<String, Role> roles = new HashMap<>();
 	public static void init() {
 		try {
 			File csvFile = new File("roles.csv");
@@ -37,52 +33,15 @@ public class Roles {
     }
 	
 	public static void addRole(String roleHandle, String roleName, String boons, String specialRoles, boolean commRole) {
-		roleToNumber.put(roleHandle,roleCounter);
-		roles.put(roleCounter,new Role(roleCounter,roleHandle,roleName,boons,specialRoles, commRole));
-		roleCounter = roleCounter*2;		
+		roles.put(roleHandle,new Role(roleHandle,roleName,boons,specialRoles, commRole));
 	}
 	
-	public static int getRoleNumber(String roleHandle) {
-		return ((roleToNumber.getOrDefault(roleHandle, 0)));
+	public static Role getRole(String roleHandle) {
+		return roles.get(roleHandle);
 	}
 	
-	public static String getRoleName(int roleNumber) {
-		return ((roles.containsKey(roleNumber)) ? roles.get(roleNumber).getRoleName() : "");
-	}
-	
-	public static Role getRole(int roleNumber) {
-		return roles.get(roleNumber);
-	}
-	
-	public static ArrayList<Role> getAllRoles() {
+	public static List<Role> getAllRoles() {
 		return new ArrayList<>(roles.values());
-	}
-	
-	public static int getRoleCounter() {
-		return roleCounter;
-	}
-	
-	public static int[] getAllRolesNumbers() {
-		int[] rolesNumbers = new int[roles.size()];
-		int i = 0;
-		for(int key:roles.keySet()) {
-			rolesNumbers[i] = key;
-			i++;
-		}
-		//shuffle dat bitch so roles come in a random order for more randomness when trying to assign
-		int index;
-		Random random = new Random();
-		for (i = rolesNumbers.length - 1; i > 0; i--)
-		{
-			index = random.nextInt(i + 1);
-			if (index != i)
-			{
-				rolesNumbers[index] ^= rolesNumbers[i];
-				rolesNumbers[i] ^= rolesNumbers[index];
-				rolesNumbers[index] ^= rolesNumbers[i];
-			}
-		}
-		return rolesNumbers;
 	}
 	
 	public static String[] getAllRolesAsStrings() {
@@ -93,6 +52,14 @@ public class Roles {
 			i++;
 		}
 		return rolesString;
+	}
+
+	public static List<Role> getAllSpecifiedRoles(String... roleHandles) {
+		List<Role> roleList = new ArrayList<>();
+		for (String role : roleHandles) {
+			roleList.add(roles.get(role));
+		}
+		return roleList;
 	}
 	
     /**
@@ -130,7 +97,7 @@ public class Roles {
 		String roleName = roleLine[1].trim();
 		String boons = roleLine[2].trim();
 		String specialRoles = roleLine[3].trim();
-		Boolean commRole = (roleLine[4].toLowerCase().contains("true")) ? true : false;
+		boolean commRole = roleLine[4].toLowerCase().contains("true");
 		addRole(roleHandle,roleName,boons,specialRoles,commRole);		
 	}
 		

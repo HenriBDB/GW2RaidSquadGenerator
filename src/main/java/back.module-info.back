@@ -1,4 +1,4 @@
-module com.crossroadsinn.squadmaker {
+module com.crossroadsinn {
     requires javafx.graphics;
     requires javafx.base;
     requires org.jfxtras.styles.jmetro;
@@ -11,6 +11,7 @@ module com.crossroadsinn.squadmaker {
     exports com.crossroadsinn.signups;
     exports com.crossroadsinn.components;
     exports com.crossroadsinn.problem;
+    exports com.crossroadsinn.problem.entities;
     exports com.crossroadsinn.settings;
     exports com.crossroadsinn;
 }

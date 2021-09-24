@@ -1,8 +1,8 @@
-package com.crossroadsinn.settings;
+package com.crossroadsinn.problem.entities;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Hashtable;
+import java.util.HashMap;
 /**
  * A class that can hold information about a role.
  * @author moon
@@ -10,15 +10,13 @@ import java.util.Hashtable;
  */
  
 public class Role {
-	private final int roleBit;
     private final String roleHandle;
     private final String roleName;
     private final boolean commRole;
-	private final Hashtable<String, Integer> boons = new Hashtable<>();
+	private final HashMap<BoonCounter.Boon, Integer> boons = new HashMap<>();
     private final ArrayList<String> specialRoles = new ArrayList<>();
 
-    public Role(int roleBit, String roleHandle, String roleName, String Boons, String specialRoles, boolean commRole) {
-		this.roleBit = roleBit;
+    public Role(String roleHandle, String roleName, String Boons, String specialRoles, boolean commRole) {
         this.roleHandle = roleHandle;
         this.roleName = roleName;
         this.commRole = commRole;
@@ -26,9 +24,9 @@ public class Role {
 			for (String part:Boons.split("\\s*,\\s*")) {
 				String[] BoonsValuePair = part.split("\\s*:\\s*");
 				if (boons.containsKey(BoonsValuePair[0])) {
-					boons.put(BoonsValuePair[0],boons.get(BoonsValuePair[0])+Integer.parseInt(BoonsValuePair[1]));
+					boons.put(BoonCounter.Boon.valueOf(BoonsValuePair[0].toUpperCase()),boons.get(BoonsValuePair[0])+Integer.parseInt(BoonsValuePair[1]));
 				} else {
-					boons.put(BoonsValuePair[0],Integer.parseInt(BoonsValuePair[1]));
+					boons.put(BoonCounter.Boon.valueOf(BoonsValuePair[0].toUpperCase()),Integer.parseInt(BoonsValuePair[1]));
 				}
 			}
 		}
@@ -45,11 +43,8 @@ public class Role {
         return roleHandle;
     }
     public String getRoleName() {
-        return roleName;
-    }	
-	public int getRoleBit() {
-        return roleBit;
-    }	
+		return roleName;
+	}
 	public boolean getCommRole() {
         return commRole;
     }	
@@ -58,15 +53,18 @@ public class Role {
         return ((specialRoles.contains("dps")) ? 1 : 0);
     }	
 	
-	public int getBoonAmount(String boon) {
-		return (boons.getOrDefault(boon, 0));
+	public int getBoonAmount(BoonCounter.Boon boon) {
+		return boons.getOrDefault(boon, 0);
+	}
+	public int getBoonAmount(String name) {
+    	return boons.getOrDefault(BoonCounter.Boon.valueOf(name), 0);
 	}
 	
 	public int getIfRole(String role) {
 		return ((specialRoles.contains(role)) ? 1 : 0);
 	}
 	
-	public Hashtable<String, Integer> getBoons() {
+	public HashMap<BoonCounter.Boon, Integer> getBoons() {
         return boons;
     }
     public ArrayList<String> getSpecialRoles() {

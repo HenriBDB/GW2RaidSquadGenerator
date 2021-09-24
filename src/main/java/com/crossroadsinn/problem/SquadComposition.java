@@ -1,7 +1,7 @@
 package com.crossroadsinn.problem;
 
-import com.crossroadsinn.signups.Player;
-import com.crossroadsinn.settings.Squads;
+import com.crossroadsinn.problem.entities.Player;
+import com.crossroadsinn.problem.entities.Squads;
 
 import java.util.*;
 import java.util.ArrayList;
@@ -86,22 +86,22 @@ public class SquadComposition implements CSP {
 				reqSpecialRoles.put(entry.getKey(),entry.getValue());
 			}
 				
-			for (Map.Entry<String, Integer> entry : Squads.getSquad(squadTypes.get(i)).getReqBoons().entrySet()) {
-				reqBoons.put(entry.getKey(),entry.getValue());
-			}
+//			for (Map.Entry<String, Integer> entry : Squads.getSquad(squadTypes.get(i)).getReqBoons().entrySet()) {
+//				reqBoons.put(entry.getKey(),entry.getValue());
+//			}
 			
-			//remove every special role for each player and check if there is too many of said role
-			//same for boons
-			for (Player player:squad) {
-				for (String key:reqSpecialRoles.keySet()) {
-					reqSpecialRoles.put(key,reqSpecialRoles.get(key)-player.getAssignedRoleObj().getIfRole(key));
-					if (reqSpecialRoles.get(key)<0) return false;
-				}
-				for (String key:reqBoons.keySet()) {
-					reqBoons.put(key,reqBoons.get(key)-player.getAssignedRoleObj().getBoonAmount(key));
-					if (reqBoons.get(key)<0) return false;
-				}
-			}
+//			//remove every special role for each player and check if there is too many of said role
+//			//same for boons
+//			for (Player player:squad) {
+//				for (String key:reqSpecialRoles.keySet()) {
+//					reqSpecialRoles.put(key,reqSpecialRoles.get(key)-player.getAssignedRoleObj().getIfRole(key));
+//					if (reqSpecialRoles.get(key)<0) return false;
+//				}
+//				for (String key:reqBoons.keySet()) {
+//					reqBoons.put(key,reqBoons.get(key)-player.getAssignedRoleObj().getBoonAmount(key));
+//					if (reqBoons.get(key)<0) return false;
+//				}
+//			}
 			
 			//check if any role is not fulfilled if squad has 10 peepos
 			if (squad.size() == 10) {

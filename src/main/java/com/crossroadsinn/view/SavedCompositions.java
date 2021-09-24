@@ -11,7 +11,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import jfxtras.styles.jmetro.JMetroStyleClass;
 import com.crossroadsinn.problem.SquadSolution;
-import com.crossroadsinn.signups.Player;
+import com.crossroadsinn.problem.entities.Player;
 import com.crossroadsinn.signups.SquadSaver;
 
 import java.time.LocalDate;

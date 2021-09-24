@@ -1,18 +1,16 @@
 package com.crossroadsinn;
 
 import com.crossroadsinn.settings.Settings;
-import com.crossroadsinn.settings.Roles;
-import com.crossroadsinn.settings.Squads;
+import com.crossroadsinn.problem.entities.Roles;
+import com.crossroadsinn.problem.entities.Squads;
 import com.crossroadsinn.components.ThemeListener;
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import jfxtras.styles.jmetro.JMetro;
 import jfxtras.styles.jmetro.Style;
 import com.crossroadsinn.view.App;
 
-import java.io.File;
 import java.util.ArrayList;
 
 /**

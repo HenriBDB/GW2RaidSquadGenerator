@@ -13,8 +13,8 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import jfxtras.styles.jmetro.JMetroStyleClass;
-import com.crossroadsinn.signups.Commander;
-import com.crossroadsinn.signups.Player;
+import com.crossroadsinn.problem.entities.Commander;
+import com.crossroadsinn.problem.entities.Player;
 import com.crossroadsinn.signups.SignupsParser;
 
 import java.io.*;

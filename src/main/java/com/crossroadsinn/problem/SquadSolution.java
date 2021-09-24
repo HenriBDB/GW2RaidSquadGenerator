@@ -1,6 +1,6 @@
 package com.crossroadsinn.problem;
 
-import com.crossroadsinn.signups.Player;
+import com.crossroadsinn.problem.entities.Player;
 
 import java.util.ArrayList;
 import java.util.List;

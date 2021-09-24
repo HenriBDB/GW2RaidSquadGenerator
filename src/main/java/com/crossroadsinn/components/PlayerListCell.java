@@ -13,7 +13,7 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
-import com.crossroadsinn.signups.Player;
+import com.crossroadsinn.problem.entities.Player;
 
 /**
  * Custom ListView cell that stores and displays a player.
@@ -105,7 +105,7 @@ public class PlayerListCell extends ListCell<Player> {
         if (player != null) {
             if (player.getAssignedRole() == null) {
                 if (RoleSelectPopUp.assignPlayerRolePopup(player, roleFilter)) setGraphic(getCellGraphic());
-            } else player.setAssignedRole(0);
+            } else player.setAssignedRole(null);
             setGraphic(getCellGraphic());
         }
     }

@@ -7,7 +7,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import jfxtras.styles.jmetro.JMetroStyleClass;
-import com.crossroadsinn.signups.Player;
+import com.crossroadsinn.problem.entities.Player;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -70,23 +70,23 @@ public class CommanderSelect extends BorderPane implements AppContent{
      * Confirm choice of commanders and aides and move on to planning the Squad.
      */
     private void confirmChoices() {
-        try {
-            App parent = (App) getParent();
-            if (commanderTable.getItems().stream().anyMatch(p -> p.getChosenRoles().get() != 0)) {
-                ArrayList<Player> selectedCommanders = commanderTable.getItems()
-                        .stream().filter(p -> p.getChosenRoles().get() != 0)
-                        .map(c -> {
-                            Player p = new Player(c);
-                            p.setRoles(c.getChosenRoles().get());
-                            return p;
-                        }).collect(Collectors.toCollection(ArrayList::new));
-                parent.setSelectedCommanderList(selectedCommanders);
-                parent.navigateSolving();
-            } else {
-                confirmMsg.setText("Please select at least one commander.");
-            }
-        } catch (ClassCastException e) {
-            confirmMsg.setText("An error occurred...");
-        }
+//        try {
+//            App parent = (App) getParent();
+//            if (commanderTable.getItems().stream().anyMatch(p -> p.getChosenRoles().get() != 0)) {
+//                ArrayList<Player> selectedCommanders = commanderTable.getItems()
+//                        .stream().filter(p -> p.getChosenRoles().get() != 0)
+//                        .map(c -> {
+//                            Player p = new Player(c);
+//                            p.setRoles(c.getChosenRoles().get());
+//                            return p;
+//                        }).collect(Collectors.toCollection(ArrayList::new));
+//                parent.setSelectedCommanderList(selectedCommanders);
+//                parent.navigateSolving();
+//            } else {
+//                confirmMsg.setText("Please select at least one commander.");
+//            }
+//        } catch (ClassCastException e) {
+//            confirmMsg.setText("An error occurred...");
+//        }
     }
 }

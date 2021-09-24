@@ -2,7 +2,7 @@ package com.crossroadsinn.search;
 
 import com.crossroadsinn.problem.CSP;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.PriorityQueue;
 
 /**
@@ -45,7 +45,7 @@ public class GreedyBestFirstSearch implements SearchAlgorithm{
             }
             ++nodes;
             assert Q.peek() != null;
-            ArrayList<CSP> expandedNodes = Q.poll().getChildren();
+            List<CSP> expandedNodes = Q.poll().getChildren();
             Q.addAll(expandedNodes);
         }
         // No solution found.

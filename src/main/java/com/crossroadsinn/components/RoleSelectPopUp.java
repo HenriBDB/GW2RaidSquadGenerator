@@ -1,6 +1,6 @@
 package com.crossroadsinn.components;
 
-import com.crossroadsinn.settings.Role;
+import com.crossroadsinn.problem.entities.Role;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
@@ -11,7 +11,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import jfxtras.styles.jmetro.JMetro;
-import com.crossroadsinn.signups.Player;
+import com.crossroadsinn.problem.entities.Player;
 import com.crossroadsinn.Main;
 
 import java.util.Arrays;
@@ -33,23 +33,24 @@ public class RoleSelectPopUp {
      * @return the ComboBox with role names.
      */
     private static ComboBox<Role> getDropDownSelector(Player player, String filteredRole) {
-        ComboBox<Role> dropDownSelector = new ComboBox<>();
-		for (Role role:player.getRoleObj()) {
-			dropDownSelector.getItems().add(role);
-		}
-        if (filteredRole == null || Arrays.stream(player.getRoleList()).noneMatch(Objects.requireNonNull(filteredRole)::equals)) {
-            dropDownSelector.getSelectionModel().selectFirst();
-        }
-        else {
-			//try to find a role with the same name
-			for (Role role:player.getRoleObj()) {
-				if (role.getRoleName() == filteredRole) {
-					dropDownSelector.getSelectionModel().select(role);
-					break;
-				} else dropDownSelector.getSelectionModel().selectFirst();
-			}
-        }
-        return dropDownSelector;
+//        ComboBox<Role> dropDownSelector = new ComboBox<>();
+//		for (Role role:player.getRoleObj()) {
+//			dropDownSelector.getItems().add(role);
+//		}
+//        if (filteredRole == null || Arrays.stream(player.getRoleList()).noneMatch(Objects.requireNonNull(filteredRole)::equals)) {
+//            dropDownSelector.getSelectionModel().selectFirst();
+//        }
+//        else {
+//			//try to find a role with the same name
+//			for (Role role:player.getRoleObj()) {
+//				if (role.getRoleName() == filteredRole) {
+//					dropDownSelector.getSelectionModel().select(role);
+//					break;
+//				} else dropDownSelector.getSelectionModel().selectFirst();
+//			}
+//        }
+//        return dropDownSelector;
+        return null;
     }
 
     /**

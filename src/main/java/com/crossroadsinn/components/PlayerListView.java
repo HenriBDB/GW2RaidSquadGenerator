@@ -1,12 +1,13 @@
 package com.crossroadsinn.components;
 
+import com.crossroadsinn.problem.entities.Roles;
 import com.crossroadsinn.settings.Settings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.scene.control.ListView;
 import javafx.scene.input.TransferMode;
-import com.crossroadsinn.signups.Player;
+import com.crossroadsinn.problem.entities.Player;
 import java.util.Comparator;
 import java.util.List;
 
@@ -16,8 +17,6 @@ import java.util.List;
  * @version 1.0
  */
 public class PlayerListView extends ListView<Player> {
-
-    private static final String[] ROLE_ORDER = {"Chrono Tank", "Heal FB", "Heal Renegade", "Alacrigade", "Quickness FB", "Quickness Chrono", "Offchrono", "Druid", "Offheal", "Banners", "DPS"};
 
     public PlayerListView() {
         this(FXCollections.observableArrayList());
@@ -43,11 +42,8 @@ public class PlayerListView extends ListView<Player> {
     }
 
     private static int getRoleOrder(Player player) {
-        if (player.getAssignedRole() == null) return ROLE_ORDER.length;
-        for (int i = 0; i < ROLE_ORDER.length; ++i) {
-            if (player.getAssignedRole().equals(ROLE_ORDER[i])) return i;
-        }
-        return ROLE_ORDER.length;
+        if (player.getAssignedRole() == null) return Roles.getAllRoles().size();
+        return Roles.getAllRoles().indexOf(player.getAssignedRole());
     }
 
     /**

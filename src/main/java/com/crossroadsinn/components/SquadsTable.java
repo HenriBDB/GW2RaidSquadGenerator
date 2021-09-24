@@ -1,6 +1,6 @@
 package com.crossroadsinn.components;
 
-import com.crossroadsinn.settings.Squad;
+import com.crossroadsinn.problem.entities.Squad;
 import com.crossroadsinn.settings.Settings;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;

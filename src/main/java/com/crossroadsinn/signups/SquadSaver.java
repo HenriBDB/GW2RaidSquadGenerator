@@ -1,6 +1,7 @@
 package com.crossroadsinn.signups;
 
 import com.crossroadsinn.Main;
+import com.crossroadsinn.problem.entities.Player;
 import com.opencsv.CSVWriter;
 import com.crossroadsinn.problem.SquadSolution;
 import javafx.stage.FileChooser;
@@ -119,16 +120,16 @@ public class SquadSaver {
      * @param writer The CSV writer object.
      */
     private static void writeSquad(String compName, List<List<Player>> squadList, CSVWriter writer) {
-        writer.writeNext(new String[]{compName});
-        writer.writeNext(new String[0]);
-        for (int i = 0; i < squadList.size(); ++i) {
-            writer.writeNext(new String[]{"Squad " + (i + 1)});
-            for (Player player : squadList.get(i)) {
-                writer.writeNext(new String[]{player.getGw2Account(), player.getDiscordName(),
-                        player.getAssignedRole(), player.getTier()});
-            }
-            writer.writeNext(new String[0]); // Empty line;
-        }
+//        writer.writeNext(new String[]{compName});
+//        writer.writeNext(new String[0]);
+//        for (int i = 0; i < squadList.size(); ++i) {
+//            writer.writeNext(new String[]{"Squad " + (i + 1)});
+//            for (Player player : squadList.get(i)) {
+//                writer.writeNext(new String[]{player.getGw2Account(), player.getDiscordName(),
+//                        player.getAssignedRole(), player.getTier()});
+//            }
+//            writer.writeNext(new String[0]); // Empty line;
+//        }
     }
 
     /**
@@ -150,19 +151,20 @@ public class SquadSaver {
     }
 
     private static String[] playerLine(Player player, String day, String squad, String squadType) {
-        boolean isComm = player.getTier().toLowerCase().equals("commander") || player.getTier().toLowerCase().equals("aide");
-        String[] roles = player.getRoleList();
-        ArrayList<String> line = new ArrayList<>();
-        line.add(isComm ? player.getTier() : player.getGw2Account());
-        line.add(player.getDiscordName().isEmpty() ? player.getGw2Account() : player.getDiscordName());
-        line.add(day);
-        line.add(squad);
-        line.add(squadType);
-        line.add(player.getAssignedRole() != null ? player.getAssignedRole() : "");
-        line.add(isComm ? "-" : player.getTier());
-        line.add(player.getBossLvlChoiceAsString());
-        line.addAll(Arrays.asList(roles));
-        return line.toArray(new String[0]);
+//        boolean isComm = player.getTier().toLowerCase().equals("commander") || player.getTier().toLowerCase().equals("aide");
+//        String[] roles = player.getRoleList();
+//        ArrayList<String> line = new ArrayList<>();
+//        line.add(isComm ? player.getTier() : player.getGw2Account());
+//        line.add(player.getDiscordName().isEmpty() ? player.getGw2Account() : player.getDiscordName());
+//        line.add(day);
+//        line.add(squad);
+//        line.add(squadType);
+//        line.add(player.getAssignedRole() != null ? player.getAssignedRole() : "");
+//        line.add(isComm ? "-" : player.getTier());
+//        line.add(player.getBossLvlChoiceAsString());
+//        line.addAll(Arrays.asList(roles));
+//        return line.toArray(new String[0]);
+        return null;
     }
 
     /**

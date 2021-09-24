@@ -1,10 +1,10 @@
 package com.crossroadsinn.view;
 
-import com.crossroadsinn.problem.SquadPlan;
+import com.crossroadsinn.problem.SquadCreationCSP2;
 import com.crossroadsinn.problem.SquadSolution;
 import com.crossroadsinn.settings.Settings;
-import com.crossroadsinn.signups.Commander;
-import com.crossroadsinn.signups.Player;
+import com.crossroadsinn.problem.entities.Commander;
+import com.crossroadsinn.problem.entities.Player;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -37,7 +37,7 @@ public class App extends BorderPane {
     private ArrayList<Player> traineeList, selectedCommanderList, selectedTraineeList;
     private ArrayList<Commander> commanderList;
     private final List<SquadSolution> savedSolutions = new ArrayList<>();
-    private SquadPlan solution;
+    private SquadCreationCSP2 solution;
 
     public App() {
         getStyleClass().add(JMetroStyleClass.BACKGROUND);
@@ -83,11 +83,11 @@ public class App extends BorderPane {
         this.selectedTraineeList = selectedTraineeList;
     }
 
-    public SquadPlan getSolution() {
+    public SquadCreationCSP2 getSolution() {
         return solution;
     }
 
-    public void setSolution(SquadPlan solution) {
+    public void setSolution(SquadCreationCSP2 solution) {
         this.solution = solution;
         updateMenubar();
     }

@@ -1,13 +1,17 @@
 package com.crossroadsinn.components;
 
-import com.crossroadsinn.settings.Role;
-import com.crossroadsinn.settings.Roles;
+import com.crossroadsinn.problem.entities.Role;
+import com.crossroadsinn.problem.entities.Roles;
 import com.crossroadsinn.settings.Settings;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import com.crossroadsinn.signups.Commander;
+import com.crossroadsinn.problem.entities.Commander;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Creates a table of commanders where each column is populated with
@@ -29,9 +33,9 @@ public class CommanderTable extends TableView<Commander> {
      * Creates the columns and associates the cell factories.
      */
     private void init() {
-        TableColumn<Commander, Number> checkAll = new TableColumn<>();
-        checkAll.setCellValueFactory(f -> f.getValue().getChosenRoles());
-        checkAll.setCellFactory(p -> new RoleCell(Roles.getRoleCounter()*2-1));
+        TableColumn<Commander, Set<Role>> checkAll = new TableColumn<>();
+        checkAll.setCellValueFactory(new PropertyValueFactory<>("chosenRoles"));
+        checkAll.setCellFactory(p -> new RoleCell(new HashSet<>(Roles.getAllRoles())));
         checkAll.setPrefWidth(40);
 
         TableColumn<Commander, String> name = new TableColumn<>("Name");
@@ -41,9 +45,13 @@ public class CommanderTable extends TableView<Commander> {
 		
 		for(Role role:Roles.getAllRoles()) {
 			if (!role.getCommRole()) continue;
-			TableColumn<Commander, Number> col = new TableColumn<>(role.getRoleName());
-			col.setCellValueFactory(f -> f.getValue().getChosenRoles());
-			col.setCellFactory(p -> new RoleCell(role.getRoleBit()));
+			TableColumn<Commander, Set<Role>> col = new TableColumn<>(role.getRoleName());
+            checkAll.setCellValueFactory(new PropertyValueFactory<>("chosenRoles"));
+			col.setCellFactory(p -> {
+			    Set<Role> roleSet = new HashSet<>();
+			    roleSet.add(role);
+                return new RoleCell(new HashSet<Role>(roleSet));
+            });
 			getColumns().add(col);
 		}
     }

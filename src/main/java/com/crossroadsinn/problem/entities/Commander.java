@@ -1,7 +1,8 @@
-package com.crossroadsinn.signups;
+package com.crossroadsinn.problem.entities;
 
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Wrapper class for a player with an Integer property that
@@ -12,22 +13,21 @@ import javafx.beans.property.SimpleIntegerProperty;
  */
 public class Commander extends Player {
 
-    IntegerProperty chosenRoles;
+    private Set<Role> chosenRoles = new HashSet<>();
 
-    public Commander(String gw2Account, String discordName, String tier, String comments, int roles, String[] ComBossLevelChoice) {
+    public Commander(String gw2Account, String discordName, String tier, String comments, List<Role> roles, String[] ComBossLevelChoice) {
         super(gw2Account, discordName, tier, comments, roles, ComBossLevelChoice);
-        chosenRoles = new SimpleIntegerProperty(0);
     }
 
     public Commander(Player player) {
         this(player.getGw2Account(), player.getDiscordName(), player.getTier(), player.getComments(), player.getRoles(), player.getBossLvlChoice());
     }
 
-    public IntegerProperty getChosenRoles() {
+    public Set<Role> getChosenRoles() {
         return chosenRoles;
     }
 
-    public void setChosenRoles(int chosenRoles) {
-        this.chosenRoles.set(chosenRoles);
+    public void setChosenRoles(Set<Role> chosenRoles) {
+        this.chosenRoles = chosenRoles;
     }
 }
