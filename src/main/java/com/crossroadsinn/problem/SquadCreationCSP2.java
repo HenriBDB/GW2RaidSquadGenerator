@@ -24,7 +24,7 @@ public class SquadCreationCSP2 implements CSP {
         squads = new ArrayList<>();
         boonCounter = new BoonCounter();
         squadHandles.forEach((squadHandle,amount) -> {
-            for(int i = 0; i<amount; ++i) squads.add(Squads.getSquad(squadHandle));
+            for(int i = 0; i<amount; ++i) squads.add(new Squad(Squads.getSquad(squadHandle)));
         });
         setAvailableBoons();
     }
@@ -54,15 +54,6 @@ public class SquadCreationCSP2 implements CSP {
     public void assignPlayerRole(Player player, Role role, Squad modelSquad) {
         for (Squad squad : squads) {
             if (squad.equals(modelSquad)) {
-                squad.addPlayer(player, role);
-                break;
-            }
-        }
-    }
-
-    public void assignPlayerReqRole(Player player, Role role) {
-        for (Squad squad : squads) {
-            if (squad.isValidCandidate(role)) {
                 squad.addPlayer(player, role);
                 break;
             }
@@ -100,13 +91,14 @@ public class SquadCreationCSP2 implements CSP {
 
     private List<CSP> assignAllPlayersToSquadThatMatchRoleConstraint(String roleHandle, boolean isRole) {
         // Get num req
-        int numRequired;
-        if (isRole) numRequired = squads.stream()
+        int[] numRequiredPerSquad;
+        if (isRole) numRequiredPerSquad = squads.stream()
                 .mapToInt(e -> e.getReqRoles().getOrDefault(roleHandle, 0))
-                .sum();
-        else numRequired = squads.stream()
+                .toArray();
+        else numRequiredPerSquad = squads.stream()
                 .mapToInt(e -> e.getReqSpecialRoles().getOrDefault(roleHandle, 0))
-                .sum();
+                .toArray();
+        int numRequired = Arrays.stream(numRequiredPerSquad).sum();
 
         // Find combinations of valid players
         //TODO make more efficient
@@ -132,8 +124,7 @@ public class SquadCreationCSP2 implements CSP {
         // Transform combinations into states amd prune invalid states
         // Return children state
         return combinations.stream()
-                .map(c -> playerCombinationToState(c, validRoles))
-                .filter(Objects::nonNull)
+                .map(c -> simplePlayerCombinationToState(c, numRequiredPerSquad, validRoles))
                 .filter(SquadCreationCSP2::isValidState)
                 .collect(Collectors.toList());
     }
@@ -158,18 +149,20 @@ public class SquadCreationCSP2 implements CSP {
      * Helper Methods
      */
 
-    private SquadCreationCSP2 playerCombinationToState(Player[] combi, List<Role> validRoles) {
-        if (validRoles.isEmpty()) return null;
+    private SquadCreationCSP2 simplePlayerCombinationToState(Player[] combination, int[] squadDistribution, List<Role> validRoles) {
+        int curr = 0;
+        boolean onlyOneRole = validRoles.size() == 1;
         SquadCreationCSP2 newState = new SquadCreationCSP2(this);
-        if (validRoles.size() == 1) {
-            for (Player p : combi) {
-                newState.assignPlayerReqRole(p, validRoles.get(0));
-            }
-        } else {
-            for (Player p : combi) {
-                // Assumes valid role will be found based on previous filtering
-                Role role = p.getRoles().stream().filter(validRoles::contains).findFirst().get();
-                newState.assignPlayerReqRole(p, role);
+        List<Squad> squads = newState.squads;
+        for (int i = 0; i < squadDistribution.length; ++i) {
+            for (int j = 0; j < squadDistribution[i]; ++j) {
+                if (onlyOneRole) squads.get(i).addPlayer(combination[curr], validRoles.get(0));
+                else {
+                    Role role = combination[curr].getRoles().stream().filter(validRoles::contains).findFirst().get();
+                    squads.get(i).addPlayer(combination[curr], role);
+                }
+                newState.players.remove(combination[curr]);
+                ++curr;
             }
         }
         return newState;

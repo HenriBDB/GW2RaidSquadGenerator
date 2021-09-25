@@ -39,6 +39,11 @@ public class SquadCreationCSP2Test {
     }
 
     @Test
+    public void test5ClassicSquadCreation() {
+        testClassicSquadsCreation(5);
+    }
+
+    @Test
     public void testMultipleClassicSquadCreation() {
         int numSquads = 2;
         List<Player> playerList = create10ManDefaultSquadAndPlayers(numSquads);
